@@ -11,8 +11,6 @@ module.exports = {
     'plugin:import/errors',
     'plugin:import/warnings',
     'plugin:import/typescript',
-    'plugin:functional/no-mutations',
-    'plugin:functional/no-exceptions',
     'plugin:mocha/recommended',
   ],
   globals: {
@@ -31,8 +29,7 @@ module.exports = {
     '@typescript-eslint',
   ],
   rules: {
-    complexity: ['error', 2],
-    'max-params': ['error'],
+    complexity: ['error', 4],
     'no-param-reassign': ['error'],
     '@typescript-eslint/member-delimiter-style': ['off'],
     '@typescript-eslint/no-use-before-define': ['off'],
@@ -48,5 +45,21 @@ module.exports = {
       it: true,
     },
     rules: {},
-  },]
+  }, {
+    files: ['tests/**/*.step.ts'],
+    env: {},
+    globals: {},
+    rules: {},
+  }, {
+    files: ['src/**/*.ts'],
+    env: {},
+    globals: {},
+    rules: {
+      'max-params': ['error'],
+    },
+    extends: [
+      'plugin:functional/no-mutations',
+      'plugin:functional/no-exceptions'
+    ]
+  }]
 }

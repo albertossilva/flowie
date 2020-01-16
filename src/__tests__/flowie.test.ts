@@ -24,7 +24,7 @@ describe('flowie', function () {
       const secondFunction = createSimpleFunctionMock(firstFunctionReturn, finalResult)
 
       const { result } = await flowie(firstFunction)
-        .pipeTo(secondFunction)
+        .pipe(secondFunction)
         .executeFlow(parameter)
 
       assert.equal(result, finalResult)
@@ -37,17 +37,17 @@ describe('flowie', function () {
 
       const lastFunction = createSimpleFunctionMock(firstFunctionReturn, finalResult)
 
-      const { result } = await flowie(firstFunction)
-        .pipeTo(middleWareFunction)
-        .pipeTo(middleWareFunction)
-        .pipeTo(middleWareFunction)
-        .pipeTo(middleWareFunction)
-        .pipeTo(middleWareFunction)
-        .pipeTo(middleWareFunction)
-        .pipeTo(lastFunction)
+      const bla = await flowie(firstFunction)
+        .pipe(middleWareFunction)
+        .pipe(middleWareFunction)
+        .pipe(middleWareFunction)
+        .pipe(middleWareFunction)
+        .pipe(middleWareFunction)
+        .pipe(middleWareFunction)
+        .pipe(lastFunction)
         .executeFlow(parameter)
 
-      assert.equal(result, finalResult);
+      assert.equal(bla.result, finalResult);
       (middleWareFunction as any).verify()
     })
   })

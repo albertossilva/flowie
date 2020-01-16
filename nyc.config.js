@@ -1,6 +1,6 @@
 module.exports = {
   cache: false,
-  include: ['src/*ts', 'src/**/*ts'],
+  include: ['src/**/*.ts', 'tests/**/*.ts'],
   exclude: [],
   extension: ['.ts'],
   reporter: ['lcov', 'text', 'text-summary', 'html'],

@@ -7,7 +7,7 @@
     "target": "es2020"
   },
   "files": [
-    "src/flowie.ts"
+    "src/flowieApi.ts"
   ],
   "exclude": [
     "node_modules"
