@@ -16,7 +16,7 @@ Given(
 )
 
 Given(
-  'a registered function called {string} that receives {string} and return {string}',
+  'a registered function called {string} that receives {string} and returns {string}',
   function (this: FlowieTestsWorld, functionName: string, input: string, output: string) {
     this.flowieContainer = this.flowieContainer.register(functionName, generateWithInputAndOutputFunction(functionName, input, output))
   }
