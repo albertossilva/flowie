@@ -1,6 +1,6 @@
 export default function createFlowieContainer (): FlowieContainer {
   return {
-    functionsContainer: {},
+    functionsContainer: Object.freeze({}),
     register (flowItemName: string, flowFunction: Function): FlowieContainer {
       return registerFlowieItem({}, flowItemName, flowFunction)
     }
@@ -8,7 +8,7 @@ export default function createFlowieContainer (): FlowieContainer {
 }
 
 function registerFlowieItem (previousFunctionsContainer: FunctionsContainer, flowItemName: string, flowFunction: Function): FlowieContainer {
-  const newFunctionsContainer = { ...previousFunctionsContainer, [flowItemName]: flowFunction }
+  const newFunctionsContainer = Object.freeze({ ...previousFunctionsContainer, [flowItemName]: flowFunction })
 
   return {
     functionsContainer: newFunctionsContainer,
