@@ -6,14 +6,14 @@ import flowie from '../flowie'
 describe('flowie', function () {
   describe('@executeFlow', function () {
     const parameter = 'ARGUMENT'
-    const finalResult = 'FINAL RESULT'
+    const expected = 'FINAL RESULT'
 
     it('executes and returns the result of synchronous function', async function () {
-      const commonFunction = createSimpleFunctionMock(parameter, finalResult)
+      const commonFunction = createSimpleFunctionMock(parameter, expected)
 
-      const { result } = await flowie(commonFunction).executeFlow(parameter)
+      const { result: actual } = await flowie(commonFunction).executeFlow(parameter)
 
-      assert.equal(result, finalResult)
+      assert.equal(actual, expected)
       sinonAssert.calledOnce(commonFunction as SinonStub)
     })
 
@@ -21,13 +21,13 @@ describe('flowie', function () {
       const firstFunctionReturn = 'RESULT'
       const firstFunction = createSimpleFunctionMock(parameter, firstFunctionReturn)
 
-      const secondFunction = createSimpleFunctionMock(firstFunctionReturn, finalResult)
+      const secondFunction = createSimpleFunctionMock(firstFunctionReturn, expected)
 
-      const { result } = await flowie(firstFunction)
-        .pipeTo(secondFunction)
+      const { result: actual } = await flowie(firstFunction)
+        .pipe(secondFunction)
         .executeFlow(parameter)
 
-      assert.equal(result, finalResult)
+      assert.equal(actual, expected)
     })
 
     it('pipes multiple synchronous function', async function () {
@@ -35,19 +35,19 @@ describe('flowie', function () {
       const firstFunction = createSimpleFunctionMock(parameter, firstFunctionReturn)
       const middleWareFunction = createSimpleFunctionMock(firstFunctionReturn, firstFunctionReturn, 6)
 
-      const lastFunction = createSimpleFunctionMock(firstFunctionReturn, finalResult)
+      const lastFunction = createSimpleFunctionMock(firstFunctionReturn, expected)
 
-      const { result } = await flowie(firstFunction)
-        .pipeTo(middleWareFunction)
-        .pipeTo(middleWareFunction)
-        .pipeTo(middleWareFunction)
-        .pipeTo(middleWareFunction)
-        .pipeTo(middleWareFunction)
-        .pipeTo(middleWareFunction)
-        .pipeTo(lastFunction)
+      const { result: actual } = await flowie(firstFunction)
+        .pipe(middleWareFunction)
+        .pipe(middleWareFunction)
+        .pipe(middleWareFunction)
+        .pipe(middleWareFunction)
+        .pipe(middleWareFunction)
+        .pipe(middleWareFunction)
+        .pipe(lastFunction)
         .executeFlow(parameter)
 
-      assert.equal(result, finalResult);
+      assert.equal(actual, expected);
       (middleWareFunction as any).verify()
     })
   })
