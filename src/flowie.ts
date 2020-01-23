@@ -4,14 +4,14 @@ export default function flowie<Argument, Result> (flowFunction: FlowFunction<Arg
   return createFlowie([], flowFunction)
 }
 
-function createFlowie<Argument, Result> (previousFunctions: readonly FlowFunction[], newFlowFunction: FlowFunction<Argument, Result>): Flowie<Argument, Result> {
+function createFlowie<Argument, Result, InitialArgument = Argument> (previousFunctions: readonly FlowFunction[], newFlowFunction: FlowFunction<Argument, Result>): Flowie<Argument, Result, InitialArgument> {
   const flowFunctionList = previousFunctions.concat(newFlowFunction)
 
   return {
-    pipe<NewResult> (flowFunction: FlowFunction<Result, NewResult>): Flowie<Result, NewResult> {
+    pipe<NewResult> (flowFunction: FlowFunction<Result, NewResult>): Flowie<Result, NewResult, InitialArgument> {
       return createFlowie(flowFunctionList, flowFunction)
     },
-    async executeFlow (parameter: Argument): Promise<FlowResult<Result>> {
+    async executeFlow (parameter: InitialArgument): Promise<FlowResult<Result>> {
       const startTime = Date.now()
       const { result, functionsReport } = await flowFunctionList.reduce<Promise<FunctionReport<Result>>>(
           pipeSynchronousFunctions as any,
@@ -45,9 +45,9 @@ async function pipeSynchronousFunctions (previousValue: Promise<FunctionReport<a
   }
 }
 
-export interface Flowie<Argument, Result> {
-  readonly pipe: <NewResult>(flowFunction: FlowFunction<Result, NewResult>) => Flowie<Result, NewResult>
-  readonly executeFlow: (parameter: Argument) => Promise<FlowResult<Result>>
+export interface Flowie<Argument, Result, InitialArgument = Argument> {
+  readonly pipe: <NewResult>(flowFunction: FlowFunction<Result, NewResult>) => Flowie<Result, NewResult, InitialArgument>
+  readonly executeFlow: (parameter: InitialArgument) => Promise<FlowResult<Result>>
 }
 
 export type FlowFunction<Argument = any, Result = any> = (firstParameter: Argument) => Result
