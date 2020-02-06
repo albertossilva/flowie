@@ -11,7 +11,7 @@ function createFlowie<Argument, Result, InitialArgument = Argument> (previousFun
     pipe<NewResult> (flowFunction: FlowFunction<Result, NewResult>): Flowie<Result, NewResult, InitialArgument> {
       return createFlowie(flowFunctionList, flowFunction)
     },
-    async executeFlow (parameter: InitialArgument): Promise<FlowResult<Result>> {
+    async executeFlow<Result> (parameter: InitialArgument): Promise<FlowResult<Result>> {
       const startTime = Date.now()
       const { result, functionsReport } = await flowFunctionList.reduce<Promise<FunctionReport<Result>>>(
           pipeSynchronousFunctions as any,
@@ -22,6 +22,7 @@ function createFlowie<Argument, Result, InitialArgument = Argument> (previousFun
       )
 
       return {
+        success: true,
         result,
         executionTime: Date.now() - startTime,
         functions: functionsReport.toJS() as any
@@ -47,12 +48,14 @@ async function pipeSynchronousFunctions (previousValue: Promise<FunctionReport<a
 
 export interface Flowie<Argument, Result, InitialArgument = Argument> {
   readonly pipe: <NewResult>(flowFunction: FlowFunction<Result, NewResult>) => Flowie<Result, NewResult, InitialArgument>
-  readonly executeFlow: (parameter: InitialArgument) => Promise<FlowResult<Result>>
+  readonly executeFlow: <Result>(parameter: InitialArgument) => Promise<FlowResult<Result>>
 }
 
 export type FlowFunction<Argument = any, Result = any> = (firstParameter: Argument) => Result
 
 export interface FlowResult<Result> {
+  readonly success: boolean
+  readonly error?: Error
   readonly result: Result
   readonly executionTime: number
   readonly functions: Readonly<Record<string, FlowFunctionResult>>

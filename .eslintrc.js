@@ -49,7 +49,9 @@ module.exports = {
     files: ['tests/**/*.step.ts'],
     env: {},
     globals: {},
-    rules: {},
+    rules: {
+      'no-unused-expressions': 'off',
+    },
   }, {
     files: ['src/**/*.ts'],
     env: {},
@@ -59,7 +61,7 @@ module.exports = {
     },
     extends: [
       'plugin:functional/no-mutations',
-      'plugin:functional/no-exceptions'
+      'plugin:functional/no-exceptions',
     ]
   }]
 }

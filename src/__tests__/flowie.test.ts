@@ -4,7 +4,7 @@ import { mock, assert as sinonAssert, SinonStub } from 'sinon'
 import flowie from '../flowie'
 
 describe('flowie', function () {
-  describe('@executeFlow', function () {
+  describe('@executeFlowieContainer', function () {
     const parameter = 'ARGUMENT'
     const expected = 'FINAL RESULT'
 
