@@ -42,7 +42,7 @@ function buildFlowie (flowieContainer: FlowieContainer, flow: Flow): NoTypedFlow
 }
 
 function findNotRegisteredFunctions (this: FlowieContainer, functionName: string): boolean {
-  return !(functionName in this.functionsContainer)
+  return typeof functionName === 'string' && !(functionName in this.functionsContainer)
 }
 
 function buildSplitFlow (splitFunctions: readonly string[], flowieContainer: FlowieContainer): any {
@@ -52,7 +52,12 @@ function buildSplitFlow (splitFunctions: readonly string[], flowieContainer: Flo
 }
 
 function buildPipeFlow (flowItemsNameSequence: Seq.Indexed<string>, flowieContainer: FlowieContainer, flowieFlow: NoTypedFlowie): NoTypedFlowie {
-  const flowieItemName = flowItemsNameSequence.first() as string
+  const flowieItemName = flowItemsNameSequence.first() as any
+
+  if (typeof flowieItemName === 'object') {
+    return flowieFlow.split(...flowieItemName.split.map(getFunctionsFromContainer, flowieContainer))
+  }
+
   const nextFunctionToPipe: Function = flowieContainer.functionsContainer[flowieItemName]
 
   const nextStepFlowieFlow = flowieFlow.pipe(nextFunctionToPipe as any)
