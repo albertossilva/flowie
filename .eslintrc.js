@@ -31,9 +31,10 @@ module.exports = {
   rules: {
     complexity: ['error', 4],
     'no-param-reassign': ['error'],
-    '@typescript-eslint/member-delimiter-style': ['off'],
-    '@typescript-eslint/no-use-before-define': ['off'],
-    '@typescript-eslint/no-explicit-any': ['off'],
+    '@typescript-eslint/member-delimiter-style': 'off',
+    '@typescript-eslint/no-use-before-define': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off'
   },
   overrides: [{
     files: ['src/**/*.test.ts'],
