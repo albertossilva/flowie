@@ -31,9 +31,10 @@ module.exports = {
   rules: {
     complexity: ['error', 4],
     'no-param-reassign': ['error'],
-    '@typescript-eslint/member-delimiter-style': ['off'],
-    '@typescript-eslint/no-use-before-define': ['off'],
-    '@typescript-eslint/no-explicit-any': ['off'],
+    '@typescript-eslint/member-delimiter-style': 'off',
+    '@typescript-eslint/no-use-before-define': 'off',
+    '@typescript-eslint/no-explicit-any': 'off',
+    '@typescript-eslint/explicit-function-return-type': 'off'
   },
   overrides: [{
     files: ['src/**/*.test.ts'],
@@ -49,7 +50,9 @@ module.exports = {
     files: ['tests/**/*.step.ts'],
     env: {},
     globals: {},
-    rules: {},
+    rules: {
+      'no-unused-expressions': 'off',
+    },
   }, {
     files: ['src/**/*.ts'],
     env: {},
@@ -59,7 +62,7 @@ module.exports = {
     },
     extends: [
       'plugin:functional/no-mutations',
-      'plugin:functional/no-exceptions'
+      'plugin:functional/no-exceptions',
     ]
   }]
 }

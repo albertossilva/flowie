@@ -1,57 +1,111 @@
 import { assert } from 'chai'
-import { mock, assert as sinonAssert, SinonStub } from 'sinon'
+import { random } from 'faker'
+import { mock, assert as sinonAssert, SinonStub, spy } from 'sinon'
 
 import flowie from '../flowie'
 
 describe('flowie', function () {
-  describe('@executeFlow', function () {
+  describe('@executeFlowieContainer', function () {
     const parameter = 'ARGUMENT'
     const expected = 'FINAL RESULT'
 
-    it('executes and returns the result of synchronous function', async function () {
-      const commonFunction = createSimpleFunctionMock(parameter, expected)
+    describe('pipe', function () {
+      it('executes and returns the result of synchronous function', async function () {
+        const commonFunction = createSimpleFunctionMock(parameter, expected)
 
-      const { result: actual } = await flowie(commonFunction).executeFlow(parameter)
+        const { result: actual } = await flowie(commonFunction).executeFlow(parameter)
 
-      assert.equal(actual, expected)
-      sinonAssert.calledOnce(commonFunction as SinonStub)
+        assert.equal(actual, expected)
+        sinonAssert.calledOnce(commonFunction as SinonStub)
+      })
+
+      it('executes and returns the result of the second synchronous function, working as a chain', async function () {
+        const firstFunctionReturn = 'RESULT'
+        const firstFunction = createSimpleFunctionMock(parameter, firstFunctionReturn)
+
+        const secondFunction = createSimpleFunctionMock(firstFunctionReturn, expected)
+
+        const { result: actual } = await flowie(firstFunction)
+          .pipe(secondFunction)
+          .executeFlow(parameter)
+
+        assert.equal(actual, expected)
+      })
+
+      it('pipes multiple synchronous function', async function () {
+        const firstFunctionReturn = 'RESULT'
+        const firstFunction = createSimpleFunctionMock(parameter, firstFunctionReturn)
+        const middleWareFunction = createSimpleFunctionMock(firstFunctionReturn, firstFunctionReturn, 6)
+
+        const lastFunction = createSimpleFunctionMock(firstFunctionReturn, expected)
+
+        const { result: actual } = await flowie(firstFunction)
+          .pipe(middleWareFunction)
+          .pipe(middleWareFunction)
+          .pipe(middleWareFunction)
+          .pipe(middleWareFunction)
+          .pipe(middleWareFunction)
+          .pipe(middleWareFunction)
+          .pipe(lastFunction)
+          .executeFlow(parameter)
+
+        assert.equal(actual, expected);
+        (middleWareFunction as any).verify()
+      })
     })
 
-    it('executes and returns the result of the second synchronous function, working as a chain', async function () {
-      const firstFunctionReturn = 'RESULT'
-      const firstFunction = createSimpleFunctionMock(parameter, firstFunctionReturn)
+    describe('split', function () {
+      it('executes two functions in paralell', async function () {
+        const add1Flowie = flowie(add1)
+        const flowieResult = await add1Flowie.split(add1Flowie, add1Flowie.pipe(add2)).executeFlow(3)
 
-      const secondFunction = createSimpleFunctionMock(firstFunctionReturn, expected)
+        assert.deepEqual(flowieResult.result, [5, 7])
+      })
 
-      const { result: actual } = await flowie(firstFunction)
-        .pipe(secondFunction)
-        .executeFlow(parameter)
+      it('executes N functions in paralell', async function () {
+        const numberOfFlowsThatReturnsFive = random.number({ min: 10, max: 20 })
+        const add1Flowie = flowie(add1)
+        const nineAddFlowieThatAdd1AndOneAddThreeFlowie = [...new Array(numberOfFlowsThatReturnsFive).fill(add1Flowie), add1Flowie.pipe(add2)]
+        const flowieResult = await add1Flowie.split(...nineAddFlowieThatAdd1AndOneAddThreeFlowie).executeFlow(3)
 
-      assert.equal(actual, expected)
-    })
+        assert.deepEqual(flowieResult.result, [...new Array(numberOfFlowsThatReturnsFive).fill(5), 7])
+      })
 
-    it('pipes multiple synchronous function', async function () {
-      const firstFunctionReturn = 'RESULT'
-      const firstFunction = createSimpleFunctionMock(parameter, firstFunctionReturn)
-      const middleWareFunction = createSimpleFunctionMock(firstFunctionReturn, firstFunctionReturn, 6)
+      it('executes functions in paralell, but later functions does not affect the order of the results', async function () {
+        const spySooner = spy().named('sooner')
+        const mockSooner = mock().named('soonerResult').returns('sooner')
 
-      const lastFunction = createSimpleFunctionMock(firstFunctionReturn, expected)
+        const spyLater = spy().named('later')
+        const mockLater = mock().named('laterResult').returns('later')
 
-      const { result: actual } = await flowie(firstFunction)
-        .pipe(middleWareFunction)
-        .pipe(middleWareFunction)
-        .pipe(middleWareFunction)
-        .pipe(middleWareFunction)
-        .pipe(middleWareFunction)
-        .pipe(middleWareFunction)
-        .pipe(lastFunction)
-        .executeFlow(parameter)
+        const spyReallyLater = spy().named('reallyLater')
+        const mockReallyLater = mock().named('reallyLaterResult').returns('reallyLater')
 
-      assert.equal(actual, expected);
-      (middleWareFunction as any).verify()
+        const shuffleSlowFlowie = [
+          flowie(takeTimeToBeExecuted(30)).pipe(spyReallyLater).pipe(mockReallyLater),
+          flowie(takeTimeToBeExecuted(10)).pipe(spySooner).pipe(mockSooner),
+          flowie(takeTimeToBeExecuted(20)).pipe(spyLater).pipe(mockLater)
+        ]
+        const { result } = await flowie(spy().named('doesNotMatter')).split(...shuffleSlowFlowie).executeFlow(null)
+
+        sinonAssert.callOrder(spySooner, spyLater, spyReallyLater)
+        assert.deepEqual(result, ['reallyLater', 'sooner', 'later'])
+      })
+
+      it('accepts split as the first flowie step', async function () {
+        const flowieResult = await flowie(add1, add2).executeFlow(4)
+
+        assert.deepEqual(flowieResult.result, [5, 6])
+      })
     })
   })
 })
+
+const takeTimeToBeExecuted = (miliseconds: number) => (x: any) => new Promise((resolve) => setTimeout(() => resolve(x), miliseconds))
+
+const add = (shouldBeAdded: number) => (numberToAdd: number) => numberToAdd + shouldBeAdded
+const add1 = add(1)
+const add2 = add(2)
 
 function createSimpleFunctionMock (parameter: string, result: string, timesToBeExecuted = 1): (argument: string) => string {
   return mock()

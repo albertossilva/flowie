@@ -4,7 +4,7 @@ Feature: Reporting
   Scenario: Reporting times
     Given a registered function called "itTakes20millisecond" that takes 20 millisecond(s)
       And a registered function called "itTakes25millisecond" that takes 25 millisecond(s)
-    When I execute the flow starting with "A"
+    When I execute the flow starting with "A" as initial value
       """
       {
         "pipe": ["itTakes20millisecond", "itTakes25millisecond" ]

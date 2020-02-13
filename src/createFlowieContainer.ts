@@ -8,10 +8,12 @@ export default function createFlowieContainer (): FlowieContainer {
 }
 
 function registerFlowieItem (previousFunctionsContainer: FunctionsContainer, flowItemName: string, flowFunction: Function): FlowieContainer {
-  const newFunctionsContainer = Object.freeze({ ...previousFunctionsContainer, [flowItemName]: flowFunction })
+  const newFunctionsContainer = { ...previousFunctionsContainer, [flowItemName]: flowFunction }
+  const newFunctionsContainerProxy =
+    new Proxy(newFunctionsContainer, { get: getItemFromContainer })
 
   return {
-    functionsContainer: newFunctionsContainer,
+    functionsContainer: Object.freeze(newFunctionsContainerProxy),
     register: registerFlowieItem.bind(null, newFunctionsContainer)
   }
 }
@@ -22,3 +24,7 @@ export interface FlowieContainer {
 }
 
 type FunctionsContainer = Record<string, Function>
+
+function getItemFromContainer (target: FunctionsContainer, flowItemName: string): Function {
+  return target[flowItemName]
+}
