@@ -20,7 +20,7 @@ function createFlowie<Argument, Result, InitialArgument = Argument> (previousFun
     async executeFlow<Result> (parameter: InitialArgument): Promise<FlowResult<Result>> {
       const startTime = Date.now()
       const { result, functionsReport } = await flowFunctionList.reduce<Promise<FunctionReport<Result>>>(
-        pipeSynchronousFunctions as any,
+        pipeFunction as any,
         Promise.resolve({
           result: parameter,
           functionsReport: ImmutableMap<string, FlowFunctionResult>()
@@ -50,7 +50,7 @@ function convertFlowFunctionToFlowie (flowFunction: any): Flowie<any, any> {
   return flowie<any, any>(flowFunction)
 }
 
-async function pipeSynchronousFunctions (previousValue: Promise<FunctionReport<any>>, flowFunction: FlowFunction): Promise<FunctionReport<any>> {
+async function pipeFunction (previousValue: Promise<FunctionReport<any>>, flowFunction: FlowFunction): Promise<FunctionReport<any>> {
   const previousFunctionReport = await previousValue
   const startTime = Date.now()
   const result = await flowFunction(previousFunctionReport.result)
@@ -63,15 +63,6 @@ async function pipeSynchronousFunctions (previousValue: Promise<FunctionReport<a
     result,
     functionsReport: previousFunctionReport.functionsReport.set(flowFunction.name, report)
   }
-}
-
-interface FlowFunction<Argument = any, Result = any> {
-  (firstParameter: Argument): Result
-}
-
-interface FunctionReport<Result> {
-  readonly result: Result
-  readonly functionsReport: ImmutableMap<string, FlowFunctionResult>
 }
 
 export interface Flowie<Argument, Result, InitialArgument = Argument> {
@@ -90,4 +81,13 @@ export interface FlowResult<Result> {
 
 export interface FlowFunctionResult {
   readonly executionTime: number
+}
+
+export interface FlowFunction<Argument = any, Result = any> {
+  (firstParameter: Argument): Result
+}
+
+interface FunctionReport<Result> {
+  readonly result: Result
+  readonly functionsReport: ImmutableMap<string, FlowFunctionResult>
 }

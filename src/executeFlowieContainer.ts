@@ -1,28 +1,22 @@
 import Flow from './flow'
-import flowie, { Flowie, FlowResult } from './flowie'
+import flowie, { Flowie, FlowResult, FlowFunction } from './flowie'
+import { Seq } from 'immutable'
+
 import { FlowieContainer } from './createFlowieContainer'
-import { Seq, Set } from 'immutable'
+import validateFlowieContainer from './validateFlowieContainer'
 
-function validate (flow: Flow, flowieContainer: FlowieContainer): FlowResult<any> | undefined {
-  const functionNames = (flow.pipe || []).concat(flow.split || [])
-  const notRegisteredFunctions = Set(functionNames.filter(findNotRegisteredFunctions, flowieContainer))
+type NoTypedFlowie = Flowie<any, any>
 
-  if (notRegisteredFunctions.size) {
+export default async function executeFlowieContainer<Type = any> (flowieContainer: FlowieContainer, flow: Flow, initialValue: any): Promise<FlowResult<Type>> {
+  const error = validateFlowieContainer(flow, flowieContainer)
+  if (error) {
     return {
       success: false,
-      error: new TypeError(`There is no functions registered on the container with this names: ${notRegisteredFunctions.join(', ')}`),
+      error,
       result: null,
       executionTime: 0,
       functions: {}
     }
-  }
-  return undefined
-}
-
-export default async function executeFlowieContainer<Type = any> (flowieContainer: FlowieContainer, flow: Flow, initialValue: any): Promise<FlowResult<Type>> {
-  const validation = validate(flow, flowieContainer)
-  if (validation) {
-    return validation
   }
 
   const flowieFlow = buildFlowie(flowieContainer, flow)
@@ -32,35 +26,31 @@ export default async function executeFlowieContainer<Type = any> (flowieContaine
 
 function buildFlowie (flowieContainer: FlowieContainer, flow: Flow): NoTypedFlowie {
   if (flow.split) {
-    return buildSplitFlow(flow.split as readonly string[], flowieContainer)
+    return buildSplitFlow(flow.split, flowieContainer)
   }
 
   const [firstFlowItemName, ...otherFlowItemNames] = flow.pipe
   const firstFlowItem = flowieContainer.functionsContainer[firstFlowItemName]
 
-  return buildPipeFlow(Seq.Indexed(otherFlowItemNames), flowieContainer, flowie(firstFlowItem as any))
+  return buildPipeFlow(Seq.Indexed(otherFlowItemNames), flowieContainer, flowie(firstFlowItem))
 }
 
-function findNotRegisteredFunctions (this: FlowieContainer, functionName: string): boolean {
-  return typeof functionName === 'string' && !(functionName in this.functionsContainer)
-}
-
-function buildSplitFlow (splitFunctions: readonly string[], flowieContainer: FlowieContainer): any {
+function buildSplitFlow (splitFunctions: readonly string[], flowieContainer: FlowieContainer): NoTypedFlowie {
   const result = splitFunctions.map(getFunctionsFromContainer, flowieContainer)
 
-  return flowie(...result as any)
+  return flowie(...result)
 }
 
 function buildPipeFlow (flowItemsNameSequence: Seq.Indexed<string>, flowieContainer: FlowieContainer, flowieFlow: NoTypedFlowie): NoTypedFlowie {
-  const flowieItemName = flowItemsNameSequence.first() as any
+  const flowieItemName = flowItemsNameSequence.first<string>()
 
-  if (typeof flowieItemName === 'object') {
-    return flowieFlow.split(...flowieItemName.split.map(getFunctionsFromContainer, flowieContainer))
-  }
+  // if (typeof flowieItemName === 'object') {
+  //   return flowieFlow.split(...flowieItemName.split.map(getFunctionsFromContainer, flowieContainer))
+  // }
 
-  const nextFunctionToPipe: Function = flowieContainer.functionsContainer[flowieItemName]
+  const nextFunctionToPipe = flowieContainer.functionsContainer[flowieItemName]
 
-  const nextStepFlowieFlow = flowieFlow.pipe(nextFunctionToPipe as any)
+  const nextStepFlowieFlow = flowieFlow.pipe(nextFunctionToPipe)
 
   const nextFlowieItemsNameSequence = flowItemsNameSequence.rest()
 
@@ -71,8 +61,6 @@ function buildPipeFlow (flowItemsNameSequence: Seq.Indexed<string>, flowieContai
   return buildPipeFlow(nextFlowieItemsNameSequence, flowieContainer, nextStepFlowieFlow)
 }
 
-type NoTypedFlowie = Flowie<any, any>
-
-function getFunctionsFromContainer (this: FlowieContainer, functionName: string): Function {
+function getFunctionsFromContainer (this: FlowieContainer, functionName: string): FlowFunction {
   return this.functionsContainer[functionName]
 }
