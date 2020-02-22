@@ -3,7 +3,7 @@ import { assert } from 'chai'
 
 import FlowieTestsWorld from './FlowieTestsWorld'
 
-import { FlowFunctionResult } from '../../../src/flowieApi'
+import { FlowFunctionResult } from '../../../src/flowieResult'
 
 Then('the final execution time result will be about {int} millisecond\\(s)', function (this: FlowieTestsWorld, executionTime: number) {
   assert.approximately(this.flowieResult.executionTime, executionTime, 15, 'The execution time was not computed right')

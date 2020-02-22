@@ -1,5 +1,7 @@
 import { Map as ImmutableMap } from 'immutable'
 
+import flowieResult, { FlowResult, FlowFunctionResult } from './flowieResult'
+
 export default function flowie<Argument, Result> (...flowFunctionsList: readonly FlowFunction<Argument, Result>[]): Flowie<Argument, Result> {
   if (flowFunctionsList.length === 1) return createFlowie([], flowFunctionsList[0])
 
@@ -27,12 +29,7 @@ function createFlowie<Argument, Result, InitialArgument = Argument> (previousFun
         }) as any
       )
 
-      return {
-        success: true,
-        result,
-        executionTime: Date.now() - startTime,
-        functions: functionsReport.toJS() as any
-      }
+      return flowieResult.success(result, startTime, functionsReport.toJS() as any)
     }
   }
 }
@@ -71,18 +68,6 @@ export interface Flowie<Argument, Result, InitialArgument = Argument> {
   readonly executeFlow: <Result>(parameter: InitialArgument) => Promise<FlowResult<Result>>
 }
 
-export interface FlowResult<Result> {
-  readonly success: boolean
-  readonly error?: Error
-  readonly result: Result
-  readonly executionTime: number
-  readonly functions: Readonly<Record<string, FlowFunctionResult>>
-}
-
-export interface FlowFunctionResult {
-  readonly executionTime: number
-}
-
 export interface FlowFunction<Argument = any, Result = any> {
   (firstParameter: Argument): Result
 }
@@ -91,3 +76,5 @@ interface FunctionReport<Result> {
   readonly result: Result
   readonly functionsReport: ImmutableMap<string, FlowFunctionResult>
 }
+
+export type NoTypedFlowie = Flowie<any, any>
