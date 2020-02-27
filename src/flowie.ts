@@ -21,6 +21,7 @@ function createFlowie<Argument, Result, InitialArgument = Argument> (previousFun
     },
     async executeFlow<Result> (parameter: InitialArgument): Promise<FlowResult<Result>> {
       const startTime = Date.now()
+
       const { result, functionsReport } = await flowFunctionList.reduce<Promise<FunctionReport<Result>>>(
         pipeFunction as any,
         Promise.resolve({
@@ -50,8 +51,22 @@ function convertFlowFunctionToFlowie (flowFunction: any): Flowie<any, any> {
 async function pipeFunction (previousValue: Promise<FunctionReport<any>>, flowFunction: FlowFunction): Promise<FunctionReport<any>> {
   const previousFunctionReport = await previousValue
   const startTime = Date.now()
-  const result = await flowFunction(previousFunctionReport.result)
 
+  if (typeof previousFunctionReport.result.next === 'function') {
+    let lastResult: any
+    for (const item of previousFunctionReport.result) {
+      const result = await flowFunction(item)
+      lastResult = result
+    }
+
+    const report = {
+      executionTime: Date.now() - startTime
+    }
+    return { result: lastResult, functionsReport: previousFunctionReport.functionsReport.set(flowFunction.name, report) }
+  }
+
+  const result = await flowFunction(previousFunctionReport.result)
+  console.log('FINAL RESULT', result)
   const report = {
     executionTime: Date.now() - startTime
   }

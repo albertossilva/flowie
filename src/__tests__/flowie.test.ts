@@ -1,6 +1,6 @@
-import { assert } from 'chai'
+import { assert, expect } from 'chai'
 import { random } from 'faker'
-import { mock, assert as sinonAssert, SinonStub, spy } from 'sinon'
+import { mock, stub, assert as sinonAssert, SinonStub, spy } from 'sinon'
 
 import flowie from '../flowie'
 
@@ -10,47 +10,81 @@ describe('flowie', function () {
     const expected = 'FINAL RESULT'
 
     describe('pipe', function () {
-      it('executes and returns the result of synchronous function', async function () {
-        const commonFunction = createSimpleFunctionMock(parameter, expected)
+      context('synchronous execution', function () {
+        it('executes and returns the result of synchronous function', async function () {
+          const commonFunction = createSimpleFunctionMock(parameter, expected)
 
-        const { result: actual } = await flowie(commonFunction).executeFlow(parameter)
+          const { result: actual } = await flowie(commonFunction).executeFlow(parameter)
 
-        assert.equal(actual, expected)
-        sinonAssert.calledOnce(commonFunction as SinonStub)
+          assert.equal(actual, expected)
+          sinonAssert.calledOnce(commonFunction as SinonStub)
+        })
+
+        it('executes and returns the result of the second synchronous function, working as a chain', async function () {
+          const firstFunctionReturn = 'RESULT'
+          const firstFunction = createSimpleFunctionMock(parameter, firstFunctionReturn)
+
+          const secondFunction = createSimpleFunctionMock(firstFunctionReturn, expected)
+
+          const { result: actual } = await flowie(firstFunction)
+            .pipe(secondFunction)
+            .executeFlow(parameter)
+
+          assert.equal(actual, expected)
+        })
+
+        it('pipes multiple synchronous function', async function () {
+          const firstFunctionReturn = 'RESULT'
+          const firstFunction = createSimpleFunctionMock(parameter, firstFunctionReturn)
+          const middleWareFunction = createSimpleFunctionMock(firstFunctionReturn, firstFunctionReturn, 6)
+
+          const lastFunction = createSimpleFunctionMock(firstFunctionReturn, expected)
+
+          const { result: actual } = await flowie(firstFunction)
+            .pipe(middleWareFunction)
+            .pipe(middleWareFunction)
+            .pipe(middleWareFunction)
+            .pipe(middleWareFunction)
+            .pipe(middleWareFunction)
+            .pipe(middleWareFunction)
+            .pipe(lastFunction)
+            .executeFlow(parameter)
+
+          assert.equal(actual, expected);
+          (middleWareFunction as any).verify()
+        })
       })
 
-      it('executes and returns the result of the second synchronous function, working as a chain', async function () {
-        const firstFunctionReturn = 'RESULT'
-        const firstFunction = createSimpleFunctionMock(parameter, firstFunctionReturn)
+      context('generators', function () {
+        it('calls the functions piped after a generator once per yield', async function () {
+          const commonFunction = stub().named('commonFunction').callsFake((x: string): string => 'result '.concat(x))
+          const yields = ['1', '2', '3']
+          const generatorStub = stub().named('generator').returns(yields[Symbol.iterator]())
+          // eslint-disable-next-line functional/immutable-data
+          ;(generatorStub as any)[Symbol.toStringTag] = 'GeneratorFunction'
 
-        const secondFunction = createSimpleFunctionMock(firstFunctionReturn, expected)
+          const { result } = await flowie(generatorStub).pipe(commonFunction).executeFlow(parameter)
+          sinonAssert.calledThrice(commonFunction as SinonStub)
+          sinonAssert.calledWith(commonFunction as SinonStub, '1')
+          sinonAssert.calledWith(commonFunction as SinonStub, '2')
+          sinonAssert.calledWith(commonFunction as SinonStub, '3')
+          expect(result).to.equal('result 3')
+        })
 
-        const { result: actual } = await flowie(firstFunction)
-          .pipe(secondFunction)
-          .executeFlow(parameter)
+        it('accepts generators functions in the middle of flow', async function () {
+          const commonFunction = stub().named('commonFunction').callsFake((x: string): string => 'result '.concat(x))
+          const yields = ['1', '2', '3']
+          const generatorStub = mock().named('generator').withArgs('result ARGUMENT').returns(yields[Symbol.iterator]())
+            // eslint-disable-next-line functional/immutable-data
+            ; (generatorStub as any)[Symbol.toStringTag] = 'GeneratorFunction'
 
-        assert.equal(actual, expected)
-      })
+          const { result } = await flowie(commonFunction).pipe(generatorStub).pipe(commonFunction).executeFlow(parameter)
 
-      it('pipes multiple synchronous function', async function () {
-        const firstFunctionReturn = 'RESULT'
-        const firstFunction = createSimpleFunctionMock(parameter, firstFunctionReturn)
-        const middleWareFunction = createSimpleFunctionMock(firstFunctionReturn, firstFunctionReturn, 6)
+          assert.equal((commonFunction as SinonStub).callCount, 4)
+          expect(result).to.equal('result 3')
+        })
 
-        const lastFunction = createSimpleFunctionMock(firstFunctionReturn, expected)
-
-        const { result: actual } = await flowie(firstFunction)
-          .pipe(middleWareFunction)
-          .pipe(middleWareFunction)
-          .pipe(middleWareFunction)
-          .pipe(middleWareFunction)
-          .pipe(middleWareFunction)
-          .pipe(middleWareFunction)
-          .pipe(lastFunction)
-          .executeFlow(parameter)
-
-        assert.equal(actual, expected);
-        (middleWareFunction as any).verify()
+        it('accepts generators piping to generator')
       })
     })
 
