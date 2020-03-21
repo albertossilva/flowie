@@ -1,6 +1,7 @@
-import Flow from './flow'
-import flowie, { FlowFunction, NoTypedFlowie } from './flowie'
 import { Seq } from 'immutable'
+
+import { Flow, NoTypedFlowie, FlowFunction } from './flowie.type'
+import flowie from './flowie'
 
 import { FlowieContainer } from './createFlowieContainer'
 
@@ -23,10 +24,6 @@ function buildSplitFlow (splitFunctions: readonly string[], flowieContainer: Flo
 
 function buildPipeFlow (flowItemsNameSequence: Seq.Indexed<string>, flowieContainer: FlowieContainer, flowieFlow: NoTypedFlowie): NoTypedFlowie {
   const flowieItemName = flowItemsNameSequence.first<string>()
-
-  // if (typeof flowieItemName === 'object') {
-  //   return flowieFlow.split(...flowieItemName.split.map(getFunctionsFromContainer, flowieContainer))
-  // }
 
   const nextFunctionToPipe = flowieContainer.functionsContainer[flowieItemName]
 

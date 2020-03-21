@@ -1,15 +1,22 @@
 import { Map as ImmutableMap } from 'immutable'
+import * as _get from 'lodash.get'
 
+import { FlowFunction, Flowie, FunctionReport } from './flowie.type'
 import flowieResult, { FlowResult, FlowFunctionResult } from './flowieResult'
 
-export default function flowie<Argument, Result> (...flowFunctionsList: readonly FlowFunction<Argument, Result>[]): Flowie<Argument, Result> {
-  if (flowFunctionsList.length === 1) return createFlowie([], flowFunctionsList[0])
+export default function flowie<Argument, Result> (
+  ...flowFunctionsList: readonly FlowFunction<Argument, Result>[]
+): Flowie<Argument, Result> {
+  const isSplit = flowFunctionsList.length > 1
+  if (!isSplit) return createFlowie([], flowFunctionsList[0])
 
   const splittedFlowieList = flowFunctionsList.map(convertFlowFunctionToFlowie)
   return flowie(createSplitFlowieItem(splittedFlowieList)) as Flowie<any, any>
 }
 
-function createFlowie<Argument, Result, InitialArgument = Argument> (previousFunctions: readonly FlowFunction[], newFlowFunction: FlowFunction<Argument, Result>): Flowie<Argument, Result, InitialArgument> {
+function createFlowie<Argument, Result, InitialArgument = Argument> (
+  previousFunctions: readonly FlowFunction[], newFlowFunction: FlowFunction<Argument, Result>
+): Flowie<Argument, Result, InitialArgument> {
   const flowFunctionList = previousFunctions.concat(newFlowFunction)
 
   return {
@@ -23,7 +30,7 @@ function createFlowie<Argument, Result, InitialArgument = Argument> (previousFun
       const startTime = Date.now()
 
       const { result, functionsReport } = await flowFunctionList.reduce<Promise<FunctionReport<Result>>>(
-        pipeFunction as any,
+        executeFlowStep as any,
         Promise.resolve({
           result: parameter,
           functionsReport: ImmutableMap<string, FlowFunctionResult>()
@@ -48,11 +55,15 @@ function convertFlowFunctionToFlowie (flowFunction: any): Flowie<any, any> {
   return flowie<any, any>(flowFunction)
 }
 
-async function pipeFunction (previousValue: Promise<FunctionReport<any>>, flowFunction: FlowFunction): Promise<FunctionReport<any>> {
+async function executeFlowStep (
+  previousValue: Promise<FunctionReport<any>>, flowFunction: FlowFunction
+): Promise<FunctionReport<any>> {
   const previousFunctionReport = await previousValue
   const startTime = Date.now()
 
-  if (typeof previousFunctionReport.result.next === 'function') {
+  const nextFunction = _get(previousFunctionReport.result, 'next')
+
+  if (typeof nextFunction === 'function') {
     let lastResult: any
     for (const item of previousFunctionReport.result) {
       const result = await flowFunction(item)
@@ -66,7 +77,6 @@ async function pipeFunction (previousValue: Promise<FunctionReport<any>>, flowFu
   }
 
   const result = await flowFunction(previousFunctionReport.result)
-  console.log('FINAL RESULT', result)
   const report = {
     executionTime: Date.now() - startTime
   }
@@ -76,20 +86,3 @@ async function pipeFunction (previousValue: Promise<FunctionReport<any>>, flowFu
     functionsReport: previousFunctionReport.functionsReport.set(flowFunction.name, report)
   }
 }
-
-export interface Flowie<Argument, Result, InitialArgument = Argument> {
-  readonly split: (...flowFunctionList: readonly any[]) => any
-  readonly pipe: <NewResult>(flowFunction: FlowFunction<Result, NewResult>) => Flowie<Result, NewResult, InitialArgument>
-  readonly executeFlow: <Result>(parameter: InitialArgument) => Promise<FlowResult<Result>>
-}
-
-export interface FlowFunction<Argument = any, Result = any> {
-  (firstParameter: Argument): Result
-}
-
-interface FunctionReport<Result> {
-  readonly result: Result
-  readonly functionsReport: ImmutableMap<string, FlowFunctionResult>
-}
-
-export type NoTypedFlowie = Flowie<any, any>

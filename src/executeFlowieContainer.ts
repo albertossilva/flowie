@@ -1,4 +1,4 @@
-import Flow from './flow'
+import { Flow } from './flowie.type'
 import flowieResult, { FlowResult } from './flowieResult'
 
 import buildFlowieFromContainer from './buildFlowieFromContainer'

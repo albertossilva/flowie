@@ -1,4 +1,4 @@
-import { FlowFunction } from './flowie'
+import { FlowFunction } from './flowie.type'
 
 export default function createFlowieContainer (): FlowieContainer {
   return {

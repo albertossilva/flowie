@@ -1,7 +1,7 @@
 import { Set } from 'immutable'
 
-import Flow from './flow'
 import { FlowieContainer } from './createFlowieContainer'
+import { Flow } from './flowie.type'
 
 export default function validateFlowieContainer (flow: Flow, flowieContainer: FlowieContainer): Error | null {
   const functionNames = flow.pipe || flow.split

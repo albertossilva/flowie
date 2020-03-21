@@ -10,7 +10,7 @@ describe('flowie', function () {
     const expected = 'FINAL RESULT'
 
     describe('pipe', function () {
-      context('synchronous execution', function () {
+      context('functions', function () {
         it('executes and returns the result of synchronous function', async function () {
           const commonFunction = createSimpleFunctionMock(parameter, expected)
 
@@ -84,7 +84,7 @@ describe('flowie', function () {
           expect(result).to.equal('result 3')
         })
 
-        it('accepts generators piping to generator')
+        it('accepts generators piping to generators')
       })
     })
 
@@ -120,6 +120,8 @@ describe('flowie', function () {
           flowie(takeTimeToBeExecuted(10)).pipe(spySooner).pipe(mockSooner),
           flowie(takeTimeToBeExecuted(20)).pipe(spyLater).pipe(mockLater)
         ]
+
+        debugger
         const { result } = await flowie(spy().named('doesNotMatter')).split(...shuffleSlowFlowie).executeFlow(null)
 
         sinonAssert.callOrder(spySooner, spyLater, spyReallyLater)
