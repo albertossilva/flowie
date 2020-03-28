@@ -1,8 +1,8 @@
 {
   "name": "flowie",
-  "version": "0.0.1-alpha",
+  "version": "0.0.1-alpha.2",
   "description": "Library for creating, and working with flows",
-  "main": "flowieApi.js",
+  "main": "dist/flowieApi.js",
   "scripts": {
     "build": "tsc",
     "prepublishOnly": "npm run build",
