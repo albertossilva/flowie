@@ -1,0 +1,12 @@
+# ignore test files
+**/*.test.js
+**/__tests__
+tests/**
+coverage/**
+src
+.vscode
+.nyc_output
+.editorconfig
+.eslintrc.js
+.mocharc.js
+nyc.config.js

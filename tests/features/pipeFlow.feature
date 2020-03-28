@@ -1,7 +1,7 @@
-Feature: Pipe Flow
+Feature: Pipes
   As a developer I want execute items in sequence
 
-  Scenario: One Path flows
+  Scenario: One Path flows on containers
     Given a registered function called "firstFlowieItem" that receives "A" and returns "B"
      And a registered function called "secondFlowieItem" that receives "B" and returns "C"
      And a registered function called "thirdFlowieItem" that receives "C" and returns "D"
