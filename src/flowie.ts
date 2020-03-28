@@ -85,6 +85,7 @@ function convertFlowFunctionToFlowie<Argument> (
 async function executeFlowStep<Result> (
   previousValue: Promise<FunctionReport<Result>>, flowFunction: FlowFunction
 ): Promise<FunctionReport<Result>> {
+  // console.log('flowFunction.name', flowFunction.name)
   const previousFunctionReport = await previousValue
   const startTime = Date.now()
 
@@ -92,7 +93,7 @@ async function executeFlowStep<Result> (
 
   if (typeof nextFunction === 'function') {
     const { result } = await genSequence(previousFunctionReport.result as unknown as Iterable<Result>)
-      .reduceAsync(bla, { flowFunction, result: null })
+      .reduceAsync(executeFlowFunctionForResultFromIterator, { flowFunction, result: null })
 
     const report = {
       executionTime: Date.now() - startTime
@@ -114,7 +115,7 @@ async function executeFlowStep<Result> (
   }
 }
 
-async function bla (
+async function executeFlowFunctionForResultFromIterator (
   { flowFunction }: { readonly flowFunction: FlowFunction<unknown, unknown>, readonly result: unknown },
   item: unknown
 ) {

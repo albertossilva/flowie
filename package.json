@@ -1,11 +1,11 @@
 {
   "name": "flowie",
-  "version": "0.0.1",
+  "version": "0.0.1-alpha",
   "description": "Library for creating, and working with flows",
   "main": "flowieApi.js",
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build",
+    "prepublishOnly": "npm run build",
     "lint": "eslint --ext .ts src/ tests/",
     "lint:fix": "eslint --ext .ts --fix src/ tests/",
     "test": "npm run test:unit && npm run test:integration",
@@ -31,7 +31,7 @@
   "homepage": "https://github.com/albertossilva/flowie#readme",
   "dependencies": {
     "debug": "^4.1.1",
-    "gensequence": "^3.0.3",
+    "gensequence": "albertossilva/gensequence#temp-async-support",
     "immutable": "^4.0.0-rc.12",
     "lodash.get": "^4.4.2"
   },
@@ -40,7 +40,7 @@
     "@types/cucumber": "^6.0.1",
     "@types/faker": "^4.1.11",
     "@types/mocha": "^7.0.2",
-    "@types/node": "^13.9.3",
+    "@types/node": "^13.9.5",
     "@types/sinon": "^7.5.2",
     "@typescript-eslint/eslint-plugin": "^2.25.0",
     "@typescript-eslint/parser": "^2.25.0",
@@ -51,7 +51,7 @@
     "eslint-plugin-functional": "^3.0.1",
     "eslint-plugin-import": "^2.20.1",
     "eslint-plugin-mocha": "^6.3.0",
-    "eslint-plugin-node": "^11.0.0",
+    "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "faker": "^4.1.0",

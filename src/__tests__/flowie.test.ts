@@ -6,7 +6,7 @@ import flowie from '../flowie'
 import { Flowie } from '../flowie.type'
 
 describe('flowie', function () {
-  describe('@executeFlowieContainer', function () {
+  describe('@executeFlow', function () {
     const parameter = 'ARGUMENT'
     const expected = 'FINAL RESULT'
 
@@ -60,11 +60,11 @@ describe('flowie', function () {
         it('calls the functions piped after a generator once per yield', async function () {
           const commonFunction = stub().named('commonFunction').callsFake((x: string): string => 'result '.concat(x))
           const yields = ['1', '2', '3']
-          const generatorStub = stub().named('generator').returns(yields[Symbol.iterator]())
-          // eslint-disable-next-line functional/immutable-data
-          ;(generatorStub as any)[Symbol.toStringTag] = 'GeneratorFunction'
+          const generatorMock = stub().named('generator').returns(yields[Symbol.iterator]())
+          // e_slint-disable-next-line functional/immutable-data
+          // ;(generatorMock as any)[Symbol.toStringTag] = 'GeneratorFunction'
 
-          const { result } = await flowie(generatorStub).pipe(commonFunction).executeFlow(parameter)
+          const { result } = await flowie(generatorMock).pipe(commonFunction).executeFlow(parameter)
           sinonAssert.calledThrice(commonFunction as SinonStub)
           sinonAssert.calledWith(commonFunction as SinonStub, '1')
           sinonAssert.calledWith(commonFunction as SinonStub, '2')
@@ -75,17 +75,48 @@ describe('flowie', function () {
         it('accepts generators functions in the middle of flow', async function () {
           const commonFunction = stub().named('commonFunction').callsFake((x: string): string => 'result '.concat(x))
           const yields = ['1', '2', '3']
-          const generatorStub = mock().named('generator').withArgs('result ARGUMENT').returns(yields[Symbol.iterator]())
-            // eslint-disable-next-line functional/immutable-data
-            ; (generatorStub as any)[Symbol.toStringTag] = 'GeneratorFunction'
+          const generatorMock = mock().named('generator').withArgs('result ARGUMENT').returns(yields[Symbol.iterator]())
+          // e_slint-disable-next-line functional/immutable-data
+          // ; (generatorMock as any)[Symbol.toStringTag] = 'GeneratorFunction'
 
-          const { result } = await flowie(commonFunction).pipe(generatorStub).pipe(commonFunction).executeFlow(parameter)
+          const { result } = await flowie(commonFunction)
+            .pipe(generatorMock)
+            .pipe(commonFunction)
+            .executeFlow(parameter)
 
           assert.equal((commonFunction as SinonStub).callCount, 4)
           expect(result).to.equal('result 3')
         })
 
-        it('accepts generators piping to generators')
+        it('accepts generators piping to generators'
+        // async function () {
+        //   const callsToCommonFunction = []
+        //   const commonFunction = stub().named('commonFunction')
+        //     .callsFake(callsToCommonFunction.push.bind(callsToCommonFunction))
+        //   const yields = ['1', '2', '3']
+        //   const generatorMock = mock().named('generator').withArgs('ARGUMENT').returns(yields[Symbol.iterator]())
+        //   // e_slint-disable-next-line functional/immutable-data
+        //   // ; (generatorMock as any)[Symbol.toStringTag] = 'GeneratorFunction'
+
+          //   function * generatorThatConcatenatesAB (previousValue: string) {
+          //     console.log('a', previousValue)
+          //     const lettersList = ['A', 'B']
+          //     for (const letter of lettersList) {
+          //       yield previousValue + letter
+          //     }
+          //   }
+
+          //   await flowie(generatorMock)
+          //     .pipe(generatorThatConcatenatesAB)
+          //     .pipe(commonFunction)
+          //     .executeFlow(parameter)
+
+        //   // assert.equal((commonFunction as SinonStub).callCount, 4)
+        //   console.log('#'.repeat(40))
+        //   console.log('callsToCommonFunction:::', require('util').inspect(callsToCommonFunction, { depth: 'null', colors: true }))
+        //   console.log('#'.repeat(40))
+        // }
+        )
       })
     })
 
