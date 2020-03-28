@@ -3,6 +3,7 @@ import { random } from 'faker'
 import { mock, stub, assert as sinonAssert, SinonStub, spy } from 'sinon'
 
 import flowie from '../flowie'
+import { Flowie } from '../flowie.type'
 
 describe('flowie', function () {
   describe('@executeFlowieContainer', function () {
@@ -99,7 +100,9 @@ describe('flowie', function () {
       it('executes N functions in paralell', async function () {
         const numberOfFlowsThatReturnsFive = random.number({ min: 10, max: 20 })
         const add1Flowie = flowie(add1)
-        const nineAddFlowieThatAdd1AndOneAddThreeFlowie = [...new Array(numberOfFlowsThatReturnsFive).fill(add1Flowie), add1Flowie.pipe(add2)]
+        const nineAddFlowieThatAdd1AndOneAddThreeFlowie = [
+          ...new Array(numberOfFlowsThatReturnsFive).fill(add1Flowie) as readonly Flowie<number, number, number>[],
+          add1Flowie.pipe(add2)]
         const flowieResult = await add1Flowie.split(...nineAddFlowieThatAdd1AndOneAddThreeFlowie).executeFlow(3)
 
         assert.deepEqual(flowieResult.result, [...new Array(numberOfFlowsThatReturnsFive).fill(5), 7])
@@ -121,7 +124,6 @@ describe('flowie', function () {
           flowie(takeTimeToBeExecuted(20)).pipe(spyLater).pipe(mockLater)
         ]
 
-        debugger
         const { result } = await flowie(spy().named('doesNotMatter')).split(...shuffleSlowFlowie).executeFlow(null)
 
         sinonAssert.callOrder(spySooner, spyLater, spyReallyLater)
