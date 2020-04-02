@@ -1,6 +1,6 @@
 import { When } from 'cucumber'
 import ConfigurationFlowieWorld from './ConfigurationFlowieWorld'
-import { FlowExecutionDeclaration } from '../../../../src/optimizedFlowie'
+import { FlowExecutionDeclaration } from '../../../../src'
 
 When(
   'I create a flow from configuration named {string} with value',

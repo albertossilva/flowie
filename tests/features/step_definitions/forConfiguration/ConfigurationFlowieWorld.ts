@@ -2,7 +2,7 @@ import { mock } from 'sinon'
 
 import { World } from '../FlowieTestsWorld'
 
-import { createFlowieContainer, FlowExecutionDeclaration } from '../../../../src/optimizedFlowie/index'
+import { createFlowieContainer, FlowExecutionDeclaration } from '../../../../src/index'
 
 export default interface ConfigurationFlowieWorld extends World {
   registerMockFunction<Argument, Result>(name: string, argument: Argument, result: Result): void

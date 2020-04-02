@@ -48,7 +48,7 @@ module.exports = {
       'plugin:functional/no-exceptions',
     ] //
   }, {
-      files: ['src/optimizedFlowie/compiler/__fixtures__/*.fixture.js'],
+      files: ['src/compiler/__fixtures__/*.fixture.js'],
       env: {},
       globals: {},
       rules: {

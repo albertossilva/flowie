@@ -1,7 +1,7 @@
 import { setWorldConstructor, BeforeAll } from 'cucumber'
 import { assert } from 'chai'
 import FlowieTestsWorld, { World } from './FlowieTestsWorld'
-import compileDots from '../../../src/optimizedFlowie/compiler/dot/compileDots'
+import compileDots from '../../../src/compiler/dot/compileDots'
 
 function ProxyTestsWorld () {
   const state: { world: World } = {

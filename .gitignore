@@ -21,4 +21,4 @@ node_modules/
 .idea
 
 # generate files
-src/optimizedFlowie/compiler/dot/*.js
+src/compiler/dot/*.js
