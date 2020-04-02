@@ -2,8 +2,11 @@ import { Set } from 'immutable'
 
 import { FlowItem, FlowFunctionDetailsWithItem } from '../types'
 
+const flowieContainerSignature = Symbol('flowieContainerSignature')
+
 export default function createFlowieContainer (): FlowieContainer {
-  return {
+  const flowieContainer = {
+    [flowieContainerSignature]: flowieContainerSignature,
     latestDetailsAdded: [],
     allFunctionsNames: Set<string>(),
     functionsContainer: Object.freeze({}),
@@ -11,6 +14,11 @@ export default function createFlowieContainer (): FlowieContainer {
       return registerFlowieItem({}, ...possibleFunctionRegister)
     }
   }
+  return flowieContainer as FlowieContainer
+}
+
+export function isFlowieContainer (possibleFlowieContainer: FlowieContainer) {
+  return Boolean(possibleFlowieContainer) && flowieContainerSignature in possibleFlowieContainer
 }
 
 function registerFlowieItem (
@@ -24,12 +32,15 @@ function registerFlowieItem (
     ...Object.fromEntries(functionsDetailsList.map(getNameAsKey))
   }
 
-  return {
+  const flowieContainer = {
+    [flowieContainerSignature]: flowieContainerSignature,
     latestDetailsAdded: functionsDetailsList,
     allFunctionsNames: Set<string>(Object.keys(newFunctionsContainer)),
     functionsContainer: Object.freeze(newFunctionsContainer),
     register: registerFlowieItem.bind(null, newFunctionsContainer)
   }
+
+  return flowieContainer as FlowieContainer
 }
 
 function getFunctionDetail (

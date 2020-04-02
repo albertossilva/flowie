@@ -1,6 +1,5 @@
 import { When } from 'cucumber'
 import RuntimeFlowieWorld from './RuntimeFlowieWorld'
-// import { expect } from 'chai'
 
 When(
   'I create a flow named {string} with {string}',

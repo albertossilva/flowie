@@ -67,6 +67,7 @@ module.exports = {
       it: true,
     },
     rules: {
+      'no-unused-expressions': 'off',
       'functional/immutable-data': 'off',
     },
   }, {

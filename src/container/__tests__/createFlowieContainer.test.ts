@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { stub } from 'sinon'
 
-import createFlowieContainer from '../createFlowieContainer'
+import createFlowieContainer, { isFlowieContainer, FlowieContainer } from '../createFlowieContainer'
 
 describe('container/createFlowieContainer', function () {
   before(function () {
@@ -33,5 +33,15 @@ describe('container/createFlowieContainer', function () {
 
   it('includes the function name on all names', function () {
     expect(this.container.allFunctionsNames.toJS()).to.deep.equal(['foo', 'bar', 'aliasFoo', 'foobar', 'aliasFoobar'])
+  })
+
+  it('returns true for the container when checking isFlowieContainer', function () {
+    expect(isFlowieContainer(this.container)).to.true
+  })
+
+  it('returns false for things that are not created by createFlowieContainer', function () {
+    expect(isFlowieContainer({} as any as FlowieContainer)).to.false
+    expect(isFlowieContainer(this.foo as FlowieContainer)).to.false
+    expect(isFlowieContainer(undefined as FlowieContainer)).to.false
   })
 })

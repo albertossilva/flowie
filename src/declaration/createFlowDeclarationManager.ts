@@ -1,33 +1,33 @@
 import { Set as ImmutableSet } from 'immutable'
 
-import { FlowDeclaration, FlowFunctionDetails, PipeFlow, SplitFlow } from '../types'
+import { FlowieExecutionDeclaration, FlowFunctionDetails, PipeFlow, SplitFlow } from '../types'
 
-export default function createFlowDeclaration<Argument, Result> (
+export default function createFlowDeclarationManager<Argument, Result> (
   flowFunctionDetailsList: readonly FlowFunctionDetails[],
-  previousDeclaration?: FlowDeclaration
+  previousDeclaration?: FlowieExecutionDeclaration
 ): FlowDeclarationManager {
   const flowDeclaration = addNextItemToFlowDeclaration(flowFunctionDetailsList, previousDeclaration)
 
   return {
     ...flowDeclaration,
     pipe (flowFunctionDetails: FlowFunctionDetails) {
-      return createFlowDeclaration([flowFunctionDetails], flowDeclaration)
+      return createFlowDeclarationManager([flowFunctionDetails], flowDeclaration)
     },
     split (flowFunctionDetailsList: readonly FlowFunctionDetails[]) {
-      return createFlowDeclaration(flowFunctionDetailsList, flowDeclaration)
+      return createFlowDeclarationManager(flowFunctionDetailsList, flowDeclaration)
     }
   }
 }
 
-export interface FlowDeclarationManager extends FlowDeclaration {
+export interface FlowDeclarationManager extends FlowieExecutionDeclaration {
   readonly pipe: (flowFunctionDetails: FlowFunctionDetails) => FlowDeclarationManager
   readonly split: (flowFunctionDetailsList: readonly FlowFunctionDetails[]) => FlowDeclarationManager
 }
 
 function addNextItemToFlowDeclaration (
   flowFunctionDetailsList: readonly FlowFunctionDetails[],
-  previousDeclaration?: FlowDeclaration
-): FlowDeclaration {
+  previousDeclaration?: FlowieExecutionDeclaration
+): FlowieExecutionDeclaration {
   const functionNames = flowFunctionDetailsList.map(getName)
   if (!previousDeclaration) {
     return {

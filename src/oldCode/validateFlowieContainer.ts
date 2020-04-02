@@ -1,19 +1,19 @@
-import { Set } from 'immutable'
+// import { Set } from 'immutable'
 
-import { FlowieContainer } from './container/createFlowieContainer'
-import { Flow } from './flowie.type'
+// import { FlowieContainer } from './container/createFlowieContainer'
+// import { Flow } from './flowie.type'
 
-export default function validateFlowieContainer (flow: Flow, flowieContainer: FlowieContainer): Error | null {
-  const functionNames = flow.pipe || flow.split
-  const notRegisteredFunctions = Set(functionNames.filter(findNotRegisteredFunctions, flowieContainer))
+// export default function validateFlowieContainer (flow: Flow, flowieContainer: FlowieContainer): Error | null {
+//   const functionNames = flow.pipe || flow.split
+//   const notRegisteredFunctions = Set(functionNames.filter(findNotRegisteredFunctions, flowieContainer))
 
-  if (!notRegisteredFunctions.size) return null
+//   if (!notRegisteredFunctions.size) return null
 
-  return new TypeError(
-    `There is no functions registered on the container with this names: ${notRegisteredFunctions.join(', ')}`
-  )
-}
+//   return new TypeError(
+//     `There is no functions registered on the container with this names: ${notRegisteredFunctions.join(', ')}`
+//   )
+// }
 
-function findNotRegisteredFunctions (this: FlowieContainer, functionName: string): boolean {
-  return typeof functionName === 'string' && !(functionName in this.functionsContainer)
-}
+// function findNotRegisteredFunctions (this: FlowieContainer, functionName: string): boolean {
+//   return typeof functionName === 'string' && !(functionName in this.functionsContainer)
+// }

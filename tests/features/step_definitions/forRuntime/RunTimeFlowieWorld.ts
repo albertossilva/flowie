@@ -1,9 +1,9 @@
-import { assert } from 'chai'
 import { mock } from 'sinon'
 
 import { World } from '../FlowieTestsWorld'
 
 import { createFlowieContainer, Flowie, createFlowie, FlowResult } from '../../../../src/index'
+import { assertFlowIsNotRegistered, assertFunctionIsRegistered, assertFlowIsRegistered } from '../assertToAvoidMistakes'
 
 export default interface RuntimeFlowieWorld extends World {
   createMockFunction<Argument, Result>(name: string, argument: Argument, result: Result): void
@@ -18,36 +18,6 @@ export function createRuntimeFlowieWorld (): RuntimeFlowieWorld {
   const flows: Record<string, Flowie<any, any>> = {}
   const flowResults: Record<string, FlowResult<any>> = {}
 
-  function assertFlowIsNotRegistered (flowName: string) {
-    const flowNamesList = Object.keys(flowName)
-    assert.ok(
-      !flowNamesList.includes(flowName),
-      `A flow is already register with name ${flowName}, list of flows: ${flowNamesList.join(', ')}`
-    )
-  }
-
-  function assertFlowName (flowName: string) {
-    const flowNamesList = Object.keys(flowName)
-
-    assert.ok(
-      flowName,
-      `No flow with name ${flowName} is registered, see the list ${flowNamesList.join(', ')}`
-    )
-
-    return flows[flowName]
-  }
-
-  function assertFunctionName (functionName: string) {
-    const possibleFunction = flowieContainer.functionsContainer[functionName]
-
-    assert.ok(
-      possibleFunction,
-      `No function with name ${functionName} is registered, see the list ${flowieContainer.allFunctionsNames}`
-    )
-
-    return possibleFunction
-  }
-
   return {
     name: 'RuntimeFlowieWorld',
     createMockFunction<Argument, Result> (functionName: string, argument: Argument, result: Result) {
@@ -55,21 +25,21 @@ export function createRuntimeFlowieWorld (): RuntimeFlowieWorld {
       flowieContainer = flowieContainer.register([functionName, functionCreated])
     },
     createFlow (flowName: string, firstFunctionName: string) {
-      assertFlowIsNotRegistered(flowName)
-      const flowFunction = assertFunctionName(firstFunctionName)
+      assertFlowIsNotRegistered(flowName, flows)
+      const flowFunction = assertFunctionIsRegistered(firstFunctionName, flowieContainer)
       flows[flowName] = createFlowie(flowFunction.flowItem)
     },
     pipeFunctionOnFlow (flowName: string, functionName: string) {
-      const flow = assertFlowName(flowName)
-      const flowFunction = assertFunctionName(functionName)
+      const flow = assertFlowIsRegistered(flowName, flows)
+      const flowFunction = assertFunctionIsRegistered(functionName, flowieContainer)
       flows[flowName] = flow.pipe(flowFunction.flowItem)
     },
     executeFlow<FinalResult> (flowName: string, firstParameter: string) {
-      const flow = assertFlowName(flowName)
+      const flow = assertFlowIsRegistered(flowName, flows)
       flowResults[flowName] = flow(firstParameter) as FlowResult<FinalResult>
     },
     getFlowResult (flowName: string) {
-      assertFlowName(flowName)
+      assertFlowIsRegistered(flowName, flows)
       return flowResults[flowName]
     }
   }

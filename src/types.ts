@@ -1,6 +1,7 @@
 import { Map as ImmutableMap, Set as ImmutableSet } from 'immutable'
 
-import { FlowResult, FlowFunctionResult } from './flowieResult'
+import { FlowResult, FlowFunctionResult } from './runtime/flowieResult'
+import { FlowieContainer } from './container/createFlowieContainer'
 
 export interface InitializeFlowie {
   <Argument, Result>(flowItem: FlowItem<Argument, Result>): Flowie<Argument, Result>
@@ -54,6 +55,7 @@ export interface InitializeFlowie {
     flowItem8: FlowItem<Argument, Result8>,
   ): Flowie<Argument, readonly [Result1, Result2, Result3, Result4, Result5, Result6, Result7, Result8]>
   <Argument, Result>(...flowItemsList: readonly FlowItem<Argument, Result>[]): Flowie<Argument, Result>
+  <Argument = any, Result = any>(flowieContainer: FlowieContainer, flowExecutionDeclaration: FlowieDeclaration)
 }
 
 export interface Flowie<Argument, Result, InitialArgument = Argument>
@@ -188,11 +190,11 @@ export interface FlowieCreator {
   ): Flowie<Argument, Result, InitialArgument>
 }
 
-export interface FlowExecutionDeclaration {
+export interface FlowieDeclaration {
   readonly flows: Flows
 }
 
-export interface FlowDeclaration extends FlowExecutionDeclaration {
+export interface FlowieExecutionDeclaration extends FlowieDeclaration {
   readonly allFunctionsNames: ImmutableSet<string>
 }
 

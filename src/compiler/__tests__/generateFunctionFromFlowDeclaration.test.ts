@@ -5,12 +5,12 @@ import { expect } from 'chai'
 import { Set as ImmutableSet } from 'immutable'
 import beautify from 'js-beautify'
 
-import { FlowDeclaration } from '../../types'
+import { FlowieExecutionDeclaration } from '../../types'
 
 import generateFunctionFromFlowDeclaration from '../generateFunctionFromFlowDeclaration'
 
 const pathOfFixtures = path.join(__dirname, '..', '__fixtures__')
-const flowDeclarations: Record<string, FlowDeclaration> = {
+const flowDeclarations: Record<string, FlowieExecutionDeclaration> = {
   pipeOneSyncFunction: {
     allFunctionsNames: ImmutableSet(['firstFlowieItem']),
     flows: [
@@ -56,6 +56,6 @@ describe('compiler/generateFunctionFromFlowDeclaration', function () {
 type FixtureName = string
 interface TestCase {
   readonly description: string
-  readonly flowDeclaration: FlowDeclaration
+  readonly flowDeclaration: FlowieExecutionDeclaration
 }
 type CompilerTestCases = Record<FixtureName, TestCase>

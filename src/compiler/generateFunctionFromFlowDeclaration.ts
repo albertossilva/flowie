@@ -1,14 +1,14 @@
 /* eslint-disable no-new-func */
-import { FlowResult, CreateFlowieResult } from '../flowieResult'
-import { FlowDeclaration } from '../types'
+import { FlowResult, CreateFlowieResult } from '../runtime/flowieResult'
+import { FlowieExecutionDeclaration } from '../types'
 import { FlowieContainer } from '../container/createFlowieContainer'
 
 import generateFlowFunction from './dot/generateFlowFunction'
 
 export default function generateFunctionFromFlowDeclaration<Argument, Result> (
-  flowDeclaration: FlowDeclaration
+  flowieDeclaration: FlowieExecutionDeclaration
 ): FlowFunctionGeneration<Argument, Result> {
-  const sourceCode = generateFlowFunction({ allFunctionsNames: flowDeclaration.allFunctionsNames.toJS() })
+  const sourceCode = generateFlowFunction({ allFunctionsNames: flowieDeclaration.allFunctionsNames.toJS() })
   const generatedFlowFunction = new Function('executionArguments', sourceCode)
   return {
     generatedFlowFunction: generatedFlowFunction as GeneratedFlowFunction<Argument, Result>
