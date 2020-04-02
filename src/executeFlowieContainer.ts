@@ -1,8 +1,8 @@
 import { Flow } from './flowie.type'
-import flowieResult, { FlowResult } from './flowieResult'
+import flowieResult, { FlowResult } from './optimizedFlowie/flowieResult'
 
 import buildFlowieFromContainer from './buildFlowieFromContainer'
-import { FlowieContainer } from './createFlowieContainer'
+import { FlowieContainer } from './optimizedFlowie/container/createFlowieContainer'
 import validateFlowieContainer from './validateFlowieContainer'
 
 export default async function executeFlowieContainer<Type = any> (flowieContainer: FlowieContainer, flow: Flow, initialValue: any): Promise<FlowResult<Type>> {
@@ -13,5 +13,5 @@ export default async function executeFlowieContainer<Type = any> (flowieContaine
 
   const flowieFlow = buildFlowieFromContainer(flowieContainer, flow)
 
-  return flowieFlow.executeFlow<Type>(initialValue)
+  return flowieFlow(initialValue)
 }

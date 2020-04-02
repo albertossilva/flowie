@@ -1,8 +1,7 @@
-import flowie from './flowie'
-import { InitialFlowie } from './flowie.type'
+import { flowie } from './flowie'
 
-export default flowie as InitialFlowie
+export default flowie
 export * from './flowie.type'
 
-export { default as createFlowieContainer, FlowieContainer } from './createFlowieContainer'
+export { default as createFlowieContainer, FlowieContainer } from './optimizedFlowie/container/createFlowieContainer'
 export { default as executeFlowieContainer } from './executeFlowieContainer'

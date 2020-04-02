@@ -1,6 +1,6 @@
 import { Set } from 'immutable'
 
-import { FlowieContainer } from './createFlowieContainer'
+import { FlowieContainer } from './optimizedFlowie/container/createFlowieContainer'
 import { Flow } from './flowie.type'
 
 export default function validateFlowieContainer (flow: Flow, flowieContainer: FlowieContainer): Error | null {

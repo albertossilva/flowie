@@ -1,0 +1,12 @@
+const { flowieContainer, argument, createFlowieResult } = executionArguments;
+const startTime = Date.now();
+
+{{~it.allFunctionsNames :functionName:index}}
+const executeFunction_{{=functionName}} = flowieContainer.functionsContainer.{{=functionName}}.flowItem;
+{{~}}
+
+{{~it.allFunctionsNames :functionName:index}}
+const result{{=index+1}} = executeFunction_{{=functionName}}({{? index === 0}}argument{{??}}result{{=index}}{{?}});
+{{~}}
+
+return createFlowieResult.success(result{{=it.allFunctionsNames.length}}, startTime, {});

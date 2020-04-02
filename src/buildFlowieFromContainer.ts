@@ -1,9 +1,9 @@
 import { Seq } from 'immutable'
 
 import { Flow, NoTypedFlowie, FlowFunction } from './flowie.type'
-import flowie from './flowie'
+import { flowie } from './flowie'
 
-import { FlowieContainer } from './createFlowieContainer'
+import { FlowieContainer } from './optimizedFlowie/container/createFlowieContainer'
 
 export default function buildFlowieFromContainer (flowieContainer: FlowieContainer, flow: Flow): NoTypedFlowie {
   if (flow.split) {

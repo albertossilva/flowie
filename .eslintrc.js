@@ -37,23 +37,6 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off'
   },
   overrides: [{
-    files: ['src/**/*.test.ts'],
-    env: {
-      mocha: true,
-    },
-    globals: {
-      describe: true,
-      it: true,
-    },
-    rules: {},
-  }, {
-    files: ['tests/**/*.step.ts'],
-    env: {},
-    globals: {},
-    rules: {
-      'no-unused-expressions': 'off',
-    },
-  }, {
     files: ['src/**/*.ts'],
     env: {},
     globals: {},
@@ -63,6 +46,35 @@ module.exports = {
     extends: [
       'plugin:functional/no-mutations',
       'plugin:functional/no-exceptions',
-    ]
+    ] //
+  }, {
+      files: ['src/optimizedFlowie/compiler/__fixtures__/*.fixture.js'],
+      env: {},
+      globals: {},
+      rules: {
+        'space-before-function-paren': 'off',
+        'camelcase': 'off',
+        '@typescript-eslint/camelcase': 'off',
+        'semi': 'off'
+      }
+    }, {
+    files: ['src/**/*.test.ts', 'src/**/*.type-test.ts'],
+    env: {
+      mocha: true,
+    },
+    globals: {
+      describe: true,
+      it: true,
+    },
+    rules: {
+      'functional/immutable-data': 'off',
+    },
+  }, {
+    files: ['tests/**/*.step.ts'],
+    env: {},
+    globals: {},
+    rules: {
+      'no-unused-expressions': 'off',
+    },
   }]
 }
