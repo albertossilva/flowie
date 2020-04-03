@@ -9,10 +9,10 @@ describe('container/createFlowieContainer', function () {
     this.bar = stub().named('bar')
     this.foobar = stub().named('foobar')
     this.container = createFlowieContainer()
-      .register(this.foo)
-      .register(this.bar)
+      .register(this.foo, this.bar)
       .register(['aliasFoo', this.foo])
       .register(this.foobar, ['aliasFoobar', this.foobar])
+      .register(generateAnonymousFunction())
   })
 
   it('has foo as a registered function', function () {
@@ -32,7 +32,13 @@ describe('container/createFlowieContainer', function () {
   })
 
   it('includes the function name on all names', function () {
-    expect(this.container.allFunctionsNames.toJS()).to.deep.equal(['foo', 'bar', 'aliasFoo', 'foobar', 'aliasFoobar'])
+    expect(this.container.allFunctionsNames.butLast().toJS()).to.deep.equal(
+      ['foo', 'bar', 'aliasFoo', 'foobar', 'aliasFoobar']
+    )
+  })
+
+  it('generates a name for anonymous function', function () {
+    expect(this.container.allFunctionsNames.last()).to.match(/^anoymous[a-z0-9]{10,11}$/)
   })
 
   it('returns true for the container when checking isFlowieContainer', function () {
@@ -45,3 +51,6 @@ describe('container/createFlowieContainer', function () {
     expect(isFlowieContainer(undefined as FlowieContainer)).to.false
   })
 })
+
+/* istanbul ignore next */
+const generateAnonymousFunction = () => () => ''

@@ -20,15 +20,11 @@ export function assertFlowIsRegistered<T> (flowName: string, flows: Record<strin
   return flows[flowName]
 }
 
-export function assertFunctionIsRegistered (functionName: string, flowieContainer: FlowieContainer) {
-  const functionCandidate = flowieContainer.functionsContainer[functionName]
-
-  assert.ok(
-    functionCandidate,
-    `No function with name ${functionName} is registered, see the list ${flowieContainer.allFunctionsNames}`
-  )
-
-  return functionCandidate
+export function getRegisteredFlowFunctionDetails (
+  functionsNamesList: readonly string[],
+  flowieContainer: FlowieContainer
+) {
+  return functionsNamesList.map(getFlowieItem, { flowieContainer })
 }
 
 export function assertResults<T> (flowName: string, flowResults: Record<string, FlowResult<T>>) {
@@ -40,4 +36,14 @@ export function assertResults<T> (flowName: string, flowResults: Record<string, 
   )
 
   return flowResults[flowName]
+}
+
+function getFlowieItem (this: { flowieContainer: FlowieContainer }, functionName: string) {
+  const functionCandidate = this.flowieContainer.functionsContainer[functionName]
+  assert.ok(
+    functionCandidate,
+    `No function with name ${functionName} is registered, see the list ${this.flowieContainer.allFunctionsNames}`
+  )
+
+  return functionCandidate.flowItem
 }

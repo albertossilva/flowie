@@ -9,12 +9,11 @@
     "postinstall": "npm run compileDots",
     "lint": "eslint --ext .ts src/ tests/",
     "lint:fix": "eslint --ext .ts --fix src/ tests/",
-    "test": "npm run test:unit && npm run test:integration && npm run test:types ",
+    "test": "npm run test:unit && npm run test:integration",
     "test2": "npm run test:unit && npm run test:integration",
-    "test:unit": "mocha --config .unit.mocharc.js",
-    "test:types": "mocha --config .types.mocharc.js",
-    "test:integration": "NODE_ENV=test cucumber-js --require-module=ts-node/register --require 'tests/features/step_definitions/**/*.step.ts' -f summary tests/features",
-    "test:integration:debug": "NODE_ENV=test node --inspect-brk ./node_modules/.bin/cucumber-js --require-module=ts-node/register --require 'tests/features/step_definitions/**/*.step.ts' -f summary tests/features",
+    "test:unit": "npm run compileDots && mocha --config .unit.mocharc.js",
+    "test:integration": "npm run compileDots && NODE_ENV=test cucumber-js --require-module=ts-node/register --require 'tests/features/step_definitions/**/*.step.ts' -f summary tests/features",
+    "test:integration:debug": "npm run compileDots && NODE_ENV=test node --inspect-brk ./node_modules/.bin/cucumber-js --require-module=ts-node/register --require 'tests/features/step_definitions/**/*.step.ts' -f summary tests/features",
     "coverage": "nyc npm run test2",
     "compileDots": "ts-node src/compiler/dot/compileDots.ts"
   },
@@ -82,7 +81,6 @@
     "nyc": "^15.0.0",
     "sinon": "^9.0.1",
     "ts-node": "^8.8.1",
-    "tsd": "^0.11.0",
     "typescript": "^3.8.3"
   }
 }

@@ -9,3 +9,9 @@ Then(
     assert.equal(flowResult.lastResults, expectedResult, 'Result is wrong')
   }
 )
+
+Then('the result of flow {string} is', function (this: RuntimeFlowieWorld, flowName: string, resultMatch: string) {
+  const expectedResult = JSON.parse(resultMatch)
+  const flowResult = this.getFlowResult(flowName)
+  assert.deepEqual(flowResult.lastResults, expectedResult, 'Result is wrong')
+})

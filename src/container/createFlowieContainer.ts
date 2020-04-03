@@ -47,8 +47,11 @@ function getFunctionDetail (
   possibleFunctionRegister: PossibleFunctionRegister
 ): FlowFunctionDetailsWithItem {
   if (typeof possibleFunctionRegister === 'function') {
+    const name = possibleFunctionRegister.name.trim()
+      ? possibleFunctionRegister.name.trim()
+      : `anoymous${Math.random().toString(36).slice(2)}`
     return {
-      name: possibleFunctionRegister.name,
+      name,
       flowItem: possibleFunctionRegister
     }
   }

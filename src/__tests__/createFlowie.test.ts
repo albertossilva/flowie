@@ -1,5 +1,5 @@
 import { assert } from 'chai'
-import { lorem } from 'faker'
+import { random, lorem } from 'faker'
 import { mock, assert as sinonAssert, SinonStub } from 'sinon'
 
 import { createFlowie, FlowResult } from '../index'
@@ -51,84 +51,97 @@ describe('laboratory For CreateFlowie', function () {
         assert.equal(actual, expected)
       })
 
-      //   it('pipes multiple synchronous function', async function () {
-      //     const firstReturn = 'RESULT'
-      //     const firstFunction = createSimpleFunctionMock(parameter, firstReturn, { functionName: 'firstFunction' })
-      //     const middleWareFunction = createSimpleFunctionMock(firstReturn, firstReturn, {
-      //       functionName: 'middleWareFunction',
-      //       timesToBeExecuted: 7
-      //     })
+      it('pipes multiple synchronous function', async function () {
+        const firstReturn = 'RESULT'
+        const firstFunction = createSimpleFunctionMock(parameter, firstReturn, { functionName: 'firstFunction' })
+        const middleWareFunction = createSimpleFunctionMock(firstReturn, firstReturn, {
+          functionName: 'middleWareFunction',
+          timesToBeExecuted: 5
+        })
 
-      //     const lastFunction = createSimpleFunctionMock(firstReturn, expected, { functionName: 'lastFunction' })
+        const lastFunction = createSimpleFunctionMock(firstReturn, expected, { functionName: 'lastFunction' })
 
-      //     const flow = createFlowie(firstFunction)
-      //       .pipe(middleWareFunction)
-      //       .pipe(middleWareFunction)
-      //       .pipe(middleWareFunction)
-      //       .pipe(middleWareFunction)
-      //       // .pipe(flowie(middleWareFunction).pipe(middleWareFunction)) // TODO uncomment later
-      //       .pipe(middleWareFunction)
-      //       .pipe(lastFunction)
+        const flow = createFlowie(firstFunction)
+          .pipe(middleWareFunction)
+          .pipe(middleWareFunction)
+          .pipe(middleWareFunction)
+          .pipe(middleWareFunction)
+        // .pipe(flowie(middleWareFunction).pipe(middleWareFunction)) // TODO uncomment later
+          .pipe(middleWareFunction)
+          .pipe(lastFunction)
 
-      //     const { lastResults: actual } = await flow(parameter)
+        const { lastResults: actual } = await flow(parameter)
 
-      //     assert.equal(actual, expected);
-      //     (middleWareFunction as any).verify()
-      //   })
+        assert.equal(actual, expected);
+        (middleWareFunction as any).verify()
+      })
     })
 
-    //       describe('split', function () {
-    //         it('executes two functions in paralell', async function () {
-    //           const add1Flowie = flowie(add1)
-    //           const flow = await add1Flowie.split(add1, add1Flowie.pipe(add2))
-    //           const flowieResult = await flow(3)
+    describe('split', function () {
+      it('starting with split', async function () {
+        const flow = createFlowie(add1, add2, add1, add2)
+        const flowieResult = await flow(3)
 
-    //           assert.deepEqual(flowieResult.lastResults, [5, 7])
-    //         })
+        assert.deepEqual(flowieResult.lastResults, [4, 5, 4, 5])
+      })
 
-    //         it('executes N functions in paralell', async function () {
-    //           const numberOfFlowsThatReturnsFive = random.number({ min: 10, max: 20 })
-    //           const add1Flowie = flowie(add1)
-    //           const nineAddFlowieThatAdd1AndOneAddThreeFlowie = [
-    //             ...new Array<Flowie<number, number, number>>(numberOfFlowsThatReturnsFive).fill(add1Flowie),
-    //             add2
-    //           ]
-    //           const flow = add1Flowie.split(...nineAddFlowieThatAdd1AndOneAddThreeFlowie)
-    //           const flowieResult = await flow(4)
+      it('executes two functions in paralell', async function () {
+        const add1Flowie = createFlowie(add1)
+        const flow = await add1Flowie.split(add1, add3) // TODO use flowie add1Flowie.pipe(add2)
+        const flowieResult = await flow(3)
 
-    //           assert.deepEqual(flowieResult.lastResults, [...new Array(numberOfFlowsThatReturnsFive).fill(6), 7])
-    //         })
+        assert.deepEqual(flowieResult.lastResults, [5, 7])
+      })
 
-    //         it('executes functions in paralell, but later functions does not affect the order of the results', async function () {
-    //           const spySooner = spy().named('sooner')
-    //           const mockSooner = mock().named('soonerResult').returns('sooner')
+      it('executes N functions in paralell', async function () {
+        const numberOfFlowsThatReturnsFive = random.number({ min: 10, max: 20 })
+        const add1Flowie = createFlowie(add1)
+        const nineAddFlowieThatAdd1AndOneAddThreeFlowie = [
+          ...new Array<any>(numberOfFlowsThatReturnsFive).fill(add1),
+          add2
+        ]
+        const flow = add1Flowie.split(...nineAddFlowieThatAdd1AndOneAddThreeFlowie)
+        const flowieResult = await flow(4)
 
-    //           const spyLater = spy().named('later')
-    //           const mockLater = mock().named('laterResult').returns('later')
+        assert.deepEqual(flowieResult.lastResults, [...new Array(numberOfFlowsThatReturnsFive).fill(6), 7])
+      })
 
-    //           const spyReallyLater = spy().named('reallyLater')
-    //           const mockReallyLater = mock().named('reallyLaterResult').returns('reallyLater')
+      // it('executes N flowies in paralell', async function () {
+      //   const numberOfFlowsThatReturnsFive = random.number({ min: 10, max: 20 })
+      //   const add1Flowie = createFlowie(add1)
+      //   const nineAddFlowieThatAdd1AndOneAddThreeFlowie = [
+      //     ...new Array<Flowie<number, number, number>>(numberOfFlowsThatReturnsFive).fill(add1Flowie),
+      //     add2
+      //   ]
+      //   const flow = add1Flowie.split(...nineAddFlowieThatAdd1AndOneAddThreeFlowie)
+      //   const flowieResult = await flow(4)
 
-    //           const shuffleSlowFlowie = [
-    //             flowie(takeTimeToBeExecuted(30)).pipe(spyReallyLater).pipe(mockReallyLater),
-    //             flowie(takeTimeToBeExecuted(10)).pipe(spySooner).pipe(mockSooner),
-    //             flowie(takeTimeToBeExecuted(20)).pipe(spyLater).pipe(mockLater)
-    //           ]
+      //   assert.deepEqual(flowieResult.lastResults, [...new Array(numberOfFlowsThatReturnsFive).fill(6), 7])
+      // })
 
-    //           const flow = await flowie(spy().named('doesNotMatter')).split(...shuffleSlowFlowie)
-    //           const { lastResults } = await flow(null)
+      //         it('executes functions in paralell, but later functions does not affect the order of the results', async function () {
+      //           const spySooner = spy().named('sooner')
+      //           const mockSooner = mock().named('soonerResult').returns('sooner')
 
-    //           sinonAssert.callOrder(spySooner, spyLater, spyReallyLater)
-    //           assert.deepEqual(lastResults, ['reallyLater', 'sooner', 'later'])
-    //         })
+      //           const spyLater = spy().named('later')
+      //           const mockLater = mock().named('laterResult').returns('later')
 
-    //         it('accepts split as the first flowie step', async function () {
-    //           const flow = flowie(add1, flowie(add2))
-    //           const flowieResult = await flow(4)
+      //           const spyReallyLater = spy().named('reallyLater')
+      //           const mockReallyLater = mock().named('reallyLaterResult').returns('reallyLater')
 
-  //           assert.deepEqual(flowieResult.lastResults, [5, 6])
-  //         })
-  //       })
+      //           const shuffleSlowFlowie = [
+      //             flowie(takeTimeToBeExecuted(30)).pipe(spyReallyLater).pipe(mockReallyLater),
+      //             flowie(takeTimeToBeExecuted(10)).pipe(spySooner).pipe(mockSooner),
+      //             flowie(takeTimeToBeExecuted(20)).pipe(spyLater).pipe(mockLater)
+      //           ]
+
+      //           const flow = await flowie(spy().named('doesNotMatter')).split(...shuffleSlowFlowie)
+      //           const { lastResults } = await flow(null)
+
+      //           sinonAssert.callOrder(spySooner, spyLater, spyReallyLater)
+      //           assert.deepEqual(lastResults, ['reallyLater', 'sooner', 'later'])
+      //         })
+    })
   })
 
   //     context('generators/iterators', function () {
@@ -220,9 +233,10 @@ describe('laboratory For CreateFlowie', function () {
 // const createByPassFunction = () => stub().returnsArg(0) as (x: string) => string
 // const createPreffixer = (preffix: string) => stub().named(`preffixer-${preffix}`)
 //   .callsFake((x: string): string => `${preffix} ${x}`) as (x: string) => string
-// const add = (shouldBeAdded: number) => (numberToAdd: number) => numberToAdd + shouldBeAdded
-// const add1 = add(1)
-// const add2 = add(2)
+const add = (shouldBeAdded: number) => (numberToAdd: number) => numberToAdd + shouldBeAdded
+const add1 = add(1)
+const add2 = add(2)
+const add3 = add(3)
 
 // const takeTimeToBeExecuted = (miliseconds: number) =>
 //   (x: any) => new Promise((resolve) => setTimeout(() => resolve(x), miliseconds))

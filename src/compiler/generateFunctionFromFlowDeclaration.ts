@@ -8,7 +8,11 @@ import generateFlowFunction from './dot/generateFlowFunction'
 export default function generateFunctionFromFlowDeclaration<Argument, Result> (
   flowieDeclaration: FlowieExecutionDeclaration
 ): FlowFunctionGeneration<Argument, Result> {
-  const sourceCode = generateFlowFunction({ allFunctionsNames: flowieDeclaration.allFunctionsNames.toJS() })
+  const sourceCode = generateFlowFunction({
+    allFunctionsNames: flowieDeclaration.allFunctionsNames.toJS(),
+    flows: flowieDeclaration.flows
+  })
+
   const generatedFlowFunction = new Function('executionArguments', sourceCode)
   return {
     generatedFlowFunction: generatedFlowFunction as GeneratedFlowFunction<Argument, Result>
