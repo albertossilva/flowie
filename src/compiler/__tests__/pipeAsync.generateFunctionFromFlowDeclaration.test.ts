@@ -1,20 +1,20 @@
 import { Set as ImmutableSet } from 'immutable'
 import createFlowieContainer from '../../container/createFlowieContainer'
-import { createMock } from '../../../tests/features/step_definitions/mockCreators'
-import { syncConstructor } from '../../functionConstructors'
+import { createMock, createAsyncMock } from '../../../tests/features/step_definitions/mockCreators'
+import { asyncConstructor } from '../../functionConstructors'
 
 import testFunctionGenerations from './testFunctionGenerations'
 
-const pipeOneSyncFunction = {
-  isAsync: false,
+const pipeOneAsyncFunction = {
+  isAsync: true,
   allFunctionsNames: ImmutableSet(['firstFlowieItem']),
   flows: [
     { pipe: { function: 'firstFlowieItem' } }
   ]
 }
 
-const pipeSyncFunctionList = {
-  isAsync: false,
+const pipeAsyncFunctionList = {
+  isAsync: true,
   allFunctionsNames: ImmutableSet(['firstFlowieItem', 'secondFlowieItem', 'thirdFlowieItem']),
   flows: [
     { pipe: { function: 'firstFlowieItem' } },
@@ -24,19 +24,19 @@ const pipeSyncFunctionList = {
 }
 
 const flowieContainer = createFlowieContainer().register(
-  createMock('firstFlowieItem', 'not used', 'not used'),
+  createAsyncMock('firstFlowieItem', 'not used', 'not used'),
   createMock('secondFlowieItem', 'not used', 'not used'),
   createMock('thirdFlowieItem', 'not used', 'not used')
 )
 
-describe('pipeSync.generateFunctionFromFlowDeclaration', function () {
+describe('pipeAsync.generateFunctionFromFlowDeclaration', function () {
   it(
     'generates sync function when there is no async function pipe',
-    testFunctionGenerations('pipeOneSyncFunction', pipeOneSyncFunction, flowieContainer, syncConstructor)
+    testFunctionGenerations('pipeOneAsyncFunction', pipeOneAsyncFunction, flowieContainer, asyncConstructor)
   )
 
   it(
     'generates sync function when there is no async function when piping more functions',
-    testFunctionGenerations('pipeSyncFunctionList', pipeSyncFunctionList, flowieContainer, syncConstructor)
+    testFunctionGenerations('pipeAsyncFunctionList', pipeAsyncFunctionList, flowieContainer, asyncConstructor)
   )
 })

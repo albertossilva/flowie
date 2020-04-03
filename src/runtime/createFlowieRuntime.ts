@@ -1,9 +1,10 @@
 import { FlowItem, Flowie, FlowieExtender } from '../types'
 
 import { FlowieContainer } from '../container/createFlowieContainer'
-import { FlowResult } from './flowieResult'
 import compileFlowDeclaration from '../compiler/compileFlowDeclaration'
 import { FlowDeclarationManager } from '../declaration/createFlowDeclarationManager'
+
+import { FlowResult } from './flowieResult'
 
 export default function createFlowieRuntime<Argument, Result, InitialArgument = Argument> (
   flowieContainer: FlowieContainer,

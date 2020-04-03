@@ -1,8 +1,11 @@
+/* istanbul ignore next */
+export const syncConstructor = (() => 1).constructor as FunctionConstructor
+/* istanbul ignore next */
+export const asyncConstructor = (async () => 1).constructor as FunctionConstructor
+
 const functionConstructors = {
-  /* instanbul ignore next */
-  sync: (() => 1).constructor as FunctionConstructor,
-  /* instanbul ignore next */
-  async: (async () => 1).constructor as FunctionConstructor
+  sync: syncConstructor,
+  async: asyncConstructor
 }
 
 export function isAsyncFunction (functionCandidate: Function) {

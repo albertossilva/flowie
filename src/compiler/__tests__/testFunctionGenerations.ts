@@ -1,4 +1,3 @@
-/* eslint-disable mocha/no-setup-in-describe */
 import { readFileSync } from 'fs'
 import path from 'path'
 import { expect } from 'chai'
@@ -15,15 +14,18 @@ const pathOfFixtures = path.join(__dirname, '..', '__fixtures__')
 export default function testFunctionGenerations (
   fixtureName: string,
   flowDeclaration: FlowieExecutionDeclaration,
-  flowieContainer: FlowieContainer
+  flowieContainer: FlowieContainer,
+  expectedFunctionConstructor: FunctionConstructor
 ) {
   return function () {
     const expectedFixture = readFileSync(path.join(pathOfFixtures, `${fixtureName}.fixture.js`)).toString().trim()
-    const generatedFunction = generateFunctionFromFlowDeclaration(flowDeclaration, flowieContainer)
+    const { generatedFlowFunction } = generateFunctionFromFlowDeclaration(flowDeclaration, flowieContainer)
+
+    expect(generatedFlowFunction).to.instanceOf(expectedFunctionConstructor)
 
     // eslint-disable-next-line @typescript-eslint/camelcase
     const jsBeautifyOptions = { indent_size: 2, eol: '\n' }
-    const beautifiedCode = beautify(generatedFunction.generatedFlowFunction.toString(), jsBeautifyOptions)
+    const beautifiedCode = beautify(generatedFlowFunction.toString(), jsBeautifyOptions)
 
     expect(beautifiedCode).to.equal(expectedFixture)
   }
