@@ -7,7 +7,7 @@ import dot from 'dot'
 async function compileDots () {
   await del(path.join(__dirname, '*.js'))
   await del(path.join(__dirname, '*.js'))
-  ;(dot as any).process({
+  await (dot as any).process({
     path: __dirname,
     templateSettings: {
       encode: false,
@@ -17,5 +17,3 @@ async function compileDots () {
 }
 
 export default compileDots
-
-compileDots()

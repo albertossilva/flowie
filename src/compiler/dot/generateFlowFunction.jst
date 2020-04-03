@@ -1,15 +1,17 @@
 const { flowieContainer, argument, createFlowieResult } = executionArguments;
 const startTime = Date.now();
 
-{{~it.allFunctionsNames :functionName:index}}
-const executeFunction_{{=functionName}} = flowieContainer.functionsContainer.{{=functionName}}.flowItem;
+{{~Object.values(it.functionDescriptorsList) :functionDescriptor:index}}
+const executeFunction_{{=functionDescriptor.name}} = flowieContainer.functionsContainer.{{=functionDescriptor.name}}.flowItem;
 {{~}}
 
 {{~it.flows :flow:index}}
 {{ const resultVariable = `result${index+1}`; }}
 {{ const argumentVariable = index === 0 ? 'argument' : `result${index}`; }}
 {{? Boolean(flow.pipe)}}
-const {{=resultVariable}} = executeFunction_{{=flow.pipe.function}}({{=argumentVariable}});
+{{ const functionName = flow.pipe.function; }}
+{{ const awaitOrNot = it.functionDescriptorsList[functionName].isAsync ? 'await ' : ''; }}
+const {{=resultVariable}} = {{=awaitOrNot}}executeFunction_{{=functionName}}({{=argumentVariable}});
 {{?}}
 {{? Boolean(flow.split)}}
 const {{=resultVariable}} = [

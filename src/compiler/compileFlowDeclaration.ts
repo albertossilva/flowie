@@ -4,10 +4,16 @@ import flowieResult from '../runtime/flowieResult'
 
 import generateFunctionFromFlowDeclaration from './generateFunctionFromFlowDeclaration'
 
-export default function compileFlowDeclaration<Argument, Result> (flowieDeclaration: FlowieExecutionDeclaration) {
-  const { generatedFlowFunction } = generateFunctionFromFlowDeclaration<Argument, Result>(flowieDeclaration)
+export default function compileFlowDeclaration<Argument, Result> (
+  flowieDeclaration: FlowieExecutionDeclaration,
+  flowieContainer: FlowieContainer
+) {
+  const { generatedFlowFunction } = generateFunctionFromFlowDeclaration<Argument, Result>(
+    flowieDeclaration,
+    flowieContainer
+  )
 
-  return function executeCompiledFlow (flowieContainer: FlowieContainer, argument: Argument) {
+  return function executeCompiledFlow (argument: Argument) {
     return generatedFlowFunction({ flowieContainer, argument, createFlowieResult: flowieResult })
   }
 }

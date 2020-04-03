@@ -15,3 +15,10 @@ Given(
     this.createMockFunction(functionName, argument, result)
   }
 )
+
+Given(
+  'an async function called {string} that receives {string} and resolves with {string}',
+  function (this: RuntimeFlowieWorld, functionName: string, argument: string, result: string) {
+    this.createAsyncMockFunction(functionName, argument, result)
+  }
+)

@@ -29,14 +29,17 @@ function addNextItemToFlowDeclaration (
   previousDeclaration?: FlowieExecutionDeclaration
 ): FlowieExecutionDeclaration {
   const functionNames = flowFunctionDetailsList.map(getName)
+
   if (!previousDeclaration) {
     return {
+      isAsync: flowFunctionDetailsList.some(isAsync),
       allFunctionsNames: ImmutableSet(flowFunctionDetailsList.map(getName)),
       flows: [createPipeOrSplitFlow(flowFunctionDetailsList)]
     }
   }
 
   return {
+    isAsync: previousDeclaration.isAsync || flowFunctionDetailsList.some(isAsync),
     allFunctionsNames: previousDeclaration.allFunctionsNames.concat(functionNames),
     flows: previousDeclaration.flows.concat(createPipeOrSplitFlow(flowFunctionDetailsList))
   }
@@ -58,6 +61,10 @@ function createPipeOrSplitFlow (flowFunctionDetailsList: readonly FlowFunctionDe
   }
 }
 
-function getName (flowFunctionDetails: FlowFunctionDetails) {
-  return flowFunctionDetails.name
+function getName ({ name }: FlowFunctionDetails) {
+  return name
+}
+
+function isAsync ({ isAsync }: FlowFunctionDetails) {
+  return isAsync
 }

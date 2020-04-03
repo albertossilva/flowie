@@ -15,7 +15,7 @@ function createFlowie<Argument, Result> (
 ): Flowie<Argument, Result> {
   const [flowieContainer, flowDeclarationCandidate] = flowItemsList as (readonly [FlowieContainer, FlowieDeclaration])
   if (isFlowieContainer(flowieContainer)) {
-    const flowDeclaration = buildFlowDeclaration(flowDeclarationCandidate)
+    const flowDeclaration = buildFlowDeclaration(flowDeclarationCandidate, flowieContainer)
 
     return createFlowieRuntime(flowieContainer, flowDeclaration)
   }

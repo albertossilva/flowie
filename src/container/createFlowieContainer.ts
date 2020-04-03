@@ -1,6 +1,7 @@
 import { Set } from 'immutable'
 
 import { FlowItem, FlowFunctionDetailsWithItem } from '../types'
+import { isAsyncFunction } from '../functionConstructors'
 
 const flowieContainerSignature = Symbol('flowieContainerSignature')
 
@@ -50,15 +51,17 @@ function getFunctionDetail (
     const name = possibleFunctionRegister.name.trim()
       ? possibleFunctionRegister.name.trim()
       : `anoymous${Math.random().toString(36).slice(2)}`
+
     return {
       name,
-      flowItem: possibleFunctionRegister
+      flowItem: possibleFunctionRegister,
+      isAsync: isAsyncFunction(possibleFunctionRegister)
     }
   }
 
   const [name, flowItem] = possibleFunctionRegister
 
-  return { name, flowItem }
+  return { name, flowItem, isAsync: isAsyncFunction(flowItem) }
 }
 
 function getNameAsKey (functionDetails: FlowFunctionDetailsWithItem) {

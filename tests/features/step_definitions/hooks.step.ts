@@ -24,7 +24,7 @@ function ProxyTestsWorld () {
 
   return new Proxy({}, {
     get (_: never, methodName: string) {
-      !(methodName in methods) && assert.ok(state.world, 'No world have been configured')
+      !(methodName in methods) && assert.ok(state.world, 'No world have been configured, tag forgotten')
       const hasMethod = (methodName in methods) || (methodName in state.world)
 
       assert.ok(hasMethod, `Method ${methodName} is not included on ${methodsNames}`)
@@ -36,5 +36,7 @@ function ProxyTestsWorld () {
 
 setWorldConstructor(ProxyTestsWorld)
 BeforeAll(async function () {
+  console.log('#'.repeat(30))
   await compileDots()
+  console.log('#'.repeat(30))
 })

@@ -27,7 +27,10 @@ export function getRegisteredFlowFunctionDetails (
   return functionsNamesList.map(getFlowieItem, { flowieContainer })
 }
 
-export function assertResults<T> (flowName: string, flowResults: Record<string, FlowResult<T>>) {
+export function assertResults<T> (
+  flowName: string,
+  flowResults: Record<string, FlowResult<T> | Promise<FlowResult<T>>>
+) {
   const flowResultsRegistered = Object.keys(flowResults)
 
   assert.ok(

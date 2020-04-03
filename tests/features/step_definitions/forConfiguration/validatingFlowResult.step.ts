@@ -18,3 +18,13 @@ Then(
     assert.deepEqual(flowResult.lastResults, expectedResult, 'Result is wrong')
   }
 )
+
+Then(
+  'the promise result is {string} for flow from configuration: {string}',
+  async function (this: ConfigurationFlowieWorld, expectedResult: string, flowName: string) {
+    const promiseCandidate = this.getAsyncFlowResult(flowName)
+    assert.instanceOf(promiseCandidate, Promise, 'The result was not a promise')
+    const flowResult = await promiseCandidate
+    assert.equal(flowResult.lastResults, expectedResult, 'Result is wrong')
+  }
+)

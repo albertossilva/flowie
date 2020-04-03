@@ -162,6 +162,7 @@ export type GeneratorFlowFunction<Argument, Result> =
 
 export interface FlowFunctionDetails<Argument = any, Result = any> {
   readonly name: string
+  readonly isAsync: boolean
 }
 export interface FlowFunctionDetailsWithItem<Argument = any, Result = any>
   extends FlowFunctionDetails<Argument, Result> {
@@ -195,6 +196,7 @@ export interface FlowieDeclaration {
 }
 
 export interface FlowieExecutionDeclaration extends FlowieDeclaration {
+  readonly isAsync: boolean
   readonly allFunctionsNames: ImmutableSet<string>
 }
 

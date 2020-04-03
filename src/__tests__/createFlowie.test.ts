@@ -1,11 +1,11 @@
-import { assert } from 'chai'
+import { assert, expect } from 'chai'
 import { random, lorem } from 'faker'
 import { mock, assert as sinonAssert, SinonStub } from 'sinon'
 
 import { createFlowie, FlowResult } from '../index'
 import { Flowie } from '../types'
 
-describe('laboratory For CreateFlowie', function () {
+describe('createFlowie', function () {
   const parameter = 'ARGUMENT'
   const expected = 'FINAL RESULT'
 
@@ -21,23 +21,25 @@ describe('laboratory For CreateFlowie', function () {
         sinonAssert.calledOnce(commonFunction as SinonStub)
       })
 
-      // it('accepts flowie objects as functions', async function () {
-      //   const commonFunction = createSimpleFunctionMock(parameter, expected)
+      it('accepts flowie objects as functions', async function () {
+        const commonFunction = createSimpleFunctionMock(parameter, expected)
 
-      //   const { lastResults: actual } = await flowie(flowie(flowie(commonFunction)))(parameter)
+        const { lastResults: actual } = await createFlowie(createFlowie(createFlowie(commonFunction)))(parameter)
 
-      //   assert.equal(actual, expected)
-      //   sinonAssert.calledOnce(commonFunction as SinonStub)
-      // })
+        assert.equal(actual, expected)
+        sinonAssert.calledOnce(commonFunction as SinonStub)
+      })
 
-      //         it('accepts async functions', async function () {
-      //           const commonFunction = createAsyncFunctionMock(parameter, expected)
+      it('accepts async functions', async function () {
+        const commonFunction = createAsyncFunctionMock(parameter, expected)
 
-      //           const { lastResults: actual } = await flowie(commonFunction)(parameter)
+        const promise = createFlowie(commonFunction)(parameter)
+        expect(promise).to.instanceOf(Promise)
+        const { lastResults: actual } = await promise
 
-      //           assert.equal(actual, expected)
-      //           sinonAssert.calledOnce(commonFunction as SinonStub)
-      //         })
+        assert.equal(actual, expected)
+        sinonAssert.calledOnce(commonFunction as SinonStub)
+      })
 
       it('executes and returns the result of the second synchronous function, working as a chain', function () {
         const firstReturn = 'RESULT'
@@ -256,20 +258,19 @@ function createSimpleFunctionMock (
     .named(functionName)
 }
 
-// function createAsyncFunctionMock (
-//   parameter: string,
-//   result: string,
-//   timesToBeExecuted = 1
-// ): (argument: string) => Promise<string> {
-//   const asyncMock = mock()
-//     .withArgs(parameter)
-//     .exactly(timesToBeExecuted)
-//     .resolves(result)
+function createAsyncFunctionMock (
+  parameter: string,
+  result: string,
+  timesToBeExecuted = 1
+): (argument: string) => Promise<string> {
+  const asyncMock = mock()
+    .withArgs(parameter)
+    .exactly(timesToBeExecuted)
+    .resolves(result)
 
-//   // eslint-disable-next-line functional/immutable-data
-//   asyncMock[Symbol.toStringTag] = 'AsyncFunction'
-//   return asyncMock
-// }
+  asyncMock[Symbol.toStringTag] = 'AsyncFunction'
+  return asyncMock
+}
 
 // function createGeneratorFrom<A, T> (array: readonly T[], expected: A) {
 //   return function * traverseArray (actual: A) {

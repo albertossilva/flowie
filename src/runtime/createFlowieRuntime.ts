@@ -9,10 +9,10 @@ export default function createFlowieRuntime<Argument, Result, InitialArgument = 
   flowieContainer: FlowieContainer,
   flowDeclarationManager: FlowDeclarationManager
 ): Flowie<Argument, Result> {
-  const executeCompiledFlow = compileFlowDeclaration<Argument, Result>(flowDeclarationManager)
+  const executeCompiledFlow = compileFlowDeclaration<Argument, Result>(flowDeclarationManager, flowieContainer)
 
   function executeFlow (argument: Argument): FlowResult<Result> | Promise<FlowResult<Result>> {
-    return executeCompiledFlow(flowieContainer, argument)
+    return executeCompiledFlow(argument)
   }
 
   function pipe<NewResult> (nextFlowItem: FlowItem<Result, NewResult>): Flowie<Result, NewResult, InitialArgument> {

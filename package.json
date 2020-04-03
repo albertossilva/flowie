@@ -15,7 +15,7 @@
     "test:integration": "npm run compileDots && NODE_ENV=test cucumber-js --require-module=ts-node/register --require 'tests/features/step_definitions/**/*.step.ts' -f summary tests/features",
     "test:integration:debug": "npm run compileDots && NODE_ENV=test node --inspect-brk ./node_modules/.bin/cucumber-js --require-module=ts-node/register --require 'tests/features/step_definitions/**/*.step.ts' -f summary tests/features",
     "coverage": "nyc npm run test2",
-    "compileDots": "ts-node src/compiler/dot/compileDots.ts"
+    "compileDots": "ts-node src/compiler/dot/compileDots.script.ts"
   },
   "repository": {
     "type": "git",
