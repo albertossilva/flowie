@@ -23,16 +23,16 @@ export default function createFlowieRuntime<Argument, Result, InitialArgument = 
     return createFlowieRuntime<Result, NewResult, InitialArgument>(nextFlowieContainer, nextFlowDeclaration)
   }
 
-  function split<NewResult> (
-    ...nextFlowItemsList: readonly FlowItem<Result, NewResult, InitialArgument>[]
-  ): Flowie<Result, any, InitialArgument> {
-    const nextFlowieContainer = flowieContainer.register(...nextFlowItemsList)
-    const nextFlowDeclaration = flowDeclarationManager.split(nextFlowieContainer.latestDetailsAdded)
+  // function split<NewResult> (
+  //   ...nextFlowItemsList: readonly FlowItem<Result, NewResult, InitialArgument>[]
+  // ): Flowie<Result, any, InitialArgument> {
+  //   const nextFlowieContainer = flowieContainer.register(...nextFlowItemsList)
+  //   const nextFlowDeclaration = flowDeclarationManager.split(nextFlowieContainer.latestDetailsAdded)
 
-    return createFlowieRuntime<Result, NewResult, InitialArgument>(nextFlowieContainer, nextFlowDeclaration)
-  }
+  //   return createFlowieRuntime<Result, NewResult, InitialArgument>(nextFlowieContainer, nextFlowDeclaration)
+  // }
 
-  const flowieExtender: FlowieExtender<Argument, Result> = { pipe, split }
+  const flowieExtender: FlowieExtender<Argument, Result> = { pipe } as any // , split }
   // eslint-disable-next-line functional/immutable-data
   return Object.assign(executeFlow, flowieExtender)
 }

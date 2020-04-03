@@ -1,16 +1,16 @@
 import { expect } from 'chai'
-import createFlowDeclaration from '../createFlowDeclaration'
+import createFlowDeclarationManager from '../createFlowDeclarationManager'
 import { Flows } from '../../types'
 
-describe('declaration/createFlowDeclaration', function () {
+describe('declaration/createFlowDeclarationManager', function () {
   it('creates a pipe for one item detail', function () {
-    const flowDeclaration = createFlowDeclaration([{ name: 'expected' }])
+    const flowDeclaration = createFlowDeclarationManager([{ name: 'expected' }])
 
     expect(flowDeclaration.flows).to.deep.equal([{ pipe: { function: 'expected' } }])
   })
 
   it('creates adds then when pipe declaration', function () {
-    const flowDeclaration = createFlowDeclaration([{ name: 'previous' }]).pipe({ name: 'expected' })
+    const flowDeclaration = createFlowDeclarationManager([{ name: 'previous' }]).pipe({ name: 'expected' })
 
     const expected: Flows = [
       { pipe: { function: 'previous' } },
@@ -21,7 +21,7 @@ describe('declaration/createFlowDeclaration', function () {
   })
 
   it('creates N levels when piping declarations', function () {
-    const flowDeclaration = createFlowDeclaration([{ name: 'first level' }])
+    const flowDeclaration = createFlowDeclarationManager([{ name: 'first level' }])
       .pipe({ name: 'second level' })
       .pipe({ name: 'third level' })
       .pipe({ name: 'expected' })
@@ -37,13 +37,13 @@ describe('declaration/createFlowDeclaration', function () {
   })
 
   it('creates a splits for more then one item detail', function () {
-    const flowDeclaration = createFlowDeclaration([{ name: 'expected' }, { name: 'expected' }])
+    const flowDeclaration = createFlowDeclarationManager([{ name: 'expected' }, { name: 'expected' }])
 
     expect(flowDeclaration.flows).to.deep.equal([{ split: { functions: ['expected', 'expected'] } }])
   })
 
   it('creates splits then splits the pipe correctly', function () {
-    const flowDeclaration = createFlowDeclaration([{ name: 'split' }, { name: 'split' }])
+    const flowDeclaration = createFlowDeclarationManager([{ name: 'split' }, { name: 'split' }])
       .split([{ name: 'split' }, { name: 'split' }])
       .pipe({ name: 'pipe' })
       .split([{ name: 'split' }, { name: 'split' }])
@@ -69,7 +69,7 @@ describe('declaration/createFlowDeclaration', function () {
   })
 
   it('collects individually all function names', function () {
-    const flowDeclaration = createFlowDeclaration([{ name: 'split' }, { name: 'split' }])
+    const flowDeclaration = createFlowDeclarationManager([{ name: 'split' }, { name: 'split' }])
       .split([{ name: 'split' }, { name: 'split' }])
       .pipe({ name: 'pipe' })
       .split([{ name: 'split' }, { name: 'split' }])

@@ -3,14 +3,19 @@ import { mock } from 'sinon'
 import { World } from '../FlowieTestsWorld'
 
 import { createFlowieContainer, Flowie, createFlowie, FlowResult } from '../../../../src/index'
-import { assertFlowIsNotRegistered, assertFunctionIsRegistered, assertFlowIsRegistered } from '../assertToAvoidMistakes'
+import {
+  assertFlowIsNotRegistered,
+  assertFunctionIsRegistered,
+  assertFlowIsRegistered,
+  assertResults
+} from '../assertToAvoidMistakes'
 
 export default interface RuntimeFlowieWorld extends World {
   createMockFunction<Argument, Result>(name: string, argument: Argument, result: Result): void
   createFlow(flowName: string, firstFunctionName: string): void
   pipeFunctionOnFlow(flowName: string, functionName: string)
   executeFlow(flowName: string, firstParameter: any)
-  getFlowResult(flowName: string): FlowResult<any>
+  getFlowResult<T = any>(flowName: string): FlowResult<T>
 }
 
 export function createRuntimeFlowieWorld (): RuntimeFlowieWorld {
@@ -38,9 +43,9 @@ export function createRuntimeFlowieWorld (): RuntimeFlowieWorld {
       const flow = assertFlowIsRegistered(flowName, flows)
       flowResults[flowName] = flow(firstParameter) as FlowResult<FinalResult>
     },
-    getFlowResult (flowName: string) {
+    getFlowResult<T> (flowName: string) {
       assertFlowIsRegistered(flowName, flows)
-      return flowResults[flowName]
+      return assertResults<T>(flowName, flowResults)
     }
   }
 }

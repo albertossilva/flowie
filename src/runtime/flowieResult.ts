@@ -1,13 +1,13 @@
 const flowieResult: CreateFlowieResult = {
-  fail<ResultType = null> (error: Error): FlowResult<ResultType> {
-    return {
-      success: false,
-      error,
-      lastResults: null,
-      executionTime: 0,
-      functions: { }
-    }
-  },
+  // fail<ResultType = null> (error: Error): FlowResult<ResultType> {
+  //   return {
+  //     success: false,
+  //     error,
+  //     lastResults: null,
+  //     executionTime: 0,
+  //     functions: { }
+  //   }
+  // },
 
   success<ResultType = null> (
     lastResults: ResultType,
@@ -29,7 +29,7 @@ export interface CreateFlowieResult {
     startTime: number,
     functions: FlowFunctionsResultList
   ) => FlowResult<ResultType>
-  readonly fail: <ResultType = null>(error: Error) => FlowResult<ResultType>
+  // readonly fail: <ResultType = null>(error: Error) => FlowResult<ResultType>
 }
 
 export interface FlowResult<Result> {
