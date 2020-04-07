@@ -13,7 +13,9 @@ export default function compileFlowDeclaration<Argument, Result> (
     flowieContainer
   )
 
+  const executeMainFlow = generatedFlowFunction()
+
   return function executeCompiledFlow (argument: Argument) {
-    return generatedFlowFunction({ flowieContainer, argument, createFlowieResult: flowieResult })
+    return executeMainFlow({ flowieContainer, argument, createFlowieResult: flowieResult })
   }
 }

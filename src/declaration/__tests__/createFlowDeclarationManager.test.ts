@@ -6,7 +6,7 @@ describe('declaration/createFlowDeclarationManager', function () {
   it('creates a pipe for one item detail', function () {
     const flowDeclaration = createFlowDeclarationManager([{ name: 'expected', isAsync: true }])
 
-    expect(flowDeclaration.flows).to.deep.equal([{ pipe: { function: 'expected' } }])
+    expect(flowDeclaration.flows).to.deep.equal([{ pipe: 'expected' }])
   })
 
   it('creates adds then when pipe declaration', function () {
@@ -14,8 +14,8 @@ describe('declaration/createFlowDeclarationManager', function () {
       .pipe({ name: 'expected', isAsync: false })
 
     const expected: Flows = [
-      { pipe: { function: 'previous' } },
-      { pipe: { function: 'expected' } }
+      { pipe: 'previous' },
+      { pipe: 'expected' }
     ]
 
     expect(flowDeclaration.flows).to.deep.equal(expected)
@@ -28,10 +28,10 @@ describe('declaration/createFlowDeclarationManager', function () {
       .pipe({ name: 'expected', isAsync: true })
 
     const expected: Flows = [
-      { pipe: { function: 'first level' } },
-      { pipe: { function: 'second level' } },
-      { pipe: { function: 'third level' } },
-      { pipe: { function: 'expected' } }
+      { pipe: 'first level' },
+      { pipe: 'second level' },
+      { pipe: 'third level' },
+      { pipe: 'expected' }
     ]
 
     expect(flowDeclaration.flows).to.deep.equal(expected)
@@ -43,7 +43,7 @@ describe('declaration/createFlowDeclarationManager', function () {
       { name: 'expected', isAsync: false }
     ])
 
-    expect(flowDeclaration.flows).to.deep.equal([{ split: { functions: ['expected', 'expected'] } }])
+    expect(flowDeclaration.flows).to.deep.equal([{ split: ['expected', 'expected'] }])
   })
 
   it('creates splits then splits the pipe correctly', function () {
@@ -73,15 +73,15 @@ describe('declaration/createFlowDeclarationManager', function () {
       ])
 
     const expected: Flows = [
-      { split: { functions: ['split', 'split'] } },
-      { split: { functions: ['split', 'split'] } },
-      { pipe: { function: 'pipe' } },
-      { split: { functions: ['split', 'split'] } },
-      { pipe: { function: 'pipe' } },
-      { pipe: { function: 'pipe' } },
-      { pipe: { function: 'pipe' } },
-      { split: { functions: ['split', 'split'] } },
-      { split: { functions: ['split', 'split'] } }
+      { split: ['split', 'split'] },
+      { split: ['split', 'split'] },
+      { pipe: 'pipe' },
+      { split: ['split', 'split'] },
+      { pipe: 'pipe' },
+      { pipe: 'pipe' },
+      { pipe: 'pipe' },
+      { split: ['split', 'split'] },
+      { split: ['split', 'split'] }
     ]
 
     expect(flowDeclaration.flows).to.deep.equal(expected)

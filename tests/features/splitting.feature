@@ -9,7 +9,18 @@ Feature: Splits
     And I execute the flow "myFlow" with "A"
     Then the result of flow "myFlow" is
       """
-        ["B", "C"]
+      ["B", "C"]
+      """
+
+  @runtime
+  Scenario: One Async split
+    Given a function called "split1" that receives "U" and returns "FOO"
+    Given an async function called "asyncSplit2" that receives "U" and resolves with "BAR"
+    When I create a flow named "myFlow" with "split1,asyncSplit2"
+    And I execute the flow "myFlow" with "U"
+    Then the promise result of flow "myFlow" is
+      """
+      ["FOO","BAR"]
       """
 
   @runtime
@@ -19,7 +30,7 @@ Feature: Splits
     Given a function called "split2" that receives "B" and returns "B2"
     Given a function called "collectSplit" that returns "final" receiving
       """
-        ["B1","B2"]
+      ["B1","B2"]
       """
     When I create a flow named "myFlow" with "firstFlowieItem"
     And I split to "split1,split2" on flow "myFlow"
@@ -35,9 +46,7 @@ Feature: Splits
       """
       {
         "flows": [
-          {
-            "split": { "functions": ["split1", "split2"] }
-          }
+          { "split": ["split1", "split2"] }
         ]
       }
       """
@@ -60,9 +69,9 @@ Feature: Splits
       """
       {
         "flows": [
-          { "pipe": { "function": "firstFlowieItem" } },
-          { "split": { "functions": ["split1", "split2"] } },
-          { "pipe": { "function": "collectSplit" } }
+          { "pipe": "firstFlowieItem" },
+          { "split": ["split1", "split2"] },
+          { "pipe": "collectSplit" }
         ]
       }
       """

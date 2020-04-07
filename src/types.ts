@@ -166,7 +166,7 @@ export interface FlowFunctionDetails<Argument = any, Result = any> {
 }
 export interface FlowFunctionDetailsWithItem<Argument = any, Result = any>
   extends FlowFunctionDetails<Argument, Result> {
-  readonly flowItem: FlowItem<Argument, Result>
+  readonly flowFunction: FlowFunction<Argument, Result>
 }
 
 export interface FunctionReport<Result> {
@@ -193,25 +193,26 @@ export interface FlowieCreator {
 
 export interface FlowieDeclaration {
   readonly flows: Flows
+  readonly name?: string
 }
+
+export type Flows = readonly FlowElement[]
+
+export type FlowElement = PipeFlow | SplitFlow | FlowieDeclaration
+
+export interface PipeFlow {
+  readonly pipe: FlowieItemDeclaration
+  readonly name?: string
+}
+
+export interface SplitFlow {
+  readonly split: readonly FlowieItemDeclaration[]
+  readonly name?: string
+}
+
+export type FlowieItemDeclaration = string | FlowElement
 
 export interface FlowieExecutionDeclaration extends FlowieDeclaration {
   readonly isAsync: boolean
   readonly allFunctionsNames: ImmutableSet<string>
 }
-
-export type Flows = readonly (PipeFlow | SplitFlow)[]
-
-export interface PipeFlow {
-  readonly pipe: {
-    readonly function: FlowieItemDeclaration
-  }
-}
-
-export interface SplitFlow {
-  readonly split: {
-    readonly functions: readonly FlowieItemDeclaration[]
-  }
-}
-
-export type FlowieItemDeclaration = string

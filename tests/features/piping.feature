@@ -32,7 +32,7 @@ Feature: Pipes
     When I create a flow from configuration named "myFlow" with value
       """
       {
-        "flows": [{ "pipe": { "function": "firstFlowieItem" }}]
+        "flows": [{ "pipe": "firstFlowieItem" }]
       }
       """
     And I execute the flow from configuration "myFlow" with "A"
@@ -47,9 +47,9 @@ Feature: Pipes
       """
       {
         "flows": [
-          { "pipe": { "function": "firstFlowieItem" }},
-          { "pipe": { "function": "secondFlowieItem" }},
-          { "pipe": { "function": "thirdFlowieItem" }}
+          { "pipe": "firstFlowieItem" },
+          { "pipe": "secondFlowieItem" },
+          { "pipe": "thirdFlowieItem" }
         ]
       }
       """
@@ -65,9 +65,9 @@ Feature: Pipes
       """
       {
         "flows": [
-          { "pipe": { "function": "firstFlowieItem" }},
-          { "pipe": { "function": "secondFlowieItem" }},
-          { "pipe": { "function": "thirdFlowieItem" }}
+          { "pipe": "firstFlowieItem" },
+          { "pipe": "secondFlowieItem" },
+          { "pipe": "thirdFlowieItem" }
         ]
       }
       """

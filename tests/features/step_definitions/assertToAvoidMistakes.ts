@@ -48,5 +48,5 @@ function getFlowieItem (this: { flowieContainer: FlowieContainer }, functionName
     `No function with name ${functionName} is registered, see the list ${this.flowieContainer.allFunctionsNames}`
   )
 
-  return functionCandidate.flowItem
+  return functionCandidate.flowFunction
 }

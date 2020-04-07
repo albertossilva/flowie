@@ -25,3 +25,15 @@ Then(
     assert.deepEqual(flowResult.lastResults, expectedResult, 'Result is wrong')
   }
 )
+
+Then(
+  'the promise result of flow {string} is',
+  async function (this: RuntimeFlowieWorld, flowName: string, resultMatch: string) {
+    const promiseCandidate = this.getAsyncFlowResult(flowName)
+    assert.instanceOf(promiseCandidate, Promise, 'The result was not a promise')
+    const flowResult = await promiseCandidate
+
+    const expectedResult = JSON.parse(resultMatch)
+    assert.deepEqual(flowResult.lastResults, expectedResult, 'Result is wrong')
+  }
+)

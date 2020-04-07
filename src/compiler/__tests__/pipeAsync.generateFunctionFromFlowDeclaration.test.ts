@@ -1,25 +1,23 @@
 import { Set as ImmutableSet } from 'immutable'
 import createFlowieContainer from '../../container/createFlowieContainer'
 import { createMock, createAsyncMock } from '../../../tests/features/step_definitions/mockCreators'
-import { asyncConstructor } from '../../functionConstructors'
 
 import testFunctionGenerations from './testFunctionGenerations'
+import { FlowieExecutionDeclaration } from '../../types'
 
-const pipeOneAsyncFunction = {
+const pipeOneAsyncFunction: FlowieExecutionDeclaration = {
   isAsync: true,
   allFunctionsNames: ImmutableSet(['firstFlowieItem']),
-  flows: [
-    { pipe: { function: 'firstFlowieItem' } }
-  ]
+  flows: [{ pipe: 'firstFlowieItem' }]
 }
 
-const pipeAsyncFunctionList = {
+const pipeAsyncFunctionList: FlowieExecutionDeclaration = {
   isAsync: true,
   allFunctionsNames: ImmutableSet(['firstFlowieItem', 'secondFlowieItem', 'thirdFlowieItem']),
   flows: [
-    { pipe: { function: 'firstFlowieItem' } },
-    { pipe: { function: 'secondFlowieItem' } },
-    { pipe: { function: 'thirdFlowieItem' } }
+    { pipe: 'firstFlowieItem' },
+    { pipe: 'secondFlowieItem' },
+    { pipe: 'thirdFlowieItem' }
   ]
 }
 
@@ -32,11 +30,11 @@ const flowieContainer = createFlowieContainer().register(
 describe('pipeAsync.generateFunctionFromFlowDeclaration', function () {
   it(
     'generates sync function when there is no async function pipe',
-    testFunctionGenerations('pipeOneAsyncFunction', pipeOneAsyncFunction, flowieContainer, asyncConstructor)
+    testFunctionGenerations('pipeOneAsyncFunction', pipeOneAsyncFunction, flowieContainer)
   )
 
   it(
     'generates sync function when there is no async function when piping more functions',
-    testFunctionGenerations('pipeAsyncFunctionList', pipeAsyncFunctionList, flowieContainer, asyncConstructor)
+    testFunctionGenerations('pipeAsyncFunctionList', pipeAsyncFunctionList, flowieContainer)
   )
 })

@@ -9,7 +9,7 @@
     "esModuleInterop": true
   },
   "files": [
-    "src/flowieApi.ts"
+    "src/index.ts"
   ],
   "exclude": [
     "node_modules"

@@ -36,7 +36,5 @@ function ProxyTestsWorld () {
 
 setWorldConstructor(ProxyTestsWorld)
 BeforeAll(async function () {
-  console.log('#'.repeat(30))
   await compileDots()
-  console.log('#'.repeat(30))
 })

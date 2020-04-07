@@ -1,0 +1,27 @@
+{{ const resultVariable = `result${it.parentIndex+1}`; }}
+{{ const argumentVariable = it.parentIndex === 0 ? 'argument' : `result${it.parentIndex}`; }}
+{{ const isAsync = it.step.isAsync; }}
+const {{=resultVariable}} =
+{{? Boolean(it.step.pipe)}}
+  {{ const functionName = it.step.pipe; }}
+  {{ const awaitOrNot = isAsync ? 'await ' : ''; }}
+  {{=awaitOrNot}}executeFunction_{{=functionName}}({{=argumentVariable}});
+{{?}}
+{{? Boolean(it.step.split)}}
+  {{ const promiseAllOrNot = isAsync ? ' await Promise.all(' : ''; }}
+  {{ const closeParenthesisOrNot = isAsync ? ')' : ''; }}
+  {{=promiseAllOrNot}}[
+  {{~it.step.split :splitFunction}}
+    {{? typeof splitFunction === 'string'}}
+      executeFunction_{{=splitFunction}}({{=argumentVariable}}),
+    {{??}}
+      executeFlow_{{=splitFunction.flow}}({ flowieContainer, argument: {{=argumentVariable}}}),
+    {{?}}
+  {{~}}
+]{{=closeParenthesisOrNot}};
+{{?}}
+{{? Boolean(it.step.flow)}}
+  {{ const flowName = it.step.flow; }}
+  {{ const awaitOrNot = isAsync ? 'await ' : ''; }}
+  {{=awaitOrNot}}executeFlow_{{=flowName}}({ flowieContainer, argument: {{=argumentVariable}}});
+{{?}}

@@ -55,7 +55,9 @@ module.exports = {
         'space-before-function-paren': 'off',
         'camelcase': 'off',
         '@typescript-eslint/camelcase': 'off',
-        'semi': 'off'
+        'semi': 'off',
+        'array-bracket-spacing': 'off',
+        'comma-dangle': 'off',
       }
     }, {
     files: ['src/**/*.test.ts', 'src/**/*.type-test.ts'],

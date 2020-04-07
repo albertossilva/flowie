@@ -37,20 +37,27 @@ function parseFlows (
   }
 }
 
+// TODO subflows
 function convertFlowToFlowFunctionDetails (
-  flow: PipeFlow | SplitFlow,
+  flow: PipeFlow | SplitFlow | FlowieDeclaration,
   flowieContainer: FlowieContainer
 ): readonly FlowFunctionDetails[] {
   const pipeFlow = (flow as PipeFlow)
   if (pipeFlow.pipe) {
     return [{
-      name: pipeFlow.pipe.function,
-      isAsync: flowieContainer.functionsContainer[pipeFlow.pipe.function].isAsync
+      name: pipeFlow.pipe as string,
+      isAsync: flowieContainer.functionsContainer[pipeFlow.pipe as string].isAsync
     }]
   }
 
   const splitFlow = (flow as SplitFlow)
-  return splitFlow.split.functions.map(converSplitToFlowFunctionDetails, { flowieContainer })
+  if (splitFlow.split) {
+    const splitFlow = (flow as SplitFlow)
+    return splitFlow.split.map(converSplitToFlowFunctionDetails, { flowieContainer })
+  }
+
+  // eslint-disable-next-line functional/no-throw-statement
+  throw new Error('not implemented yet') // TODO
 }
 
 function converSplitToFlowFunctionDetails (this: { readonly flowieContainer: FlowieContainer }, functionName: string) {

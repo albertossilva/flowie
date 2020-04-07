@@ -8,5 +8,5 @@ src
 .nyc_output
 .editorconfig
 .eslintrc.js
-.mocharc.js
+.unit.mocharc.js
 nyc.config.js
