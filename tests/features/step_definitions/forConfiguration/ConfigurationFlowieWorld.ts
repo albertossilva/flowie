@@ -1,6 +1,6 @@
 import { World } from '../FlowieTestsWorld'
 
-import { createFlowieContainer, FlowieDeclaration, FlowResult, createFlowie, Flowie } from '../../../../src/index'
+import flowie, { createFlowieContainer, FlowieDeclaration, FlowResult, Flowie } from '../../../../src/index'
 import { assertFlowIsNotRegistered, assertFlowIsRegistered, assertResults } from '../assertToAvoidMistakes'
 import { registerMockFunction, registerAsyncMockFunction } from '../mockCreators'
 
@@ -28,7 +28,7 @@ export function createConfigurationFlowieWorld (): ConfigurationFlowieWorld {
     },
     createConfigurationFlow (flowName: string, flowDeclaration: FlowieDeclaration) {
       assertFlowIsNotRegistered(flowName, flows)
-      flows[flowName] = createFlowie(flowieContainer, flowDeclaration)
+      flows[flowName] = flowie(flowieContainer, flowDeclaration)
     },
     executeConfiguredFlow (flowName: string, argument: string) {
       const flow = assertFlowIsRegistered(flowName, flows)

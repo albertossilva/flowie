@@ -1,6 +1,6 @@
 import { World } from '../FlowieTestsWorld'
 
-import { createFlowieContainer, Flowie, createFlowie, FlowResult } from '../../../../src/index'
+import flowie, { createFlowieContainer, Flowie, FlowResult } from '../../../../src/index'
 import {
   assertFlowIsNotRegistered,
   getRegisteredFlowFunctionDetails,
@@ -36,7 +36,7 @@ export function createRuntimeFlowieWorld (): RuntimeFlowieWorld {
     createFlow (flowName: string, ...firstFunctionsNamesList: readonly string[]) {
       assertFlowIsNotRegistered(flowName, flows)
       const flowieItemsList = getRegisteredFlowFunctionDetails(firstFunctionsNamesList, flowieContainer)
-      flows[flowName] = createFlowie(...flowieItemsList)
+      flows[flowName] = flowie(...flowieItemsList)
     },
     pipeFunctionOnFlow (flowName: string, functionName: string) {
       const flow = assertFlowIsRegistered(flowName, flows)
