@@ -5,10 +5,11 @@
     "outDir": "dist",
     "sourceMap": true,
     "target": "es2020",
-    "noImplicitReturns": true
+    "noImplicitReturns": true,
+    "esModuleInterop": true
   },
   "files": [
-    "src/flowieApi.ts"
+    "src/index.ts"
   ],
   "exclude": [
     "node_modules"

@@ -1,0 +1,9 @@
+language: node_js
+node_js:
+  - "node"
+  - "13"
+  - "12"
+script:
+  - npm ci
+  - npm run lint
+  - npm run travis-coverage

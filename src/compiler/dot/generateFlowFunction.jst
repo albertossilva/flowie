@@ -1,0 +1,28 @@
+{{ const asyncPreffixOrNot = it.isAsync ? 'async ': ''; }}
+{{~it.subFlows :subFlow}}
+  {{ const asyncPreffixOrNotForFlow = subFlow.isAsync ? 'async ' : ''; }}
+  {{=asyncPreffixOrNotForFlow}}function executeFlow_{{=subFlow.hash}}({ flowieContainer, argument }) {
+    {{~Object.values(subFlow.functionsFromContainers) :functionName}}
+      const executeFunction_{{=functionName}} = flowieContainer.functionsContainer.{{=functionName}}.flowFunction;
+    {{~}}
+    {{~subFlow.steps :step:index}}
+      {{=it.generateFlow(it, { step, parentIndex: index })}}
+    {{~}}
+
+    return result{{=subFlow.steps.length}};
+  }
+{{~}}
+return {{=asyncPreffixOrNot}}function executeMainFlow(executionArguments) {
+  const { flowieContainer, argument, createFlowieResult } = executionArguments;
+  const startTime = Date.now();
+
+  {{~Object.values(it.mainFlow.functionsFromContainers) :functionName}}
+    const executeFunction_{{=functionName}} = flowieContainer.functionsContainer.{{=functionName}}.flowFunction;
+  {{~}}
+
+  {{~it.mainFlow.steps :step:index}}
+    {{=it.generateFlow(it, { step, parentIndex: index })}}
+  {{~}}
+
+  return createFlowieResult.success(result{{=it.mainFlow.steps.length}}, startTime, {});
+}

@@ -30,6 +30,7 @@ module.exports = {
   ],
   rules: {
     complexity: ['error', 4],
+    'max-len': ['error', { 'code': 120, 'ignoreComments': true }],
     'no-param-reassign': ['error'],
     '@typescript-eslint/member-delimiter-style': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
@@ -37,23 +38,6 @@ module.exports = {
     '@typescript-eslint/explicit-function-return-type': 'off'
   },
   overrides: [{
-    files: ['src/**/*.test.ts'],
-    env: {
-      mocha: true,
-    },
-    globals: {
-      describe: true,
-      it: true,
-    },
-    rules: {},
-  }, {
-    files: ['tests/**/*.step.ts'],
-    env: {},
-    globals: {},
-    rules: {
-      'no-unused-expressions': 'off',
-    },
-  }, {
     files: ['src/**/*.ts'],
     env: {},
     globals: {},
@@ -63,6 +47,38 @@ module.exports = {
     extends: [
       'plugin:functional/no-mutations',
       'plugin:functional/no-exceptions',
-    ]
+    ] //
+  }, {
+      files: ['src/compiler/__fixtures__/*.fixture.js'],
+      env: {},
+      globals: {},
+      rules: {
+        'space-before-function-paren': 'off',
+        'camelcase': 'off',
+        '@typescript-eslint/camelcase': 'off',
+        'semi': 'off',
+        'array-bracket-spacing': 'off',
+        'comma-dangle': 'off',
+      }
+    }, {
+    files: ['src/**/*.test.ts', 'src/**/*.type-test.ts'],
+    env: {
+      mocha: true,
+    },
+    globals: {
+      describe: true,
+      it: true,
+    },
+    rules: {
+      'no-unused-expressions': 'off',
+      'functional/immutable-data': 'off',
+    },
+  }, {
+    files: ['tests/**/*.step.ts'],
+    env: {},
+    globals: {},
+    rules: {
+      'no-unused-expressions': 'off',
+    },
   }]
 }
