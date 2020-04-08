@@ -3,20 +3,20 @@ const flowieResult: CreateFlowieResult = {
   //   return {
   //     success: false,
   //     error,
-  //     lastResults: null,
+  //     lastResult: null,
   //     executionTime: 0,
   //     functions: { }
   //   }
   // },
 
   success<ResultType = null> (
-    lastResults: ResultType,
+    lastResult: ResultType,
     startTime: number,
     functions: FlowFunctionsResultList
   ): FlowResult<ResultType> {
     return {
       success: true,
-      lastResults,
+      lastResult,
       executionTime: Date.now() - startTime,
       functions
     }
@@ -25,7 +25,7 @@ const flowieResult: CreateFlowieResult = {
 
 export interface CreateFlowieResult {
   readonly success: <ResultType = null>(
-    lastResults: ResultType,
+    lastResult: ResultType,
     startTime: number,
     functions: FlowFunctionsResultList
   ) => FlowResult<ResultType>
@@ -35,7 +35,7 @@ export interface CreateFlowieResult {
 export interface FlowResult<Result> {
   readonly success: boolean
   readonly error?: Error
-  readonly lastResults: Result
+  readonly lastResult: Result
   readonly executionTime: number
   readonly functions: FlowFunctionsResultList
 }

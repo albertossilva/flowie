@@ -6,7 +6,7 @@ Then(
   'the result is {string} for flow from configuration: {string}',
   function (this: ConfigurationFlowieWorld, expectedResult: string, flowName: string) {
     const flowResult = this.getFlowResult(flowName)
-    assert.equal(flowResult.lastResults, expectedResult, 'Result is wrong')
+    assert.equal(flowResult.lastResult, expectedResult, 'Result is wrong')
   }
 )
 
@@ -15,7 +15,7 @@ Then(
   function (this: ConfigurationFlowieWorld, flowName: string, expectedResultJSON: string) {
     const expectedResult = JSON.parse(expectedResultJSON)
     const flowResult = this.getFlowResult(flowName)
-    assert.deepEqual(flowResult.lastResults, expectedResult, 'Result is wrong')
+    assert.deepEqual(flowResult.lastResult, expectedResult, 'Result is wrong')
   }
 )
 
@@ -25,6 +25,6 @@ Then(
     const promiseCandidate = this.getAsyncFlowResult(flowName)
     assert.instanceOf(promiseCandidate, Promise, 'The result was not a promise')
     const flowResult = await promiseCandidate
-    assert.equal(flowResult.lastResults, expectedResult, 'Result is wrong')
+    assert.equal(flowResult.lastResult, expectedResult, 'Result is wrong')
   }
 )

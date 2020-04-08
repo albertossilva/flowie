@@ -16,7 +16,7 @@ describe('createFlowie(integration tests as laboratory)', function () {
         const commonFunction = createSimpleFunctionMock(parameter, expected)
 
         const flow: Flowie<string, string, string> = createFlowie(commonFunction)
-        const { lastResults: actual } = flow(parameter) as FlowResult<string>
+        const { lastResult: actual } = flow(parameter) as FlowResult<string>
 
         assert.equal(actual, expected)
         sinonAssert.calledOnce(commonFunction as SinonStub)
@@ -25,7 +25,7 @@ describe('createFlowie(integration tests as laboratory)', function () {
       it('accepts flowie objects as functions', async function () {
         const commonFunction = createSimpleFunctionMock(parameter, expected)
 
-        const { lastResults: actual } = await createFlowie(createFlowie(createFlowie(commonFunction)))(parameter)
+        const { lastResult: actual } = await createFlowie(createFlowie(createFlowie(commonFunction)))(parameter)
 
         assert.equal(actual, expected)
         sinonAssert.calledOnce(commonFunction as SinonStub)
@@ -36,7 +36,7 @@ describe('createFlowie(integration tests as laboratory)', function () {
 
         const promise = createFlowie(commonFunction)(parameter)
         expect(promise).to.instanceOf(Promise)
-        const { lastResults: actual } = await promise
+        const { lastResult: actual } = await promise
 
         assert.equal(actual, expected)
         sinonAssert.calledOnce(commonFunction as SinonStub)
@@ -49,7 +49,7 @@ describe('createFlowie(integration tests as laboratory)', function () {
 
         const flow: Flowie<string, string, string> = createFlowie(firstFunction).pipe(createFlowie(secondFunction))
 
-        const { lastResults: actual } = flow(parameter) as FlowResult<string>
+        const { lastResult: actual } = flow(parameter) as FlowResult<string>
 
         assert.equal(actual, expected)
       })
@@ -73,7 +73,7 @@ describe('createFlowie(integration tests as laboratory)', function () {
           .pipe(middleWareFunction)
           .pipe(lastFunction)
 
-        const { lastResults: actual } = await flow(parameter)
+        const { lastResult: actual } = await flow(parameter)
 
         assert.equal(actual, expected);
         (middleWareFunction as any).verify()
@@ -85,7 +85,7 @@ describe('createFlowie(integration tests as laboratory)', function () {
         const flow = createFlowie(add1, add2, add1, add2)
         const flowieResult = flow(3) as FlowResult<readonly [number, number, number, number]>
 
-        assert.deepEqual(flowieResult.lastResults, [4, 5, 4, 5])
+        assert.deepEqual(flowieResult.lastResult, [4, 5, 4, 5])
       })
 
       it('accepts other flowie when start splitting', async function () {
@@ -94,21 +94,21 @@ describe('createFlowie(integration tests as laboratory)', function () {
         const flow = createFlowie(add1, add2, add1Flow, add3Flow)
         const flowieResult = await flow(5)
 
-        assert.deepEqual(flowieResult.lastResults, [6, 7, 6, 8])
+        assert.deepEqual(flowieResult.lastResult, [6, 7, 6, 8])
       })
 
       it('accepts other flowie as first item when start splitting', async function () {
         const flow = createFlowie(createFlowie(add1), add2)
         const flowieResult = await flow(10)
 
-        assert.deepEqual(flowieResult.lastResults, [11, 12])
+        assert.deepEqual(flowieResult.lastResult, [11, 12])
       })
 
       it('executes two functions in paralell', function () {
         const flow = createFlowie(add1).split(add1, add3)
         const flowieResult = flow(3) as FlowResult<readonly [number, number]>
 
-        assert.deepEqual(flowieResult.lastResults, [5, 7])
+        assert.deepEqual(flowieResult.lastResult, [5, 7])
       })
 
       it('accepts a flows on split', function () {
@@ -116,7 +116,7 @@ describe('createFlowie(integration tests as laboratory)', function () {
         const flow = add1Flowie.split(createFlowie(add1).pipe(add1), add3)
         const flowieResult = flow(6) as FlowResult<readonly [number, number]>
 
-        assert.deepEqual(flowieResult.lastResults, [9, 10])
+        assert.deepEqual(flowieResult.lastResult, [9, 10])
       })
 
       it('executes N functions in paralell', async function () {
@@ -129,7 +129,7 @@ describe('createFlowie(integration tests as laboratory)', function () {
         const flow = add1Flowie.split(...nineAddFlowieThatAdd1AndOneAddThreeFlowie)
         const flowieResult = await flow(4)
 
-        assert.deepEqual(flowieResult.lastResults, [...new Array(numberOfFlowsThatReturnsFive).fill(6), 7])
+        assert.deepEqual(flowieResult.lastResult, [...new Array(numberOfFlowsThatReturnsFive).fill(6), 7])
       })
 
       it('executes N flowies in paralell', async function () {
@@ -142,7 +142,7 @@ describe('createFlowie(integration tests as laboratory)', function () {
         const flow = add1Flowie.split(...nineAddFlowieThatAdd1AndOneAddThreeFlowie)
         const flowieResult = await flow(4)
 
-        assert.deepEqual(flowieResult.lastResults, [...new Array(numberOfFlowsThatReturnsFive).fill(6), 7])
+        assert.deepEqual(flowieResult.lastResult, [...new Array(numberOfFlowsThatReturnsFive).fill(6), 7])
       })
 
       it(
@@ -164,10 +164,10 @@ describe('createFlowie(integration tests as laboratory)', function () {
           ]
 
           const flow = await createFlowie(spy().named('doesNotMatter')).split(...shuffleSlowFlowie)
-          const { lastResults } = await flow(null)
+          const { lastResult } = await flow(null)
 
           sinonAssert.callOrder(spySooner, spyLater, spyReallyLater)
-          assert.deepEqual(lastResults, ['reallyLater', 'sooner', 'later'])
+          assert.deepEqual(lastResult, ['reallyLater', 'sooner', 'later'])
         }
       )
     })
@@ -180,9 +180,9 @@ describe('createFlowie(integration tests as laboratory)', function () {
   //           const generatorMock = createGeneratorFrom<string, string>(yields, parameter)
   //           const flow = flowie(generatorMock)
 
-  //           const { lastResults } = await flow(parameter)
+  //           const { lastResult } = await flow(parameter)
 
-  //           assert.equal(lastResults, 'C')
+  //           assert.equal(lastResult, 'C')
   //         })
 
   //         it('calls the functions piped after a generator once per yield', async function () {
@@ -192,12 +192,12 @@ describe('createFlowie(integration tests as laboratory)', function () {
 
   //           const flow = flowie(generatorMock).pipe(createByPassFunction()).pipe(preffixWithResult)
 
-  //           const { lastResults } = await flow(parameter)
+  //           const { lastResult } = await flow(parameter)
   //           sinonAssert.calledThrice(preffixWithResult as SinonStub)
   //           sinonAssert.calledWith(preffixWithResult as SinonStub, '1')
   //           sinonAssert.calledWith(preffixWithResult as SinonStub, '2')
   //           sinonAssert.calledWith(preffixWithResult as SinonStub, '3')
-  //           assert.equal(lastResults, 'result 3')
+  //           assert.equal(lastResult, 'result 3')
   //         })
 
   //         it('returns the last item of generator when it is the last item', async function () {
@@ -207,9 +207,9 @@ describe('createFlowie(integration tests as laboratory)', function () {
   //             .pipe(createByPassFunction())
   //             .pipe(generatorMock)
 
-  //           const { lastResults } = await flow(parameter)
+  //           const { lastResult } = await flow(parameter)
 
-  //           assert.equal(lastResults, 'Z')
+  //           assert.equal(lastResult, 'Z')
   //         })
 
   //         // it('accepts generators piped in the middle of flow, and all piped function are called', async function () {
@@ -225,9 +225,9 @@ describe('createFlowie(integration tests as laboratory)', function () {
   //         //     .pipe(preffixWithSweetHome)
   //         //     .pipe(flowie(preffixWithHome).pipe(preffixWithOwMy))
 
-  //         //   const { lastResults } = await flow(parameter)
+  //         //   const { lastResult } = await flow(parameter)
 
-  //         //   assert.equal(lastResults, 'ow my! home, sweet home !')
+  //         //   assert.equal(lastResult, 'ow my! home, sweet home !')
   //         //   assert.equal((preffixWithSweetHome as SinonStub).callCount, yields.length)
   //         //   assert.equal((preffixWithHome as SinonStub).callCount, yields.length)
   //         //   assert.equal((preffixWithOwMy as SinonStub).callCount, yields.length)
