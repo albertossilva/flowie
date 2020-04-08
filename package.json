@@ -6,7 +6,6 @@
   "scripts": {
     "build": "tsc && rsync -a src/compiler/dot/*.js dist/compiler/dot",
     "prepublishOnly": "npm run build",
-    "postinstall": "npm run compileDots",
     "lint": "eslint --ext .ts src/ tests/",
     "lint:fix": "eslint --ext .ts --fix src/ tests/",
     "test": "npm run test:unit && npm run test:integration",
