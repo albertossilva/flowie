@@ -14,6 +14,8 @@
     "test:integration": "npm run compileDots && NODE_ENV=test cucumber-js --require-module=ts-node/register --require 'tests/features/step_definitions/**/*.step.ts' -f summary tests/features",
     "test:integration:debug": "npm run compileDots && NODE_ENV=test node --inspect-brk ./node_modules/.bin/cucumber-js --require-module=ts-node/register --require 'tests/features/step_definitions/**/*.step.ts' -f summary tests/features",
     "coverage": "nyc npm run test",
+    "coverage-coveralls": "cat coverage/lcov.info | coveralls",
+    "travis-coverage": "npm run coverage &&  npm run coverage-coveralls",
     "compileDots": "ts-node src/compiler/dot/compileDots.script.ts"
   },
   "repository": {
@@ -61,6 +63,7 @@
     "@typescript-eslint/eslint-plugin": "^2.26.0",
     "@typescript-eslint/parser": "^2.26.0",
     "chai": "^4.2.0",
+    "coveralls": "^3.0.11",
     "cucumber": "^6.0.5",
     "del": "^5.1.0",
     "dot": "^1.1.3",
