@@ -29,7 +29,7 @@ export default function createFlowieRuntime<Argument, Result, InitialArgument = 
       const nextFlowieDeclarationManager = getFlowieDeclarationManager(flowie)
       const mergedFlowieContainer = flowieContainer.merge(nextFlowieContainer)
 
-      const nextFlowDeclaration = flowDeclarationManager.pipeDeclaration(nextFlowieDeclarationManager)
+      const nextFlowDeclaration = flowDeclarationManager.pipe(nextFlowieDeclarationManager)
 
       return createFlowieRuntime<Result, NewResult, InitialArgument>(mergedFlowieContainer, nextFlowDeclaration)
     }

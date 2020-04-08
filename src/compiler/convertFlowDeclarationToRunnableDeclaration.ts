@@ -113,7 +113,9 @@ class FlowElementReader {
     }
   }
 
-  private readSplitItem (splitStepReading: SplitStepReading, flowieItemDeclaration: FlowieItemDeclaration): SplitStepReading {
+  private readSplitItem (
+    splitStepReading: SplitStepReading, flowieItemDeclaration: FlowieItemDeclaration
+  ): SplitStepReading {
     const { functionsFromContainers, subFlows, splitStep } = splitStepReading
     if (typeof flowieItemDeclaration === 'string') {
       return {
@@ -126,7 +128,8 @@ class FlowElementReader {
       }
     }
 
-    const { flowStep, subFlows: newSubFlows } = new SubFlowElementReader(this.isAsyncFunction).read(flowieItemDeclaration)
+    const { flowStep, subFlows: newSubFlows } = new SubFlowElementReader(this.isAsyncFunction)
+      .read(flowieItemDeclaration)
 
     return {
       functionsFromContainers,

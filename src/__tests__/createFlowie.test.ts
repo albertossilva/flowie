@@ -145,28 +145,31 @@ describe('createFlowie(integration tests as laboratory)', function () {
         assert.deepEqual(flowieResult.lastResults, [...new Array(numberOfFlowsThatReturnsFive).fill(6), 7])
       })
 
-      it('executes functions in paralell, but later functions does not affect the order of the results', async function () {
-        const spySooner = spy().named('sooner')
-        const mockSooner = mock().named('soonerResult').returns('sooner')
+      it(
+        'executes functions in paralell, but later functions does not affect the order of the results',
+        async function () {
+          const spySooner = spy().named('sooner')
+          const mockSooner = mock().named('soonerResult').returns('sooner')
 
-        const spyLater = spy().named('later')
-        const mockLater = mock().named('laterResult').returns('later')
+          const spyLater = spy().named('later')
+          const mockLater = mock().named('laterResult').returns('later')
 
-        const spyReallyLater = spy().named('reallyLater')
-        const mockReallyLater = mock().named('reallyLaterResult').returns('reallyLater')
+          const spyReallyLater = spy().named('reallyLater')
+          const mockReallyLater = mock().named('reallyLaterResult').returns('reallyLater')
 
-        const shuffleSlowFlowie = [
-          createFlowie(takeTimeToBeExecuted(30)).pipe(spyReallyLater).pipe(mockReallyLater),
-          createFlowie(takeTimeToBeExecuted(10)).pipe(spySooner).pipe(mockSooner),
-          createFlowie(takeTimeToBeExecuted(20)).pipe(spyLater).pipe(mockLater)
-        ]
+          const shuffleSlowFlowie = [
+            createFlowie(takeTimeToBeExecuted(30)).pipe(spyReallyLater).pipe(mockReallyLater),
+            createFlowie(takeTimeToBeExecuted(10)).pipe(spySooner).pipe(mockSooner),
+            createFlowie(takeTimeToBeExecuted(20)).pipe(spyLater).pipe(mockLater)
+          ]
 
-        const flow = await createFlowie(spy().named('doesNotMatter')).split(...shuffleSlowFlowie)
-        const { lastResults } = await flow(null)
+          const flow = await createFlowie(spy().named('doesNotMatter')).split(...shuffleSlowFlowie)
+          const { lastResults } = await flow(null)
 
-        sinonAssert.callOrder(spySooner, spyLater, spyReallyLater)
-        assert.deepEqual(lastResults, ['reallyLater', 'sooner', 'later'])
-      })
+          sinonAssert.callOrder(spySooner, spyLater, spyReallyLater)
+          assert.deepEqual(lastResults, ['reallyLater', 'sooner', 'later'])
+        }
+      )
     })
   })
 

@@ -18,11 +18,15 @@ export default function createFlowDeclarationManager<Argument, Result> (
 }
 
 export interface FlowDeclarationManager extends FlowieExecutionDeclaration {
-  readonly pipe: (flowFunctionDetails: FlowFunctionDetails) => FlowDeclarationManager
-  readonly pipeDeclaration: (nextFlowieExecuteDeclaration: FlowDeclarationManager) => FlowDeclarationManager
+  readonly pipe: PipeDeclaration
   readonly split: (
     declarationManagerOrFunctionDetailsList: readonly (FlowDeclarationManager | FlowFunctionDetails)[]
   ) => FlowDeclarationManager
+}
+
+interface PipeDeclaration {
+  (flowFunctionDetails: FlowFunctionDetails): FlowDeclarationManager
+  (nextFlowieExecuteDeclaration: FlowDeclarationManager): FlowDeclarationManager
 }
 
 function createFlowieDeclarationManagerRuntime<Argument, Result> (
@@ -30,20 +34,30 @@ function createFlowieDeclarationManagerRuntime<Argument, Result> (
 ): FlowDeclarationManager {
   return Object.freeze({
     ...flowDeclaration,
-    pipe (flowFunctionDetails: FlowFunctionDetails) {
+    pipe (flowFunctionDetailsOrflowieExecuteDeclaration: FlowFunctionDetails | FlowieExecutionDeclaration) {
+      const nextFlowieExecuteDeclaration = flowFunctionDetailsOrflowieExecuteDeclaration as FlowieExecutionDeclaration
+      if (isFlowieExecutionDeclaration(nextFlowieExecuteDeclaration)) {
+        const nextFlowDeclaration: FlowieExecutionDeclaration = mergeDeclarations(
+          flowDeclaration,
+          nextFlowieExecuteDeclaration
+        )
+        return createFlowieDeclarationManagerRuntime(nextFlowDeclaration)
+      }
+
+      const flowFunctionDetails = flowFunctionDetailsOrflowieExecuteDeclaration as FlowFunctionDetails
+
       return createFlowDeclarationManager([flowFunctionDetails], flowDeclaration)
-    },
-    pipeDeclaration (nextFlowieExecuteDeclaration: FlowieExecutionDeclaration) {
-      const nextFlowDeclaration: FlowieExecutionDeclaration = mergeDeclarations(
-        flowDeclaration,
-        nextFlowieExecuteDeclaration
-      )
-      return createFlowieDeclarationManagerRuntime(nextFlowDeclaration)
     },
     split (declarationManagerOrFunctionDetailsList: readonly (FlowDeclarationManager | FlowFunctionDetails)[]) {
       return createFlowDeclarationManager(declarationManagerOrFunctionDetailsList, flowDeclaration)
     }
   })
+}
+
+export function isFlowieExecutionDeclaration (flowieExecutionDeclarationCandidate: FlowieExecutionDeclaration) {
+  return typeof flowieExecutionDeclarationCandidate.isAsync === 'boolean' &&
+    Array.isArray(flowieExecutionDeclarationCandidate.flows) &&
+    ImmutableSet.isSet(flowieExecutionDeclarationCandidate.allFunctionsNames)
 }
 
 function mergeDeclarations (
@@ -73,14 +87,14 @@ function addNextItemToFlowDeclaration<Argument, Result> (
     return {
       isAsync: isAsync,
       allFunctionsNames: allFunctionsNames,
-      flows: [createPipeOrSplitFlow(flowElements)]
+      flows: [createFlowElementFromElements(flowElements)]
     }
   }
 
   return {
     isAsync: previousDeclaration.isAsync || isAsync,
     allFunctionsNames: previousDeclaration.allFunctionsNames.concat(allFunctionsNames),
-    flows: previousDeclaration.flows.concat(createPipeOrSplitFlow(flowElements))
+    flows: previousDeclaration.flows.concat(createFlowElementFromElements(flowElements))
   }
 }
 
@@ -97,9 +111,15 @@ function mergeFlowDeclarationAttributes<Argument, Result> (
   }
 }
 
-function createPipeOrSplitFlow (flowElements: readonly (FlowieDeclaration | FlowFunctionDetails)[]): FlowElement {
+function createFlowElementFromElements (
+  flowElements: readonly (FlowieDeclaration | FlowFunctionDetails)[]
+): FlowElement {
   if (flowElements.length === 1) {
     const [firstFlowElement] = flowElements
+    const flowieDeclaration = (firstFlowElement as FlowieDeclaration)
+    if (flowieDeclaration.flows) {
+      return flowieDeclaration
+    }
 
     return {
       pipe: (firstFlowElement as FlowFunctionDetails).name
@@ -113,7 +133,7 @@ function createPipeOrSplitFlow (flowElements: readonly (FlowieDeclaration | Flow
 
 function getFunctionNames (declarationManagerOrFunctionDetails: DeclarationManagerOrFunctionDetails<any, any>) {
   const flowDeclaration = declarationManagerOrFunctionDetails as FlowDeclarationManager
-  if (flowDeclaration.allFunctionsNames) {
+  if (isFlowieExecutionDeclaration(flowDeclaration)) {
     return flowDeclaration.allFunctionsNames.toJS() as readonly string[]
   }
 
@@ -126,7 +146,7 @@ function getFlowElement<Argument, Result> (
   declarationManagerOrFunctionDetails: DeclarationManagerOrFunctionDetails<Argument, Result>
 ): FlowieDeclaration | FlowFunctionDetails<Argument, Result> {
   const flowDeclaration = declarationManagerOrFunctionDetails as FlowDeclarationManager
-  if (flowDeclaration.allFunctionsNames) {
+  if (isFlowieExecutionDeclaration(flowDeclaration)) {
     return { flows: flowDeclaration.flows, name: flowDeclaration.name }
   }
 

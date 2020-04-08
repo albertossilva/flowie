@@ -77,3 +77,27 @@ Feature: Splits
       """
     And I execute the flow from configuration "myFlow" with "A"
     Then the result is "final" for flow from configuration: "myFlow"
+
+  @configuration
+  Scenario: Split and subflows
+    Given a registered function called "convertHumanToAnimal" that receives "Human" and returns "Animal"
+    Given a registered function called "convertHumanToTree" that receives "Human" and returns "Tree"
+    Given a registered function called "increaseTreeSize" that receives "Tree" and returns "Big Tree"
+    When I create a flow from configuration named "myFlow" with value
+      """
+      {
+        "flows": [
+          {
+            "split": [
+              "convertHumanToAnimal",
+              { "flows": [{ "pipe": "convertHumanToTree" }, { "pipe": "increaseTreeSize" }] }
+            ]
+          }
+        ]
+      }
+      """
+    And I execute the flow from configuration "myFlow" with "Human"
+    Then the result of flow from configuration: "myFlow" is
+      """
+      ["Animal", "Big Tree"]
+      """

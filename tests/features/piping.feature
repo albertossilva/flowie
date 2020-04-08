@@ -57,6 +57,34 @@ Feature: Pipes
     Then the result is "D" for flow from configuration: "myFlow"
 
   @configuration
+  Scenario: Subflows on piping
+    Given a registered function called "oneToTwo" that receives "1" and returns "2"
+    Given a registered function called "twoToThree" that receives "2" and returns "3"
+    Given a registered function called "threeToFour" that receives "3" and returns "4"
+    Given a registered function called "fourToFive" that receives "4" and returns "5"
+    Given a registered function called "fiveToSix" that receives "5" and returns "6"
+    Given a registered function called "sixToSeven" that receives "6" and returns "7"
+    When I create a flow from configuration named "myFlow" with value
+      """
+      {
+        "flows": [
+          {
+            "flows": [{ "pipe": "oneToTwo" }, { "pipe": "twoToThree" }]
+          },
+          { "pipe": "threeToFour" },
+          {
+            "flows": [
+              { "pipe": { "pipe": "fourToFive" } },
+              { "flows": [{ "pipe": "fiveToSix" }, { "pipe": "sixToSeven" }] }
+            ]
+          }
+        ]
+      }
+      """
+    And I execute the flow from configuration "myFlow" with "1"
+    Then the result is "7" for flow from configuration: "myFlow"
+
+  @configuration
   Scenario: Async piping more functions
     Given a registered function called "firstFlowieItem" that receives "X" and returns "Y"
     Given an async registered function called "secondFlowieItem" that receives "Y" and resolves "Z"

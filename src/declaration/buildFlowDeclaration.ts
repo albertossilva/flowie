@@ -1,6 +1,13 @@
 import { FlowieContainer } from '../container/createFlowieContainer'
 
-import { FlowieDeclaration, PipeFlow, SplitFlow, FlowFunctionDetails } from '../types'
+import {
+  FlowieDeclaration,
+  PipeFlow,
+  SplitFlow,
+  FlowFunctionDetails,
+  FlowElement,
+  FlowieItemDeclaration
+} from '../types'
 
 import createFlowDeclarationManager, { FlowDeclarationManager } from './createFlowDeclarationManager'
 
@@ -9,7 +16,8 @@ export default function buildFlowDeclaration (
   flowieContainer: FlowieContainer
 ): FlowDeclarationManager {
   const [firstFlow, ...restOfFlow] = flowDeclaration.flows
-  const flowFunctionDetails = convertFlowToFlowFunctionDetails(firstFlow, flowieContainer)
+
+  const flowFunctionDetails = convertFlowElementToDeclarable(firstFlow, flowieContainer)
   const flowDeclarationManager = createFlowDeclarationManager(flowFunctionDetails)
 
   return restOfFlow.reduce(parseFlows, { flowDeclarationManager, flowieContainer }).flowDeclarationManager
@@ -20,48 +28,63 @@ function parseFlows (
     readonly flowDeclarationManager: FlowDeclarationManager,
     readonly flowieContainer: FlowieContainer
   },
-  flow: PipeFlow | SplitFlow
+  flowElement: FlowElement
 ) {
-  const flowFunctionDetailsList = convertFlowToFlowFunctionDetails(flow, flowieContainer)
-  if ((flow as PipeFlow).pipe) {
-    const [flowFunctionDetails] = flowFunctionDetailsList
+  const flowFunctionDetailsList = convertFlowElementToDeclarable(flowElement, flowieContainer)
+  if ((flowElement as SplitFlow).split) {
     return {
       flowieContainer,
-      flowDeclarationManager: flowDeclarationManager.pipe(flowFunctionDetails)
+      flowDeclarationManager: flowDeclarationManager.split(flowFunctionDetailsList)
     }
   }
 
+  const [flowFunctionDetails] = flowFunctionDetailsList
   return {
     flowieContainer,
-    flowDeclarationManager: flowDeclarationManager.split(flowFunctionDetailsList)
+    flowDeclarationManager: flowDeclarationManager.pipe(flowFunctionDetails as any) // TODO
   }
 }
 
 // TODO subflows
-function convertFlowToFlowFunctionDetails (
-  flow: PipeFlow | SplitFlow | FlowieDeclaration,
+function convertFlowElementToDeclarable (
+  flowElement: FlowElement,
   flowieContainer: FlowieContainer
-): readonly FlowFunctionDetails[] {
-  const pipeFlow = (flow as PipeFlow)
+): readonly (FlowFunctionDetails | FlowDeclarationManager)[] {
+  const pipeFlow = (flowElement as PipeFlow)
   if (pipeFlow.pipe) {
-    return [{
-      name: pipeFlow.pipe as string,
-      isAsync: flowieContainer.functionsContainer[pipeFlow.pipe as string].isAsync
-    }]
+    if (typeof pipeFlow.pipe === 'string') {
+      return [converToFlowFunctionDetails(pipeFlow.pipe, flowieContainer)]
+    }
+
+    return [
+      buildFlowDeclaration(
+        { flows: [pipeFlow.pipe], name: pipeFlow.name },
+        flowieContainer
+      )
+    ]
   }
 
-  const splitFlow = (flow as SplitFlow)
+  const splitFlow = (flowElement as SplitFlow)
   if (splitFlow.split) {
-    const splitFlow = (flow as SplitFlow)
+    const splitFlow = (flowElement as SplitFlow)
     return splitFlow.split.map(converSplitToFlowFunctionDetails, { flowieContainer })
   }
 
-  // eslint-disable-next-line functional/no-throw-statement
-  throw new Error('not implemented yet') // TODO
+  return [buildFlowDeclaration(flowElement as FlowieDeclaration, flowieContainer)]
 }
 
-function converSplitToFlowFunctionDetails (this: { readonly flowieContainer: FlowieContainer }, functionName: string) {
-  return converToFlowFunctionDetails(functionName, this.flowieContainer)
+function converSplitToFlowFunctionDetails (
+  this: { readonly flowieContainer: FlowieContainer },
+  flowieItemDeclaration: FlowieItemDeclaration
+) {
+  if (typeof flowieItemDeclaration === 'string') {
+    return converToFlowFunctionDetails(flowieItemDeclaration, this.flowieContainer)
+  }
+
+  return buildFlowDeclaration(
+    { flows: [flowieItemDeclaration], name: flowieItemDeclaration.name },
+    this.flowieContainer
+  )
 }
 
 function converToFlowFunctionDetails (functionName: string, flowieContainer: FlowieContainer): FlowFunctionDetails {
