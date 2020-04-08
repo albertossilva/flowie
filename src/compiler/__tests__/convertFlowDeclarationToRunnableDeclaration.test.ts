@@ -1,7 +1,6 @@
 import { expect } from 'chai'
 import { random } from 'faker'
 import { stub } from 'sinon'
-import { Set as ImmutableSet } from 'immutable'
 import { FlowieExecutionDeclaration } from '../../types'
 
 import convertFlowDeclarationToRunnableDeclaration, {
@@ -12,7 +11,7 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
   before(function () {
     const flowieDeclaration: FlowieExecutionDeclaration = {
       isAsync: random.boolean(),
-      allFunctionsNames: ImmutableSet(['it does used']),
+      allFunctionsNames: new Set(['it does used']),
       flows: [
         { pipe: 'firstFlowieItem' },
         {

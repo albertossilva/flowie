@@ -1,5 +1,3 @@
-import { Map as ImmutableMap, Set as ImmutableSet } from 'immutable'
-
 import { FlowResult, FlowFunctionResult } from './runtime/flowieResult'
 import { FlowieContainer } from './container/createFlowieContainer'
 
@@ -171,7 +169,7 @@ export interface FlowFunctionDetailsWithItem<Argument = any, Result = any>
 
 export interface FunctionReport<Result> {
   readonly result: Result
-  readonly functionsReport: ImmutableMap<string, FlowFunctionResult>
+  readonly functionsReport: ReadonlyMap<string, FlowFunctionResult>
 }
 
 export type NoTypedFlowie = Flowie<any, any>
@@ -214,5 +212,5 @@ export type FlowieItemDeclaration = string | FlowElement
 
 export interface FlowieExecutionDeclaration extends FlowieDeclaration {
   readonly isAsync: boolean
-  readonly allFunctionsNames: ImmutableSet<string>
+  readonly allFunctionsNames: ReadonlySet<string>
 }

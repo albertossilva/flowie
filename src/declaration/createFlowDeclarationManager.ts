@@ -1,5 +1,3 @@
-import { Set as ImmutableSet } from 'immutable'
-
 import {
   FlowieExecutionDeclaration,
   FlowFunctionDetails,
@@ -57,7 +55,7 @@ function createFlowieDeclarationManagerRuntime<Argument, Result> (
 export function isFlowieExecutionDeclaration (flowieExecutionDeclarationCandidate: FlowieExecutionDeclaration) {
   return typeof flowieExecutionDeclarationCandidate.isAsync === 'boolean' &&
     Array.isArray(flowieExecutionDeclarationCandidate.flows) &&
-    ImmutableSet.isSet(flowieExecutionDeclarationCandidate.allFunctionsNames)
+    flowieExecutionDeclarationCandidate.allFunctionsNames instanceof Set
 }
 
 function mergeDeclarations (
@@ -66,7 +64,7 @@ function mergeDeclarations (
 ): FlowieExecutionDeclaration {
   return {
     isAsync: previousDeclaration.isAsync || nextDeclaration.isAsync,
-    allFunctionsNames: previousDeclaration.allFunctionsNames.concat(nextDeclaration.allFunctionsNames),
+    allFunctionsNames: new Set([...previousDeclaration.allFunctionsNames, ...nextDeclaration.allFunctionsNames]),
     flows: previousDeclaration.flows.concat({ flows: nextDeclaration.flows })
   }
 }
@@ -79,7 +77,7 @@ function addNextItemToFlowDeclaration<Argument, Result> (
     mergeFlowDeclarationAttributes, {
       isAsync: false,
       flowElements: [],
-      allFunctionsNames: ImmutableSet<string>()
+      allFunctionsNames: new Set<string>()
     } as FlowDeclarationAttributes<Argument, Result>
   )
 
@@ -93,7 +91,7 @@ function addNextItemToFlowDeclaration<Argument, Result> (
 
   return {
     isAsync: previousDeclaration.isAsync || isAsync,
-    allFunctionsNames: previousDeclaration.allFunctionsNames.concat(allFunctionsNames),
+    allFunctionsNames: new Set([...previousDeclaration.allFunctionsNames, ...allFunctionsNames]),
     flows: previousDeclaration.flows.concat(createFlowElementFromElements(flowElements))
   }
 }
@@ -104,9 +102,11 @@ function mergeFlowDeclarationAttributes<Argument, Result> (
 ): FlowDeclarationAttributes<Argument, Result> {
   return {
     isAsync: flowDeclarationAttributes.isAsync || declarationManagerOrFunctionDetails.isAsync,
-    allFunctionsNames: flowDeclarationAttributes.allFunctionsNames.concat(
-      getFunctionNames(declarationManagerOrFunctionDetails)
-    ),
+    allFunctionsNames:
+      new Set([
+        ...flowDeclarationAttributes.allFunctionsNames,
+        ...getFunctionNames(declarationManagerOrFunctionDetails)
+      ]),
     flowElements: flowDeclarationAttributes.flowElements.concat(getFlowElement(declarationManagerOrFunctionDetails))
   }
 }
@@ -134,7 +134,7 @@ function createFlowElementFromElements (
 function getFunctionNames (declarationManagerOrFunctionDetails: DeclarationManagerOrFunctionDetails<any, any>) {
   const flowDeclaration = declarationManagerOrFunctionDetails as FlowDeclarationManager
   if (isFlowieExecutionDeclaration(flowDeclaration)) {
-    return flowDeclaration.allFunctionsNames.toJS() as readonly string[]
+    return Array.from(flowDeclaration.allFunctionsNames)
   }
 
   const flowFunctionDetails = declarationManagerOrFunctionDetails as FlowFunctionDetails
@@ -168,6 +168,6 @@ type DeclarationManagerOrFunctionDetails<Argument, Result> = FlowDeclarationMana
 
 interface FlowDeclarationAttributes<Argument, Result> {
   readonly isAsync: boolean
-  readonly allFunctionsNames: ImmutableSet<string>
+  readonly allFunctionsNames: ReadonlySet<string>
   readonly flowElements: readonly (FlowieDeclaration | FlowFunctionDetails<Argument, Result>)[]
 }

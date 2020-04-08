@@ -1,4 +1,4 @@
-import { Set } from 'immutable'
+
 import {
   FlowieExecutionDeclaration,
   FlowElement,
@@ -297,7 +297,7 @@ class SubFlowElementReader {
 }
 
 function getUniqueFunctionNames (functionNames: readonly string[], ...newValues: readonly string[]): readonly string[] {
-  return Set(functionNames.concat(newValues)).toJS()
+  return Array.from(new Set(functionNames.concat(newValues)))
 }
 
 interface MainFlow {
