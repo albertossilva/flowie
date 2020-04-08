@@ -1,5 +1,3 @@
-import { Set as ImmutableSet } from 'immutable'
-
 import createFlowieContainer from '../../container/createFlowieContainer'
 import { FlowieExecutionDeclaration } from '../../types'
 
@@ -9,13 +7,13 @@ import testFunctionGenerations from './testFunctionGenerations'
 
 const pipeOneSyncFunction: FlowieExecutionDeclaration = {
   isAsync: false,
-  allFunctionsNames: ImmutableSet(['firstFlowieItem']),
+  allFunctionsNames: new Set(['firstFlowieItem']),
   flows: [{ pipe: 'firstFlowieItem' }]
 }
 
 const pipeSyncFunctionList: FlowieExecutionDeclaration = {
   isAsync: false,
-  allFunctionsNames: ImmutableSet(['firstFlowieItem', 'secondFlowieItem', 'thirdFlowieItem']),
+  allFunctionsNames: new Set(['firstFlowieItem', 'secondFlowieItem', 'thirdFlowieItem']),
   flows: [
     { pipe: 'firstFlowieItem' },
     { pipe: 'secondFlowieItem' },

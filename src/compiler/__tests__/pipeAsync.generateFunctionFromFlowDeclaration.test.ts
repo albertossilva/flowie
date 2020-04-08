@@ -1,4 +1,3 @@
-import { Set as ImmutableSet } from 'immutable'
 import createFlowieContainer from '../../container/createFlowieContainer'
 import { createMock, createAsyncMock } from '../../../tests/features/step_definitions/mockCreators'
 
@@ -7,13 +6,13 @@ import { FlowieExecutionDeclaration } from '../../types'
 
 const pipeOneAsyncFunction: FlowieExecutionDeclaration = {
   isAsync: true,
-  allFunctionsNames: ImmutableSet(['firstFlowieItem']),
+  allFunctionsNames: new Set(['firstFlowieItem']),
   flows: [{ pipe: 'firstFlowieItem' }]
 }
 
 const pipeAsyncFunctionList: FlowieExecutionDeclaration = {
   isAsync: true,
-  allFunctionsNames: ImmutableSet(['firstFlowieItem', 'secondFlowieItem', 'thirdFlowieItem']),
+  allFunctionsNames: new Set(['firstFlowieItem', 'secondFlowieItem', 'thirdFlowieItem']),
   flows: [
     { pipe: 'firstFlowieItem' },
     { pipe: 'secondFlowieItem' },

@@ -59,16 +59,16 @@ describe('container/createFlowieContainer', function () {
 
   it('includes the function name on all names', function () {
     const expectedList = ['foo', 'bar', 'aliasFoo', 'otherFunction', 'oneMoreFunction', 'foobar', 'aliasFoobar']
-    expect(this.container.allFunctionsNames.toJS()).to.include.members(expectedList)
+    expect(Array.from(this.container.allFunctionsNames)).to.include.members(expectedList)
   })
 
   it('generates a name for anonymous function and do not repeat the reference', function () {
-    const anonymousFunctionRegisteredList = this.container.allFunctionsNames.toJS()
+    const anonymousFunctionRegisteredList = Array.from(this.container.allFunctionsNames)
       .filter((functionName: string) => functionName.startsWith('anoymous_'))
 
     expect(anonymousFunctionRegisteredList).to.have.length(1)
     const [anonymousFunctionName] = anonymousFunctionRegisteredList
-    expect(anonymousFunctionName).to.match(/^anoymous_[a-z0-9]{10,11}$/)
+    expect(anonymousFunctionName).to.match(/^anoymous_[a-z0-9]{10,12}$/)
   })
 
   it('returns true for the container when checking isFlowieContainer', function () {

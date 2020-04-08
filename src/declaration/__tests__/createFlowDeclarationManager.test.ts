@@ -113,6 +113,6 @@ describe('declaration/createFlowDeclarationManager', function () {
         { name: 'split', isAsync: false }
       ])
 
-    expect(flowDeclaration.allFunctionsNames.toJS()).to.deep.equal(['split', 'pipe'])
+    expect(Array.from(flowDeclaration.allFunctionsNames)).to.deep.equal(['split', 'pipe'])
   })
 })

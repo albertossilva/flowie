@@ -1,4 +1,3 @@
-import { Set as ImmutableSet } from 'immutable'
 import createFlowieContainer from '../../container/createFlowieContainer'
 import { FlowieExecutionDeclaration } from '../../types'
 
@@ -7,7 +6,7 @@ import testFunctionGenerations from './testFunctionGenerations'
 
 const splitAsyncFunctionList: FlowieExecutionDeclaration = {
   isAsync: true,
-  allFunctionsNames: ImmutableSet(['splitOne', 'splitTwo']),
+  allFunctionsNames: new Set(['splitOne', 'splitTwo']),
   flows: [
     { split: ['splitOne', 'splitTwo'] }
   ]

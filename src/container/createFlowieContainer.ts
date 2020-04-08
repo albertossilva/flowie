@@ -1,5 +1,3 @@
-import { Set as ImmutableSet, Map as ImmutableMap } from 'immutable'
-
 import { FlowFunctionDetailsWithItem, FlowFunction } from '../types'
 import { isAsyncFunction } from '../functionConstructors'
 
@@ -9,7 +7,7 @@ export default function createFlowieContainer (): FlowieContainer {
   const flowieContainer = {
     [flowieContainerSignature]: flowieContainerSignature,
     latestDetailsAdded: [],
-    allFunctionsNames: ImmutableSet<string>(),
+    allFunctionsNames: new Set<string>(),
     functionsContainer: Object.freeze({}),
     register (...possibleFunctionRegister: readonly PossibleFunctionRegister[]): FlowieContainer {
       return registerFlowFunctionsList({}, ...possibleFunctionRegister)
@@ -42,7 +40,7 @@ function registerFlowFunctionsList (
   ...possibleFunctionRegister: readonly PossibleFunctionRegister[]
 ): FlowieContainer {
   const initialFunctionRegister = {
-    functions: ImmutableMap<Function, string>(Object.values(previousFunctionsContainer).map(getFunctionAsKey) as any),
+    functions: new Map<Function, string>(Object.values(previousFunctionsContainer).map(getFunctionAsKey) as any),
     functionsDetailsList: [] as readonly FlowFunctionDetailsWithItem[]
   }
 
@@ -69,7 +67,7 @@ function mergeWithOtherContainerAndFunctions (
 }
 
 interface UniqueFunctionDetails {
-  readonly functions: ImmutableMap<Function, string>,
+  readonly functions: ReadonlyMap<Function, string>,
   readonly functionsDetailsList: readonly FlowFunctionDetailsWithItem[]
 }
 
@@ -99,16 +97,13 @@ function getFlowFunctionDetailsForFlowFunction (
 ) {
   const name = getNameForFunction(flowFunction)
 
-  const flowFunctionDetails = {
+  const flowFunctionDetailsList = {
     name,
     flowFunction,
     isAsync: isAsyncFunction(flowFunction)
   }
 
-  return {
-    functions: uniqueFunctionDetails.functions.set(flowFunction, name),
-    functionsDetailsList: uniqueFunctionDetails.functionsDetailsList.concat(flowFunctionDetails)
-  }
+  return incrementUniqueFunctionDetails(uniqueFunctionDetails, [flowFunction, name], flowFunctionDetailsList)
 }
 
 function getFlowFunctionDetailsForTuple (
@@ -120,9 +115,17 @@ function getFlowFunctionDetailsForTuple (
   const newName = isSaved ? uniqueFunctions.functions.get(flowFunction) : name
   const flowFunctionDetails = { name, flowFunction, isAsync: isAsyncFunction(flowFunction) }
 
+  return incrementUniqueFunctionDetails(uniqueFunctions, [flowFunction, newName], flowFunctionDetails)
+}
+
+function incrementUniqueFunctionDetails (
+  uniqueFunctionDetails: UniqueFunctionDetails,
+  [flowFunction, name]: readonly [FlowFunction, string],
+  functionsDetails: FlowFunctionDetailsWithItem
+): UniqueFunctionDetails {
   return {
-    functions: uniqueFunctions.functions.set(flowFunction, newName),
-    functionsDetailsList: uniqueFunctions.functionsDetailsList.concat(flowFunctionDetails)
+    functions: new Map([...uniqueFunctionDetails.functions.entries(), [flowFunction, name]]),
+    functionsDetailsList: uniqueFunctionDetails.functionsDetailsList.concat(functionsDetails)
   }
 }
 
@@ -148,7 +151,7 @@ function createContainer (
   const newFlowieContainer = {
     [flowieContainerSignature]: flowieContainerSignature,
     latestDetailsAdded: flowFunctionDetailsList,
-    allFunctionsNames: ImmutableSet<string>(Object.keys(functionsContainer)),
+    allFunctionsNames: new Set<string>(Object.keys(functionsContainer)),
     functionsContainer: Object.freeze(functionsContainer),
     register: registerFlowFunctionsList.bind(null, functionsContainer),
     isAsyncFunction (functionName: string) {
@@ -185,7 +188,7 @@ function getNameForFunction (flowFunction: Function): string {
 }
 
 function getFunctionDetail (
-  this: { readonly functions: ImmutableMap<Function, string>, readonly container: FunctionsContainer },
+  this: { readonly functions: ReadonlyMap<Function, string>, readonly container: FunctionsContainer },
   possibleFunctionRegister: PossibleFunctionRegister
 ) {
   if (Array.isArray(possibleFunctionRegister)) {
