@@ -92,7 +92,7 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
     expect(firstLevelFlow.steps).to.have.length(3)
     expect(firstLevelFlow.steps[0]).to.deep.equal({ pipe: 'secondFlowieItem', isAsync: false })
     expect(firstLevelFlow.steps[1]).to.deep.equal({ flow: 'secondLevelFlow', isAsync: true })
-    expect((firstLevelFlow.steps[2] as any).flow).to.match(/^[a-z0-9]{10,11}$/)
+    expect((firstLevelFlow.steps[2] as any).flow).to.match(/^[a-z0-9]{10,12}$/)
     expect((firstLevelFlow.steps[2] as any).isAsync).to.false
   })
 
@@ -143,7 +143,7 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
     const [splitStep] = steps
     expect((splitStep as any).isAsync).to.true
     expect((splitStep as any).split[0]).to.equal('eighthFlowieItem')
-    expect((splitStep as any).split[1].flow).to.match(/^[a-z0-9]{10,11}$/)
+    expect((splitStep as any).split[1].flow).to.match(/^[a-z0-9]{10,12}$/)
     expect((splitStep as any).split[1].isAsync).to.true
   })
 
@@ -154,7 +154,7 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
 
   it('reads steps on anonymousFlow inside splitIASplit flow', function () {
     const [,,,,, anonymousFlowInsideSplit] = (this.runnableDeclaration as RunnableDeclaration).subFlows
-    expect(anonymousFlowInsideSplit.hash).to.match(/^[a-z0-9]{10,11}$/)
+    expect(anonymousFlowInsideSplit.hash).to.match(/^[a-z0-9]{10,12}$/)
     expect(anonymousFlowInsideSplit.steps).to.deep.equal([{ pipe: 'ninethFlowieItem', isAsync: true }])
   })
 })
