@@ -20,7 +20,7 @@ If you have a lot functions and you want to connect them, monitor, and build com
     - [.split](#api-the-flow-split)
     - [Complex Example](#api-the-flow-complex-example)
 - [Configuration API](#configuration-api)
-- [Future plans](#future-plans)
+- [Plans](#plans)
 
 
 ## <a name="getting-started"></a>Getting started
@@ -157,4 +157,29 @@ See the execution on [runkit, clicking here](https://runkit.com/albertossilva/2n
 
 
 ## <a name="configuration-api"></a>Configuration API
-## <a name="future-plans"></a>future-plans
+## <a name="plans"></a>Plans
+There is no priorization on this list yet
+
+- [x] Pipe/Split (Runtime and Configuration)
+- [x] Async Pipe/Split (Runtime and Configuration)
+- [x] Accept flowie as flowItem
+- [x] Check on runkit
+- [ ] Accept generators on pipe/split
+- [ ] Accept async generators on pipe/split
+- [ ] add Debug library calls
+- [ ] add Flags (actAsGenerator, actAsAsync) on .pipe/.split in order to be able to receive functions that returns `() => Promise.resolve()` or iterators () => { [Symbol.iterator]: () => {} }
+- [ ] Accept yaml as flow declaration on configuration mode
+- [ ] Validate flow declaration on configuration mode
+- [ ] Detect recursion flowie on runtime
+- [ ] Validate parameteres on Flowie
+- [ ] Reporting (timePerFunction, numberOfCalls, slowestExecution, AvgExecution, fastestExecution )
+- [ ] Error Handling (interrupt flow or not)
+- [ ] Backpressure for generator
+- [ ] Batching***
+- [ ] Limit concurrency on split
+- [ ] Context Parameters
+- [ ] Event Emitter
+- [ ] Enhance reports (custom configuration, log input/output)
+- [ ] Filter flowItem (FlowItem that 'stop' current flow or subFlow)
+- [ ] Report flowItem (bypass argument, but is called)
+- Mechanism to verify inputs/outputs
