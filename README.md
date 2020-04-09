@@ -11,16 +11,16 @@ If you have a lot functions and you want to connect them, monitor, and build com
 [![TypeScript](https://img.shields.io/badge/Typescript-v3.8-blue)](https://github.com/ellerbrock/typescript-badges/)
 
 ## Contents
-1. [Getting started](#getting-started)
-2. [Creating modes](#running-modes)
-3. [Runtime API](#runtime-api)
+- [Getting started](#getting-started)
+- [Creating modes](#running-modes)
+- [Runtime API](#runtime-api)
   - [Creating flows](#api-creating)
   - [The flow API](#api-the-flow)
-  - [.pipe](#pipe-api-the-flow)
-  - [.split](#split-api-the-flow)
-  - [Complex Example](#complex-example-api-the-flow)
-4. [Configuration API](#configuration-api)
-5. [Plans](#plans)
+    - [.pipe](#pipe-api-the-flow)
+    - [.split](#split-api-the-flow)
+    - [Complex Example](#complex-example-api-the-flow)
+- [Configuration API](#configuration-api)
+- [Plans](#plans)
 
 
 ## <a name="getting-started"></a>Getting started
