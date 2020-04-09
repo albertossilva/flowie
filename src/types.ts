@@ -161,6 +161,7 @@ export type GeneratorFlowFunction<Argument, Result> =
 export interface FlowFunctionDetails<Argument = any, Result = any> {
   readonly name: string
   readonly isAsync: boolean
+  readonly isGenerator: boolean
 }
 export interface FlowFunctionDetailsWithItem<Argument = any, Result = any>
   extends FlowFunctionDetails<Argument, Result> {

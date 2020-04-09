@@ -111,7 +111,7 @@ describe('createFlowie(integration tests as laboratory)', function () {
         assert.deepEqual(flowieResult.lastResult, [5, 7])
       })
 
-      it('accepts a flows on split', function () {
+      it('accepts flowies on split', function () {
         const add1Flowie = createFlowie(add1)
         const flow = add1Flowie.split(createFlowie(add1).pipe(add1), add3)
         const flowieResult = flow(6) as FlowResult<readonly [number, number]>

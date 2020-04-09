@@ -181,4 +181,5 @@ There is no priorization on this list yet
 - [ ] Enhance reports (custom configuration, log input/output)
 - [ ] Filter flowItem (FlowItem that 'stop' current flow or subFlow)
 - [ ] Report flowItem (bypass argument, but is called)
+- [ ] Decider flowItem (like split, with names, based on argument, decide which flow ot execute)
 - [ ] Mechanism to verify inputs/outputs

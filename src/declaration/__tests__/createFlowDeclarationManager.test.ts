@@ -4,14 +4,14 @@ import { Flows } from '../../types'
 
 describe('declaration/createFlowDeclarationManager', function () {
   it('creates a pipe for one item detail', function () {
-    const flowDeclaration = createFlowDeclarationManager([{ name: 'expected', isAsync: true }])
+    const flowDeclaration = createFlowDeclarationManager([{ name: 'expected', isAsync: true, isGenerator: false }])
 
     expect(flowDeclaration.flows).to.deep.equal([{ pipe: 'expected' }])
   })
 
   it('creates adds then when pipe declaration', function () {
-    const flowDeclaration = createFlowDeclarationManager([{ name: 'previous', isAsync: false }])
-      .pipe({ name: 'expected', isAsync: false })
+    const flowDeclaration = createFlowDeclarationManager([{ name: 'previous', isAsync: false, isGenerator: false }])
+      .pipe({ name: 'expected', isAsync: false, isGenerator: false })
 
     const expected: Flows = [
       { pipe: 'previous' },
@@ -22,10 +22,10 @@ describe('declaration/createFlowDeclarationManager', function () {
   })
 
   it('creates N levels when piping declarations', function () {
-    const flowDeclaration = createFlowDeclarationManager([{ name: 'first level', isAsync: true }])
-      .pipe({ name: 'second level', isAsync: true })
-      .pipe({ name: 'third level', isAsync: true })
-      .pipe({ name: 'expected', isAsync: true })
+    const flowDeclaration = createFlowDeclarationManager([{ name: 'first level', isAsync: true, isGenerator: false }])
+      .pipe({ name: 'second level', isAsync: true, isGenerator: false })
+      .pipe({ name: 'third level', isAsync: true, isGenerator: false })
+      .pipe({ name: 'expected', isAsync: true, isGenerator: false })
 
     const expected: Flows = [
       { pipe: 'first level' },
@@ -39,8 +39,8 @@ describe('declaration/createFlowDeclarationManager', function () {
 
   it('creates a splits for more then one item detail', function () {
     const flowDeclaration = createFlowDeclarationManager([
-      { name: 'expected', isAsync: true },
-      { name: 'expected', isAsync: false }
+      { name: 'expected', isAsync: true, isGenerator: false },
+      { name: 'expected', isAsync: false, isGenerator: false }
     ])
 
     expect(flowDeclaration.flows).to.deep.equal([{ split: ['expected', 'expected'] }])
@@ -48,28 +48,28 @@ describe('declaration/createFlowDeclarationManager', function () {
 
   it('creates splits then splits the pipe correctly', function () {
     const flowDeclaration = createFlowDeclarationManager([
-      { name: 'split', isAsync: true },
-      { name: 'split', isAsync: false }
+      { name: 'split', isAsync: true, isGenerator: false },
+      { name: 'split', isAsync: false, isGenerator: false }
     ])
       .split([
-        { name: 'split', isAsync: true },
-        { name: 'split', isAsync: false }
+        { name: 'split', isAsync: true, isGenerator: false },
+        { name: 'split', isAsync: false, isGenerator: false }
       ])
-      .pipe({ name: 'pipe', isAsync: true })
+      .pipe({ name: 'pipe', isAsync: true, isGenerator: false })
       .split([
-        { name: 'split', isAsync: true },
-        { name: 'split', isAsync: false }
+        { name: 'split', isAsync: true, isGenerator: false },
+        { name: 'split', isAsync: false, isGenerator: false }
       ])
-      .pipe({ name: 'pipe', isAsync: true })
-      .pipe({ name: 'pipe', isAsync: true })
-      .pipe({ name: 'pipe', isAsync: true })
+      .pipe({ name: 'pipe', isAsync: true, isGenerator: false })
+      .pipe({ name: 'pipe', isAsync: true, isGenerator: false })
+      .pipe({ name: 'pipe', isAsync: true, isGenerator: false })
       .split([
-        { name: 'split', isAsync: true },
-        { name: 'split', isAsync: false }
+        { name: 'split', isAsync: true, isGenerator: false },
+        { name: 'split', isAsync: false, isGenerator: false }
       ])
       .split([
-        { name: 'split', isAsync: true },
-        { name: 'split', isAsync: false }
+        { name: 'split', isAsync: true, isGenerator: false },
+        { name: 'split', isAsync: false, isGenerator: false }
       ])
 
     const expected: Flows = [
@@ -89,28 +89,28 @@ describe('declaration/createFlowDeclarationManager', function () {
 
   it('collects unique function names', function () {
     const flowDeclaration = createFlowDeclarationManager([
-      { name: 'split', isAsync: true },
-      { name: 'split', isAsync: false }
+      { name: 'split', isAsync: true, isGenerator: false },
+      { name: 'split', isAsync: false, isGenerator: false }
     ])
       .split([
-        { name: 'split', isAsync: true },
-        { name: 'split', isAsync: false }
+        { name: 'split', isAsync: true, isGenerator: false },
+        { name: 'split', isAsync: false, isGenerator: false }
       ])
-      .pipe({ name: 'pipe', isAsync: false })
+      .pipe({ name: 'pipe', isAsync: false, isGenerator: false })
       .split([
-        { name: 'split', isAsync: true },
-        { name: 'split', isAsync: false }
+        { name: 'split', isAsync: true, isGenerator: false },
+        { name: 'split', isAsync: false, isGenerator: false }
       ])
-      .pipe({ name: 'pipe', isAsync: false })
-      .pipe({ name: 'pipe', isAsync: false })
-      .pipe({ name: 'pipe', isAsync: false })
+      .pipe({ name: 'pipe', isAsync: false, isGenerator: false })
+      .pipe({ name: 'pipe', isAsync: false, isGenerator: false })
+      .pipe({ name: 'pipe', isAsync: false, isGenerator: false })
       .split([
-        { name: 'split', isAsync: true },
-        { name: 'split', isAsync: false }
+        { name: 'split', isAsync: true, isGenerator: false },
+        { name: 'split', isAsync: false, isGenerator: false }
       ])
       .split([
-        { name: 'split', isAsync: true },
-        { name: 'split', isAsync: false }
+        { name: 'split', isAsync: true, isGenerator: false },
+        { name: 'split', isAsync: false, isGenerator: false }
       ])
 
     expect(Array.from(flowDeclaration.allFunctionsNames)).to.deep.equal(['split', 'pipe'])
