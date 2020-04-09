@@ -101,10 +101,8 @@ that receives a string and returns a boolean.
 
 > Flowie `await` method that are `async`
 
-<br>
 
 ---
-
 #### <a name="pipe-api-the-flow"></a> .pipe(flowItem: FlowItem)
 
 As the name say it pipes content of previous step to the flowItem, let's say you have these objects:
@@ -117,6 +115,7 @@ As the name say it pipes content of previous step to the flowItem, let's say you
 You can play with them they way you want: `flowie(aFunction).pipe(myFlow1).pipe(myFlow2).pipe(otherFunction)`.
 This would generate a flow with four steps, executing them in order.
 
+---
 #### <a name="split-api-the-flow"></a> .split(...flowItemList: FlowItem[])
 
 Splitting on `flowie` is a step that receives one argument call more them on flowItem in paralell,
@@ -136,6 +135,7 @@ flow(10)
 // I hope the math was right 😬
 ```
 
+---
 #### <a name="complex-example-api-the-flow"></a>More complex example
 ```typescript
 const detectsABC = (equation: string) => [a,b,c] // all number
