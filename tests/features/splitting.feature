@@ -36,7 +36,7 @@ Feature: Splits
     And I split to "split1,split2" on flow "myFlow"
     And I pipe to "collectSplit" on flow "myFlow"
     And I execute the flow "myFlow" with "A"
-    Then the result is "final" for flow "myFlow"
+    Then the result should be "final" for flow "myFlow"
 
   @configuration
   Scenario: One Simple split
@@ -76,7 +76,7 @@ Feature: Splits
       }
       """
     And I execute the flow from configuration "myFlow" with "A"
-    Then the result is "final" for flow from configuration: "myFlow"
+    Then the result should be "final" for flow from configuration: "myFlow"
 
   @configuration
   Scenario: Split and subflows

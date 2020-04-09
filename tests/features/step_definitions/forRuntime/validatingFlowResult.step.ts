@@ -3,7 +3,7 @@ import { Then } from 'cucumber'
 import RuntimeFlowieWorld from './RuntimeFlowieWorld'
 
 Then(
-  'the result is {string} for flow {string}',
+  'the result should be {string} for flow {string}',
   function (this: RuntimeFlowieWorld, expectedResult: string, flowName: string) {
     const flowResult = this.getFlowResult(flowName)
     assert.equal(flowResult.lastResult, expectedResult, 'Result is wrong')

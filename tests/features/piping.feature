@@ -6,7 +6,7 @@ Feature: Pipes
     Given a function called "firstFlowieItem" that receives "A" and returns "B"
     When I create a flow named "myFlow" with "firstFlowieItem"
     And I execute the flow "myFlow" with "A"
-    Then the result is "B" for flow "myFlow"
+    Then the result should be "B" for flow "myFlow"
 
   @runtime
   Scenario: One async pipe
@@ -24,7 +24,7 @@ Feature: Pipes
     And I pipe to "secondFlowieItem" on flow "myFlow"
     And I pipe to "thirdFlowieItem" on flow "myFlow"
     And I execute the flow "myFlow" with "A"
-    Then the result is "D" for flow "myFlow"
+    Then the result should be "D" for flow "myFlow"
 
   @configuration
   Scenario: One Simple pipe
@@ -36,7 +36,7 @@ Feature: Pipes
       }
       """
     And I execute the flow from configuration "myFlow" with "A"
-    Then the result is "B" for flow from configuration: "myFlow"
+    Then the result should be "B" for flow from configuration: "myFlow"
 
   @configuration
   Scenario: Piping more functions
@@ -54,7 +54,7 @@ Feature: Pipes
       }
       """
     And I execute the flow from configuration "myFlow" with "A"
-    Then the result is "D" for flow from configuration: "myFlow"
+    Then the result should be "D" for flow from configuration: "myFlow"
 
   @configuration
   Scenario: Subflows on piping
@@ -82,7 +82,7 @@ Feature: Pipes
       }
       """
     And I execute the flow from configuration "myFlow" with "1"
-    Then the result is "7" for flow from configuration: "myFlow"
+    Then the result should be "7" for flow from configuration: "myFlow"
 
   @configuration
   Scenario: Async piping more functions
