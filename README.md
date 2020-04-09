@@ -11,16 +11,16 @@ If you have a lot functions and you want to connect them, monitor, and build com
 [![TypeScript](https://img.shields.io/badge/Typescript-v3.8-blue)](https://github.com/ellerbrock/typescript-badges/)
 
 ## Contents
-- [Getting started](#getting-started)
-- [Creating modes](#running-modes)
-- [Runtime API](#runtime-api)
+1. [Getting started](#getting-started)
+2. [Creating modes](#running-modes)
+3. [Runtime API](#runtime-api)
   - [Creating flows](#api-creating)
   - [The flow API](#api-the-flow)
-    - [.pipe](#api-the-flow-pipe)
-    - [.split](#api-the-flow-split)
-    - [Complex Example](#api-the-flow-complex-example)
-- [Configuration API](#configuration-api)
-- [Plans](#plans)
+  - [.pipe](#pipe-api-the-flow)
+  - [.split](#split-api-the-flow)
+  - [Complex Example](#complex-example-api-the-flow)
+4. [Configuration API](#configuration-api)
+5. [Plans](#plans)
 
 
 ## <a name="getting-started"></a>Getting started
@@ -71,8 +71,6 @@ Suppose you have these functions:
 
 1. One function creation `const flow = flowie(isMyLuckyNumber) // Flowie<number, boolean>`
   <br>flow will be a function that receives a number and return boolean
-<br>
-<br>
 
 #### <a name="splitting"></a>
 2. More than one function creation
@@ -81,32 +79,33 @@ Suppose you have these functions:
   <br>we call this a split operation
 
 3. Any time you can send function to `flowie` you can use antoher flowie, i.e
-  <br>
-  ```typescript
-  const flow1 = flowie(isMyLuckyNumber)
-  const flow2 = flowie(isABadLuckyNumber)
-  const flow3 = flowie(isPositiveNegativeOrZero)
+```typescript
+const flow1 = flowie(isMyLuckyNumber)
+const flow2 = flowie(isABadLuckyNumber)
+const flow3 = flowie(isPositiveNegativeOrZero)
 
-  const flow = flowie(flow1, flow2, flow3)
-  ```
-  This result is the same example 2, but the execution is a bit different.
+const flow = flowie(flow1, flow2, flow3)
+```
+
+This result is the same example 2, but the execution is a bit different.
 
 ---
-### <a name="api-the-flow"></a>The flow API `Flowie<Argument, Result, InitialArgument>`
+
+### <a name="api-the-flow"></a> The flow API `Flowie<Argument, Result, InitialArgument>`
 
 This is the `result` returned by `flowie` function, for instance:
-```typescript
-const flow: Flowie<string, boolean, number> = flowie(...)
-```
+`const flow: Flowie<string, boolean, number> = flowie(...)`
+
 It means, that this is a flow, that takes a `number` as first argument, and the last step of the flow is a flow item
 that receives a string and returns a boolean.
 
 > Flowie `await` method that are `async`
-<br>
+
 <br>
 
 ---
-#### <a name="api-the-flow-pipe"></a>.pipe(flowItem: FlowItem)
+
+#### <a name="pipe-api-the-flow"></a> .pipe(flowItem: FlowItem)
 
 As the name say it pipes content of previous step to the flowItem, let's say you have these objects:
 ```typescript
@@ -118,7 +117,7 @@ As the name say it pipes content of previous step to the flowItem, let's say you
 You can play with them they way you want: `flowie(aFunction).pipe(myFlow1).pipe(myFlow2).pipe(otherFunction)`.
 This would generate a flow with four steps, executing them in order.
 
-#### <a name="api-the-flow-split"></a>.split(...flowItemList: FlowItem[])
+#### <a name="split-api-the-flow"></a> .split(...flowItemList: FlowItem[])
 
 Splitting on `flowie` is a step that receives one argument call more them on flowItem in paralell,
 > if you create a flowie with more then one function, it means start splitting, as mentioned [Here](#splitting)
@@ -137,7 +136,7 @@ flow(10)
 // I hope the math was right 😬
 ```
 
-#### <a name="api-the-flow-complex-example"></a>More complex example
+#### <a name="complex-example-api-the-flow"></a>More complex example
 ```typescript
 const detectsABC = (equation: string) => [a,b,c] // all number
 const calculateDelta = ([a,b,c]: [number, number, number]) => [a,b,c, delta]
@@ -182,4 +181,4 @@ There is no priorization on this list yet
 - [ ] Enhance reports (custom configuration, log input/output)
 - [ ] Filter flowItem (FlowItem that 'stop' current flow or subFlow)
 - [ ] Report flowItem (bypass argument, but is called)
-- Mechanism to verify inputs/outputs
+- [ ] Mechanism to verify inputs/outputs
