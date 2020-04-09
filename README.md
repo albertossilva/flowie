@@ -7,7 +7,7 @@ If you have a lot functions and you want to connect them, monitor, and build com
 [![Build Status](https://travis-ci.org/albertossilva/flowie.svg?branch=master)](https://travis-ci.org/albertossilva/flowie)
 [![Coverage Status](https://coveralls.io/repos/github/albertossilva/flowie/badge.svg?branch=master)](https://coveralls.io/github/albertossilva/flowie?branch=master)
 [![dependencies Status](https://david-dm.org/albertossilva/flowie/status.svg)](https://david-dm.org/albertossilva/flowie)
-[![NPM Size](https://img.shields.io/bundlephobia/min/flowie)](https://bundlephobia.com/result?p=flowie)
+[![NPM Size](https://img.shields.io/bundlephobia/min/flowie.svg)](https://bundlephobia.com/result?p=flowie)
 [![TypeScript](https://img.shields.io/badge/Typescript-v3.8-blue)](https://github.com/ellerbrock/typescript-badges/)
 
 ## Contents
