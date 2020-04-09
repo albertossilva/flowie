@@ -4,7 +4,7 @@
   "description": "Library for creating, and working with flows",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc && rsync -a src/compiler/dot/*.js dist/compiler/dot",
+    "build": "npm run compileDots && tsc && rsync -a src/compiler/dot/*.js dist/compiler/dot",
     "prepublishOnly": "npm run build",
     "lint": "eslint --ext .ts src/ tests/",
     "lint:fix": "eslint --ext .ts --fix src/ tests/",
