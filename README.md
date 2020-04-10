@@ -1,4 +1,4 @@
-# Flowie: connect functions as a flow
+# F🅻⌽𝕎↓⒠: connect functions as a flow
 
 If you have a lot of functions and you want to connect them, monitor, and build complex flows without taking care about a lot or promises, [flowie](https://www.npmjs.com/package/flowie) is the package for you.
 
@@ -236,7 +236,7 @@ There is no priorization on this list yet
 - [ ] Accept yaml as flow declaration on configuration mode
 - [ ] Validate flow declaration on configuration mode
 - [ ] Detect recursion flowie on runtime
-- [ ] Validate parameteres on Flowie
+- [ ] Validate parameteres on FlowItems
 - [ ] Reporting (timePerFunction, numberOfCalls, slowestExecution, AvgExecution, fastestExecution )
 - [ ] Error Handling (interrupt flow or not)
 - [ ] Backpressure for generator
