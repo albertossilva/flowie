@@ -74,8 +74,8 @@ Suppose you have these functions:
 1. One function creation `const flow = flowie(isMyLuckyNumber) // Flowie<number, boolean>`
   <br>flow will be a function that receives a number and return boolean
 
-#### <a name="splitting"></a>
-2. More than one function creation
+2. More than one function creation: <br>
+<a name="splitting"></a>
 `const flow = flowie(isMyLuckyNumber, isABadLuckyNumber, isPositiveNegativeOrZero) // Flowie<number, [boolean, boolean, string*]>`
   <br>flow will be a function that receives a number and return an tuple [boolean, boolean, string*]
   <br>we call this a split operation
