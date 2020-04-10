@@ -32,6 +32,17 @@ export function createGeneratorMock<Argument, YieldType> (
   return functionCreated
 }
 
+export function createAsyncGeneratorMock<Argument, YieldType> (
+  functionName: string,
+  argument: Argument,
+  yieldsList: readonly YieldType[]
+) {
+  const functionCreated = createGeneratorMock(functionName, argument, yieldsList)
+  functionCreated[Symbol.toStringTag] = 'AsyncGeneratorFunction'
+
+  return functionCreated
+}
+
 export function registerMockFunction<Argument, Result> (
   flowieContainer: FlowieContainer,
   functionName: string,

@@ -209,7 +209,7 @@ export interface SplitFlow {
   readonly name?: string
 }
 
-export type FlowieItemDeclaration = string | FlowElement
+export type FlowieItemDeclaration = string | FlowElement // TODO Check if not
 
 export interface FlowieExecutionDeclaration extends FlowieDeclaration {
   readonly isAsync: boolean

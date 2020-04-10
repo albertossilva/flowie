@@ -1,6 +1,6 @@
 import { assert, expect } from 'chai'
 import { random, lorem } from 'faker'
-import { mock, assert as sinonAssert, SinonStub, SinonExpectation, spy } from 'sinon'
+import { mock, stub, spy, assert as sinonAssert, SinonStub, SinonExpectation } from 'sinon'
 
 import createFlowie from '../runtime/createFlowie'
 import { Flowie } from '../types'
@@ -173,93 +173,96 @@ describe('createFlowie(integration tests as laboratory)', function () {
     })
   })
 
-  //     context('generators/iterators', function () {
-  //       describe('pipe', function () {
-  //         it('returns the last item of a generator when it is the only item', async function () {
-  //           const yields = 'ABC'.split('')
-  //           const generatorMock = createGeneratorFrom<string, string>(yields, parameter)
-  //           const flow = flowie(generatorMock)
+  context('generators/iterators', function () {
+    describe('pipe', function () {
+      it('returns the last item of a generator when it is the only item', function () {
+        const yields = 'ABC'.split('')
+        const generatorMock = createGeneratorFrom<string, string>(yields, parameter)
+        const flow = createFlowie(generatorMock)
 
-  //           const { lastResult } = await flow(parameter)
+        const { lastResult } = flow(parameter) as FlowResult<string>
 
-  //           assert.equal(lastResult, 'C')
-  //         })
+        assert.equal(lastResult, 'C')
+      })
 
-  //         it('calls the functions piped after a generator once per yield', async function () {
-  //           const preffixWithResult = createPreffixer('result')
-  //           const yields = '123'.split('')
-  //           const generatorMock = createAsyncGeneratorFrom(yields, parameter)
+      it('calls the functions piped after a generator once per yield', function () {
+        const preffixWithResult = createPreffixer('result')
+        const yields = '123'.split('')
+        const generatorMock = createGeneratorFrom(yields, parameter)
 
-  //           const flow = flowie(generatorMock).pipe(createByPassFunction()).pipe(preffixWithResult)
+        const flow = createFlowie(generatorMock).pipe(createByPassFunction()).pipe(preffixWithResult)
 
-  //           const { lastResult } = await flow(parameter)
-  //           sinonAssert.calledThrice(preffixWithResult as SinonStub)
-  //           sinonAssert.calledWith(preffixWithResult as SinonStub, '1')
-  //           sinonAssert.calledWith(preffixWithResult as SinonStub, '2')
-  //           sinonAssert.calledWith(preffixWithResult as SinonStub, '3')
-  //           assert.equal(lastResult, 'result 3')
-  //         })
+        const { lastResult } = flow(parameter) as FlowResult<string>
+        sinonAssert.calledThrice(preffixWithResult as SinonStub)
+        sinonAssert.calledWith(preffixWithResult as SinonStub, '1')
+        sinonAssert.calledWith(preffixWithResult as SinonStub, '2')
+        sinonAssert.calledWith(preffixWithResult as SinonStub, '3')
+        assert.equal(lastResult, 'result 3')
+      })
 
-  //         it('returns the last item of generator when it is the last item', async function () {
-  //           const generatorMock = createGeneratorFrom<string, string>('XYZ'.split(''), parameter)
+      it('returns the last item of generator when it is the last item', function () {
+        const generatorMock = createGeneratorFrom<string, string>('XYZ'.split(''), parameter)
 
-  //           const flow = flowie(createByPassFunction())
-  //             .pipe(createByPassFunction())
-  //             .pipe(generatorMock)
+        const flow = createFlowie(createByPassFunction())
+          .pipe(createByPassFunction())
+          .pipe(generatorMock)
 
-  //           const { lastResult } = await flow(parameter)
+        const { lastResult } = flow(parameter) as FlowResult<string>
 
-  //           assert.equal(lastResult, 'Z')
-  //         })
+        assert.equal(lastResult, 'Z')
+      })
 
-  //         // it('accepts generators piped in the middle of flow, and all piped function are called', async function () {
-  //         //   const preffixWithHome = createPreffixer('home,')
-  //         //   const preffixWithSweetHome = createPreffixer('sweet home')
-  //         //   const preffixWithOwMy = createPreffixer('ow my!')
+      it('accepts generators piped in the middle of flow, and all piped function are called', function () {
+        const preffixWithHome = createPreffixer('home,')
+        const preffixWithSweetHome = createPreffixer('sweet home')
+        const preffixWithOwMy = createPreffixer('ow my!')
 
-  //         //   const yields = '#@?!'
-  //         //   const generatorMock = createAsyncGeneratorFrom(yields.split(''), parameter)
+        const yields = '#@?!'
+        const generatorMock = createGeneratorFrom(yields.split(''), parameter)
 
-  //         //   const flow = flowie(createByPassFunction())
-  //         //     .pipe(flowie(generatorMock))
-  //         //     .pipe(preffixWithSweetHome)
-  //         //     .pipe(flowie(preffixWithHome).pipe(preffixWithOwMy))
+        const flow = createFlowie(createByPassFunction())
+          .pipe(generatorMock)
+          .pipe(preffixWithSweetHome)
+          .pipe(createFlowie(preffixWithHome).pipe(preffixWithOwMy))
 
-  //         //   const { lastResult } = await flow(parameter)
+        const { lastResult } = flow(parameter) as FlowResult<string>
 
-  //         //   assert.equal(lastResult, 'ow my! home, sweet home !')
-  //         //   assert.equal((preffixWithSweetHome as SinonStub).callCount, yields.length)
-  //         //   assert.equal((preffixWithHome as SinonStub).callCount, yields.length)
-  //         //   assert.equal((preffixWithOwMy as SinonStub).callCount, yields.length)
-  //         // })
+        assert.equal(lastResult, 'ow my! home, sweet home !')
+        assert.equal((preffixWithSweetHome as SinonStub).callCount, yields.length)
+        assert.equal((preffixWithHome as SinonStub).callCount, yields.length)
+        assert.equal((preffixWithOwMy as SinonStub).callCount, yields.length)
+      })
 
-  //         // it('accepts generators piping to generators', async function () {
-  //         //   const byPass = spy().named('byPass')
+      it('calls 6 times piped function after generators with 3 and 2 yields', function () {
+        const byPass = createByPassFunction()
 
-  //         //   const generatorMock = createGeneratorFrom<string, string>(['1', '2', '3'], parameter)
+        const generatorMock = createGeneratorFrom<string, string>(['1', '2', '3'], parameter)
 
-  //         //   function * generatorThatConcatenatesAB (previousValue: string) {
-  //         //     const lettersList = ['A', 'B']
-  //         //     for (const letter of lettersList) {
-  //         //       yield previousValue + letter
-  //         //     }
-  //         //   }
+        function * generatorThatConcatenatesAB (previousValue: string) {
+          const lettersList = ['A', 'B']
+          for (const letter of lettersList) {
+            yield previousValue + letter
+          }
+        }
 
-  //         //   const flow = flowie(generatorMock)
-  //         //     .pipe(generatorThatConcatenatesAB)
-  //         //     .pipe(byPass as (x: string) => string)
+        const flow = createFlowie(generatorMock)
+          .pipe(generatorThatConcatenatesAB)
+          .pipe(byPass)
 
-  //         //   await flow(parameter)
+        flow(parameter)
 
-//       //   // assert.equal((commonFunction as SinonStub).callCount, 4)
-//       // })
-//       })
-//     })
+        assert.equal((byPass as SinonStub).callCount, 6)
+      })
+    })
+  })
 })
 
-// const createByPassFunction = () => stub().returnsArg(0) as (x: string) => string
-// const createPreffixer = (preffix: string) => stub().named(`preffixer-${preffix}`)
-//   .callsFake((x: string): string => `${preffix} ${x}`) as (x: string) => string
+const createByPassFunction = () => stub().returnsArg(0) as (x: string) => string
+const createPreffixer = (preffix: string) => {
+  const preffixForFunctionName = preffix.replace(/\s*/g, '_').replace(/[^0-9a-z_]/gi, '')
+  return stub().named(`preffixer_${preffixForFunctionName}`)
+    .callsFake((x: string): string => `${preffix} ${x}`) as (x: string) => string
+}
 const add = (shouldBeAdded: number) => (numberToAdd: number) => numberToAdd + shouldBeAdded
 const add1 = add(1)
 const add2 = add(2)
@@ -299,14 +302,14 @@ function createAsyncFunctionMock (
   return asyncMock
 }
 
-// function createGeneratorFrom<A, T> (array: readonly T[], expected: A) {
-//   return function * traverseArray (actual: A) {
-//     assert.equal(expected, actual, 'Wrong parameter received')
-//     for (const item of array) {
-//       yield item
-//     }
-//   }
-// }
+function createGeneratorFrom<A, T> (array: readonly T[], expected: A) {
+  return function * traverseArray (actual: A) {
+    assert.equal(expected, actual, 'Wrong parameter received')
+    for (const item of array) {
+      yield item
+    }
+  }
+}
 
 // function createAsyncGeneratorFrom<A, T> (array: readonly T[], expected: A) {
 //   return async function * traverseArray (actual: A) {

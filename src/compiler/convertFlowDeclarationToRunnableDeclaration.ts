@@ -149,7 +149,7 @@ class FlowElementReader {
     )
 
     return {
-      generatorsFound: 0, // TODO
+      generatorsFound: 0,
       mainFlow: {
         functionsFromContainers: getUniqueFunctionNames(
           this.mainFlow.functionsFromContainers,
@@ -166,11 +166,31 @@ class FlowElementReader {
   ): SplitStepReading {
     const { functionsFromContainers, subFlows, splitStep } = splitStepReading
     if (typeof flowieItemDeclaration === 'string') {
+      const isGenerator = this.isGeneratorFunction(flowieItemDeclaration)
+      const isAsync = this.isAsyncFunction(flowieItemDeclaration)
+
+      if (isGenerator) {
+        const hash = `${flowieItemDeclaration}_${generateHash()}`
+        return {
+          functionsFromContainers,
+          subFlows: subFlows.concat({
+            isAsync,
+            functionsFromContainers: [flowieItemDeclaration],
+            hash,
+            steps: [{ generator: flowieItemDeclaration, isAsync }]
+          }),
+          splitStep: {
+            isAsync: keepPreviousTrue(splitStep.isAsync, isAsync),
+            split: splitStep.split.concat({ flow: hash, isAsync })
+          }
+        }
+      }
+
       return {
         functionsFromContainers: getUniqueFunctionNames(functionsFromContainers, flowieItemDeclaration),
         subFlows,
         splitStep: {
-          isAsync: splitStep.isAsync || this.isAsyncFunction(flowieItemDeclaration),
+          isAsync: keepPreviousTrue(splitStep.isAsync, this.isAsyncFunction(flowieItemDeclaration)),
           split: splitStep.split.concat(flowieItemDeclaration)
         }
       }
@@ -183,7 +203,7 @@ class FlowElementReader {
       functionsFromContainers,
       subFlows: subFlows.concat(newSubFlows),
       splitStep: {
-        isAsync: splitStep.isAsync || flowStep.isAsync,
+        isAsync: keepPreviousTrue(splitStep.isAsync, flowStep.isAsync),
         split: splitStep.split.concat(flowStep)
       }
     }
@@ -226,7 +246,7 @@ class SubFlowElementReader {
 
   read (flowElement: FlowElement): SubStepReading {
     const { name } = flowElement
-    const hash = name || Math.random().toString(36).slice(2)
+    const hash = name || generateHash()
 
     const { isAsync, functionsFromContainers, steps, subFlows } = this.readSubFlow(flowElement)
 
@@ -318,7 +338,29 @@ class SubFlowElementReader {
     const [splitStep] = steps as readonly SplitStep[]
 
     if (typeof flowieItemDeclaration === 'string') {
-      const willBeAsync = isAsync || this.isAsyncFunction(flowieItemDeclaration)
+      const isGenerator = this.isGeneratorFunction(flowieItemDeclaration)
+      const willBeAsync = keepPreviousTrue(isAsync, this.isAsyncFunction(flowieItemDeclaration))
+
+      if (isGenerator) {
+        const hash = `${flowieItemDeclaration}_${generateHash()}`
+
+        return {
+          isAsync: willBeAsync,
+          functionsFromContainers,
+          steps: [{
+            split: splitStep.split.concat({ flow: hash, isAsync: willBeAsync }),
+            isAsync: willBeAsync
+          }],
+          subFlows: subFlows.concat({
+            isAsync,
+            functionsFromContainers: [flowieItemDeclaration],
+            hash,
+            steps: [{ generator: flowieItemDeclaration, isAsync }]
+          }),
+          generatorsCount: 0
+        }
+      }
+
       return {
         isAsync: willBeAsync,
         functionsFromContainers: getUniqueFunctionNames(functionsFromContainers, flowieItemDeclaration),
@@ -336,7 +378,7 @@ class SubFlowElementReader {
       this.isGeneratorFunction
     ).read(flowieItemDeclaration)
 
-    const willBeAsync = isAsync || flowStep.isAsync
+    const willBeAsync = keepPreviousTrue(isAsync, flowStep.isAsync)
     return {
       isAsync: willBeAsync,
       functionsFromContainers,
@@ -353,7 +395,7 @@ class SubFlowElementReader {
     const { isAsync, steps, subFlows, functionsFromContainers, generatorsCount } = this.readSubFlowItem(flowElement)
 
     return {
-      isAsync: subFlowReading.isAsync || isAsync,
+      isAsync: keepPreviousTrue(subFlowReading.isAsync, isAsync),
       functionsFromContainers:
         getUniqueFunctionNames(subFlowReading.functionsFromContainers, ...functionsFromContainers),
       steps: subFlowReading.steps.concat(steps),
@@ -391,6 +433,14 @@ class SubFlowElementReader {
 
 function getUniqueFunctionNames (functionNames: readonly string[], ...newValues: readonly string[]): readonly string[] {
   return Array.from(new Set(functionNames.concat(newValues)))
+}
+
+function keepPreviousTrue (previous: boolean, next: boolean) {
+  return previous || next
+}
+
+function generateHash (): string {
+  return Math.random().toString(36).slice(2)
 }
 
 interface MainFlow {

@@ -10,7 +10,7 @@
       const executeFunction_{{=functionName}} = flowieContainer.functionsContainer.{{=functionName}}.flowFunction;
     {{~}}
     {{?hasGeneratorsSubFlow}}
-      {{~subFlow.steps.slice(0, it.mainFlow.steps.length - reduceWhenLastIsFinishGeneratorsOnSubFlow) :step:index}}
+      {{~subFlow.steps.slice(0, subFlow.steps.length - reduceWhenLastIsFinishGeneratorsOnSubFlow) :step:index}}
         let result{{=index+1}};
       {{~}}
     {{?}}

@@ -1,5 +1,5 @@
 function anonymous() {
-  return async function executeMainFlow(executionArguments) {
+  return function executeMainFlow(executionArguments) {
     const {
       flowieContainer,
       argument,
