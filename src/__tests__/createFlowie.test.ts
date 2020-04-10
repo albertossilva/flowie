@@ -185,14 +185,16 @@ describe('createFlowie(integration tests as laboratory)', function () {
         assert.equal(lastResult, 'C')
       })
 
-      it('calls the functions piped after a generator once per yield', function () {
+      it('calls the functions piped after a generator once per yield', async function () {
         const preffixWithResult = createPreffixer('result')
         const yields = '123'.split('')
-        const generatorMock = createGeneratorFrom(yields, parameter)
+        const generatorMock = createAsyncGeneratorFrom(yields, parameter)
 
         const flow = createFlowie(generatorMock).pipe(createByPassFunction()).pipe(preffixWithResult)
 
-        const { lastResult } = flow(parameter) as FlowResult<string>
+        const promise = flow(parameter)
+        expect(promise).to.instanceOf(Promise)
+        const { lastResult } = await promise
         sinonAssert.calledThrice(preffixWithResult as SinonStub)
         sinonAssert.calledWith(preffixWithResult as SinonStub, '1')
         sinonAssert.calledWith(preffixWithResult as SinonStub, '2')
@@ -311,11 +313,11 @@ function createGeneratorFrom<A, T> (array: readonly T[], expected: A) {
   }
 }
 
-// function createAsyncGeneratorFrom<A, T> (array: readonly T[], expected: A) {
-//   return async function * traverseArray (actual: A) {
-//     assert.equal(expected, actual, 'Wrong parameter received')
-//     for (const item of array) {
-//       yield item
-//     }
-//   }
-// }
+function createAsyncGeneratorFrom<A, T> (array: readonly T[], expected: A) {
+  return async function * traverseArray (actual: A) {
+    assert.equal(expected, actual, 'Wrong parameter received')
+    for (const item of array) {
+      yield item
+    }
+  }
+}
