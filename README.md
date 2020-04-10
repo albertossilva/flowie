@@ -1,13 +1,14 @@
 # Flowie: connect functions as a flow
 
-If you have a lot functions and you want to connect them, monitor, and build complex flow without taking care about a lot or promises, [flowie](https://www.npmjs.com/package/flowie) is the package for you.
+If you have a lot of functions and you want to connect them, monitor, and build complex flows without taking care about a lot or promises, [flowie](https://www.npmjs.com/package/flowie) is the package for you.
 
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com)
 [![npm](https://img.shields.io/npm/v/flowie.svg)](https://www.npmjs.com/package/flowie)
 [![Build Status](https://travis-ci.org/albertossilva/flowie.svg?branch=master)](https://travis-ci.org/albertossilva/flowie)
 [![Coverage Status](https://coveralls.io/repos/github/albertossilva/flowie/badge.svg?branch=master)](https://coveralls.io/github/albertossilva/flowie?branch=master)
 [![dependencies Status](https://david-dm.org/albertossilva/flowie/status.svg)](https://david-dm.org/albertossilva/flowie)
-[![NPM Size](https://img.shields.io/bundlephobia/min/flowie/latest.svg)](https://bundlephobia.com/result?p=flowie)
+[![Bundle Size](https://img.shields.io/bundlephobia/min/flowie/latest.svg)](https://bundlephobia.com/result?p=flowie)
+[![Install size](https://packagephobia.now.sh/badge?p=flowie)](https://packagephobia.now.sh/result?p=flowie)
 [![TypeScript](https://img.shields.io/badge/Typescript-v3.8-blue)](https://github.com/ellerbrock/typescript-badges/)
 
 ## Contents
@@ -18,7 +19,8 @@ If you have a lot functions and you want to connect them, monitor, and build com
   - [The flow API](#api-the-flow)
     - [.pipe](#pipe-api-the-flow)
     - [.split](#split-api-the-flow)
-    - [Complex Example](#complex-example-api-the-flow)
+    - [FlowItem](#flow-item-api-the-flow)
+    - [Complex Example](#other-example-api-the-flow)
 - [Configuration API](#configuration-api)
 - [Plans](#plans)
 
@@ -103,7 +105,7 @@ that receives a string and returns a boolean.
 
 
 ---
-#### <a name="pipe-api-the-flow"></a> .pipe(flowItem: FlowItem)
+#### <a name="pipe-api-the-flow"></a> .pipe(flowItem: [FlowItem](#flow-item-api-the-flow))
 
 As the name say it pipes content of previous step to the flowItem, let's say you have these objects:
 ```typescript
@@ -116,7 +118,7 @@ You can play with them they way you want: `flowie(aFunction).pipe(myFlow1).pipe(
 This would generate a flow with four steps, executing them in order.
 
 ---
-#### <a name="split-api-the-flow"></a> .split(...flowItemList: FlowItem[])
+#### <a name="split-api-the-flow"></a> .split(...flowItemList: [FlowItem](#flow-item-api-the-flow)[])
 
 Splitting on `flowie` is a step that receives one argument call more them on flowItem in paralell,
 > if you create a flowie with more then one function, it means start splitting, as mentioned [Here](#splitting)
@@ -136,7 +138,67 @@ flow(10)
 ```
 
 ---
-#### <a name="complex-example-api-the-flow"></a>More complex example
+#### <a name="flow-item-api-the-flow"></a> FlowItem
+A flow item is the node of a flow, it can be a function, an async function, a generator function,
+an async generator function or a Flowie Flow. So, whenever you are usinf
+
+##### 1. Functions
+When [piping](#pipe-api-the-flow) or [splitting](#split-api-the-flow), you can use functions, the result type will be
+the argument of the next flowItem on the flow.
+
+##### 2. Async functions
+When [piping](#pipe-api-the-flow) or [splitting](#split-api-the-flow), you can use async functions, the thenArgType
+returned by function will be the argument of the next flowItem on the flow.
+
+By now... just functions using `async` declarations are accepted as flowItem, so... functions like this one
+`function doAsyncOperation() { return new Promise<type>(...) }` will be recognized as a function.
+
+> If one of the functions of the flow is async, than result becomes a promise.
+
+##### 3. Generator functions, and async generator functions
+Generator functions, async or not... like `function* generator() {}` or `asyncfunction* generator() {}` are
+considered as generator functions on flowie. Every flowItem piped after the same a flow item that is a generator function will be called once per `yield`, and the result will be the last value.
+
+For instance:
+
+```typescript
+function* generatorLetters(count: number) { ... } // yields from A to Z, limited by counter. Counter: 3, yields A,B, and C
+async function* getUserStartingWith(letter: string) { ... } // yields users that start with the letter
+async function sendEmailMarketing(user: User) { ... } // sends a mail marketing to a user
+
+const sendEmailMarketingFlow = flowie(generatorLetters).pipe(getUserStartingWith).pipe(sendEmailMarketing)
+sendEmailMarketingFlow(5).then(() => console.log('Emails sent to user starting with A-E!'))
+// the generator function getUserStartingWith will be invoked 5 times
+// sendEmailMarketing will be invoked for every user starting with letters A,B,C,D and E
+```
+
+> If one of the functions of the flow is async generator, than result becomes a promise.
+
+By splitting with a generator, like `flowie(generator, nonGenerator)` or `flowie.split(generator, nonGenerator)`, this will not affect next steps, so:
+
+```typescript
+const flow = flowie(generator,nonGenerator).pipe(howManyTimesAmIGoingToCalled)
+flow()
+```
+
+Will cause the function `howManyTimesAmIGoingToCalled` to be called just once, but the iterator returned by generator will be consume completely.
+
+#### 4. Flowie as flowItem
+This is done to make possible re-use other flows and also build complex flows, see example below:
+```typescript
+const sendEmailMarketingFlow = flowie(prepareEmailMarketing).pipe(sendEmailMarketing)
+const sendSMSMarketingFlow = flowie(prepareSMSMarketing).pipe(sendSMSMarketing)
+
+async function* getUsers(dbConnection) {...}
+
+const sendAllMarketingFlow = flowie(getUsers).split(sendEmailMarketingFlow, sendSMSMarketingFlow)
+await sendAllMarketingFlow(dbConnection)
+```
+
+The flow above: `sendAllMarketingFlow`, would prepare and send emails and SMS for every user yield by `getUsers`.
+
+---
+#### <a name="other-examples-api-the-flow"></a>Other examples
 ```typescript
 const detectsABC = (equation: string) => [a,b,c] // all number
 const calculateDelta = ([a,b,c]: [number, number, number]) => [a,b,c, delta]
@@ -149,10 +211,10 @@ const secondDeegreeResolverFlow = flowie(detectsABC)
   .split(returnsX1Result, returnsX2Result)
   .pipe(mergeObjects)
 
-const { lastResult } = secondDeegreeResolverFlow('4x² + 4x + 1 = 0')
-console.log(lastResult) // { x1:  }
+const { lastResult } = secondDeegreeResolverFlow('1x² - 3x - 10 = 0')
+console.log(lastResult) // {delta: 49, x": -2, x': 5}
 ```
-See the execution on [runkit, clicking here](https://runkit.com/albertossilva/2nd-degree-equation-flowie)
+See the execution on [runkit, clicking here](https://https://runkit.com/albertossilva/2nd-deegree-equation-flowiee)
 
 
 ## <a name="configuration-api"></a>Configuration API
@@ -163,10 +225,11 @@ There is no priorization on this list yet
 - [x] Async Pipe/Split (Runtime and Configuration)
 - [x] Accept flowie as flowItem
 - [x] Check on runkit
-- [ ] Accept generators on pipe/split
-- [ ] Accept async generators on pipe/split
+- [x] Accept generators on pipe/split
+- [x] Accept async generators on pipe/split
 - [ ] add Debug library calls
-- [ ] add Flags (actAsGenerator, actAsAsync) on .pipe/.split in order to be able to receive functions that returns `() => Promise.resolve()` or iterators () => { [Symbol.iterator]: () => {} }
+- [ ] Validate function names
+- [ ] add Flags (actAsGenerator, actAsAsync) on .pipe/.split in order to be able to receive functions that returns `() => Promise.resolve()` or iterators `() => { [Symbol.iterator]: () => {} }`
 - [ ] Accept yaml as flow declaration on configuration mode
 - [ ] Validate flow declaration on configuration mode
 - [ ] Detect recursion flowie on runtime
@@ -181,4 +244,6 @@ There is no priorization on this list yet
 - [ ] Enhance reports (custom configuration, log input/output)
 - [ ] Filter flowItem (FlowItem that 'stop' current flow or subFlow)
 - [ ] Report flowItem (bypass argument, but is called)
+- [ ] Decider flowItem (like split, with names, based on argument, decide which flow ot execute)
+- [ ] ChangeContext flowItem (changes the context on item below the same flow)
 - [ ] Mechanism to verify inputs/outputs

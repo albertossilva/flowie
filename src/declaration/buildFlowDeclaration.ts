@@ -88,8 +88,10 @@ function converSplitToFlowFunctionDetails (
 }
 
 function converToFlowFunctionDetails (functionName: string, flowieContainer: FlowieContainer): FlowFunctionDetails {
+  const { isAsync, isGenerator } = flowieContainer.functionsContainer[functionName]
   return {
     name: functionName,
-    isAsync: flowieContainer.functionsContainer[functionName].isAsync
+    isAsync,
+    isGenerator
   }
 }

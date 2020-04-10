@@ -1,17 +1,31 @@
 {{ const asyncPreffixOrNot = it.isAsync ? 'async ': ''; }}
 {{~it.subFlows :subFlow}}
   {{ const asyncPreffixOrNotForFlow = subFlow.isAsync ? 'async ' : ''; }}
+  {{ const [lastStepSubFlow] = subFlow.steps.slice(-1); }}
+  {{ const hasGeneratorsSubFlow = Boolean(lastStepSubFlow.finishGeneratorsCount); }}
+  {{ const reduceWhenLastIsFinishGeneratorsOnSubFlow = Number(hasGeneratorsSubFlow); }}
+
   {{=asyncPreffixOrNotForFlow}}function executeFlow_{{=subFlow.hash}}({ flowieContainer, argument }) {
     {{~Object.values(subFlow.functionsFromContainers) :functionName}}
       const executeFunction_{{=functionName}} = flowieContainer.functionsContainer.{{=functionName}}.flowFunction;
     {{~}}
+    {{?hasGeneratorsSubFlow}}
+      {{~subFlow.steps.slice(0, subFlow.steps.length - reduceWhenLastIsFinishGeneratorsOnSubFlow) :step:index}}
+        let result{{=index+1}};
+      {{~}}
+    {{?}}
     {{~subFlow.steps :step:index}}
-      {{=it.generateFlow(it, { step, parentIndex: index })}}
+      {{=it.generateFlow(it, { step, parentIndex: index, hasGenerators: hasGeneratorsSubFlow })}}
     {{~}}
 
-    return result{{=subFlow.steps.length}};
+    return result{{=subFlow.steps.length - reduceWhenLastIsFinishGeneratorsOnSubFlow}};
   }
 {{~}}
+
+{{ const [lastStep] = it.mainFlow.steps.slice(-1); }}
+{{ const hasGenerators = Boolean(lastStep.finishGeneratorsCount); }}
+{{ const reduceWhenLastIsFinishGenerators = Number(hasGenerators); }}
+
 return {{=asyncPreffixOrNot}}function executeMainFlow(executionArguments) {
   const { flowieContainer, argument, createFlowieResult } = executionArguments;
   const startTime = Date.now();
@@ -20,9 +34,15 @@ return {{=asyncPreffixOrNot}}function executeMainFlow(executionArguments) {
     const executeFunction_{{=functionName}} = flowieContainer.functionsContainer.{{=functionName}}.flowFunction;
   {{~}}
 
+  {{?hasGenerators}}
+    {{~it.mainFlow.steps.slice(0, it.mainFlow.steps.length - reduceWhenLastIsFinishGenerators) :step:index}}
+      let result{{=index+1}};
+    {{~}}
+  {{?}}
+
   {{~it.mainFlow.steps :step:index}}
-    {{=it.generateFlow(it, { step, parentIndex: index })}}
+    {{=it.generateFlow(it, { step, parentIndex: index, hasGenerators })}}
   {{~}}
 
-  return createFlowieResult.success(result{{=it.mainFlow.steps.length}}, startTime, {});
+  return createFlowieResult.success(result{{=it.mainFlow.steps.length - reduceWhenLastIsFinishGenerators}}, startTime, {});
 }

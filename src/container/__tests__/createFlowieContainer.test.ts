@@ -68,7 +68,7 @@ describe('container/createFlowieContainer', function () {
 
     expect(anonymousFunctionRegisteredList).to.have.length(1)
     const [anonymousFunctionName] = anonymousFunctionRegisteredList
-    expect(anonymousFunctionName).to.match(/^anoymous_[a-z0-9]{10,12}$/)
+    expect(anonymousFunctionName).to.match(/^anoymous_[a-z0-9]{9,12}$/)
   })
 
   it('returns true for the container when checking isFlowieContainer', function () {
@@ -91,6 +91,10 @@ describe('container/createFlowieContainer', function () {
 
   it('new containers always return null on getFunctionDetails', function () {
     expect(createFlowieContainer().getFunctionDetails(stub())).to.null
+  })
+
+  it('new containers always return false on isGeneratorFunction', function () {
+    expect(createFlowieContainer().isGeneratorFunction('bla')).to.false
   })
 })
 

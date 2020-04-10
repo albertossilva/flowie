@@ -1,5 +1,5 @@
 import { FlowFunctionDetailsWithItem, FlowFunction } from '../types'
-import { isAsyncFunction } from '../functionConstructors'
+import { isAsyncFunction, isGeneratorFunction } from '../functionConstructors'
 
 const flowieContainerSignature = Symbol('flowieContainerSignature')
 
@@ -16,7 +16,8 @@ export default function createFlowieContainer (): FlowieContainer {
       return mergeWithOtherContainerAndFunctions(createFlowieContainer(), ...containersOrFunctions)
     },
     getFunctionDetails () { return null },
-    isAsyncFunction () { return false }
+    isAsyncFunction () { return false },
+    isGeneratorFunction () { return false }
   }
   return Object.freeze(flowieContainer as FlowieContainer)
 }
@@ -33,6 +34,7 @@ export interface FlowieContainer {
   readonly register: (...possibleFunctionRegister: readonly PossibleFunctionRegister[]) => FlowieContainer;
   readonly merge: (...containersOrFunctions: readonly (FlowieContainer | FlowFunction)[]) => FlowieContainer;
   readonly isAsyncFunction: (functionName: string) => boolean;
+  readonly isGeneratorFunction: (functionName: string) => boolean;
 }
 
 function registerFlowFunctionsList (
@@ -97,13 +99,21 @@ function getFlowFunctionDetailsForFlowFunction (
 ) {
   const name = getNameForFunction(flowFunction)
 
-  const flowFunctionDetailsList = {
-    name,
-    flowFunction,
-    isAsync: isAsyncFunction(flowFunction)
-  }
+  const flowFunctionDetailsList: FlowFunctionDetailsWithItem<any, any> = buildFlowFunctionDetails(name, flowFunction)
 
   return incrementUniqueFunctionDetails(uniqueFunctionDetails, [flowFunction, name], flowFunctionDetailsList)
+}
+
+function buildFlowFunctionDetails (
+  name: string,
+  flowFunction: FlowFunction<any, any>
+): FlowFunctionDetailsWithItem<any, any> {
+  return {
+    name,
+    flowFunction,
+    isAsync: isAsyncFunction(flowFunction),
+    isGenerator: isGeneratorFunction(flowFunction)
+  }
 }
 
 function getFlowFunctionDetailsForTuple (
@@ -113,7 +123,7 @@ function getFlowFunctionDetailsForTuple (
 ) {
   const isSaved = uniqueFunctions.functions.has(flowFunction)
   const newName = isSaved ? uniqueFunctions.functions.get(flowFunction) : name
-  const flowFunctionDetails = { name, flowFunction, isAsync: isAsyncFunction(flowFunction) }
+  const flowFunctionDetails = buildFlowFunctionDetails(name, flowFunction)
 
   return incrementUniqueFunctionDetails(uniqueFunctions, [flowFunction, newName], flowFunctionDetails)
 }
@@ -156,6 +166,9 @@ function createContainer (
     register: registerFlowFunctionsList.bind(null, functionsContainer),
     isAsyncFunction (functionName: string) {
       return functionsContainer[functionName].isAsync
+    },
+    isGeneratorFunction (functionName: string) {
+      return functionsContainer[functionName].isGenerator
     },
     getFunctionDetails (functionToFind: Function) {
       return Object.values(functionsContainer).find(matchFlowFunction, { functionToFind })

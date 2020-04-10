@@ -1,15 +1,12 @@
-/* istanbul ignore next */
-export const SyncFunctionConstructor = (() => 1).constructor as FunctionConstructor
-/* istanbul ignore next */
-export const AsyncFunctionConstructor = (async () => 1).constructor as FunctionConstructor
-
-const functionConstructors = {
-  Sync: SyncFunctionConstructor,
-  Async: AsyncFunctionConstructor
-}
+const asyncFunctionsStringTag = ['AsyncFunction', 'AsyncGeneratorFunction']
+const generatorFunctionsStringTag = ['GeneratorFunction', 'AsyncGeneratorFunction']
 
 export function isAsyncFunction (functionCandidate: Function) {
-  return functionCandidate[Symbol.toStringTag] === 'AsyncFunction'
+  return asyncFunctionsStringTag.includes(functionCandidate[Symbol.toStringTag])
 }
 
-export default functionConstructors
+export function isGeneratorFunction (functionCandidate: Function) {
+  return generatorFunctionsStringTag.includes(functionCandidate[Symbol.toStringTag])
+}
+
+export default Function

@@ -7,11 +7,20 @@ import {
   assertFlowIsRegistered,
   assertResults
 } from '../assertToAvoidMistakes'
-import { registerMockFunction, registerAsyncMockFunction } from '../mockCreators'
+import {
+  createByPassMock,
+  registerMockFunction,
+  registerAsyncMockFunction,
+  registerGeneratorMockFunction,
+  registerGeneratorMockFunctionForObject
+} from '../mockCreators'
 
 export default interface RuntimeFlowieWorld extends World {
   createMockFunction<Argument, Result>(name: string, argument: Argument, result: Result): void
+  createByPassMock(functionName: string): void
   createAsyncMockFunction<Argument, Result>(name: string, argument: Argument, result: Result): void
+  createGeneratorMockFunction<T>(functionName: string, argument: string, yieldsList: readonly T[]): void
+  createGeneratorMockFunctionForObject<T>(functionName: string, keyYields: Record<string, readonly T[]>): void
   createFlow(flowName: string, ...firstFunctionsNamesList: readonly string[]): void
   pipeFunctionOnFlow(flowName: string, functionName: string): void
   splitFunctionOnFlow(flowName: string, functionNamesList: string[]): void
@@ -30,8 +39,17 @@ export function createRuntimeFlowieWorld (): RuntimeFlowieWorld {
     createMockFunction<Argument, Result> (functionName: string, argument: Argument, result: Result) {
       flowieContainer = registerMockFunction(flowieContainer, functionName, argument, result)
     },
+    createByPassMock (functionName: string) {
+      flowieContainer = flowieContainer.register([functionName, createByPassMock(functionName)])
+    },
     createAsyncMockFunction<Argument, Result> (functionName: string, argument: Argument, result: Result) {
       flowieContainer = registerAsyncMockFunction(flowieContainer, functionName, argument, result)
+    },
+    createGeneratorMockFunction<T> (functionName: string, argument: string, yieldsList: readonly T[]) {
+      flowieContainer = registerGeneratorMockFunction(flowieContainer, functionName, argument, yieldsList)
+    },
+    createGeneratorMockFunctionForObject<T> (functionName: string, keyYields: Record<string, readonly T[]>) {
+      flowieContainer = registerGeneratorMockFunctionForObject(flowieContainer, functionName, keyYields)
     },
     createFlow (flowName: string, ...firstFunctionsNamesList: readonly string[]) {
       assertFlowIsNotRegistered(flowName, flows)
