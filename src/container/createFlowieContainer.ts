@@ -1,4 +1,4 @@
-import { FlowFunctionDetailsWithItem, FlowFunction } from '../types'
+import { FlowFunctionDetailsWithItem, FlowFunction } from '../runtime.types'
 import { isAsyncFunction, isGeneratorFunction } from '../functionConstructors'
 
 const flowieContainerSignature = Symbol('flowieContainerSignature')

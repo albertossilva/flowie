@@ -1,12 +1,12 @@
 
 import {
-  FlowieExecutionDeclaration,
+  PreparedFlowieExecution,
   FlowElement,
   PipeFlow,
   SplitFlow,
-  FlowieDeclaration,
+  PreparedFlowie,
   FlowieItemDeclaration
-} from '../types'
+} from '../prepared.types'
 
 export interface RunnableDeclaration {
   readonly isAsync: boolean
@@ -15,7 +15,7 @@ export interface RunnableDeclaration {
 }
 
 export default function convertFlowDeclarationToRunnableDeclaration (
-  flowieExecutionDeclaration: FlowieExecutionDeclaration,
+  preparedFlowieExecution: PreparedFlowieExecution,
   isAsyncFunction: CheckFunction,
   isGeneratorFunction: CheckFunction
 ): RunnableDeclaration {
@@ -24,7 +24,7 @@ export default function convertFlowDeclarationToRunnableDeclaration (
     functionsFromContainers: [] as readonly string[],
     steps: [] as readonly Step[]
   }
-  const { mainFlow, subFlows } = flowieExecutionDeclaration.flows
+  const { mainFlow, subFlows } = preparedFlowieExecution.flows
     .reduce(readFlowsAndSubFlows, {
       subFlows: initialSubFlows,
       mainFlow: initialMainFlow,
@@ -34,7 +34,7 @@ export default function convertFlowDeclarationToRunnableDeclaration (
     })
 
   const runnableDeclaration: RunnableDeclaration = {
-    isAsync: flowieExecutionDeclaration.isAsync,
+    isAsync: preparedFlowieExecution.isAsync,
     mainFlow,
     subFlows
   }
@@ -108,9 +108,9 @@ class FlowElementReader {
     const splitFlow = flowElement as SplitFlow
     if (splitFlow.split) return this.readSplitStep(splitFlow)
 
-    const flowieDeclaration = flowElement as FlowieDeclaration
+    const preparedFlowie = flowElement as PreparedFlowie
 
-    return this.readSubFlow(flowieDeclaration)
+    return this.readSubFlow(preparedFlowie)
   }
 
   private readPipeStep (pipeFlow: PipeFlow): StepReading {
@@ -168,14 +168,14 @@ class FlowElementReader {
       const isAsync = this.isAsyncFunction(flowieItemDeclaration)
 
       if (isGenerator) {
-        const hash = `${flowieItemDeclaration}_${generateHash()}`
+        const hash = `generator_on_split_${flowieItemDeclaration}`
         return {
           functionsFromContainers,
           subFlows: subFlows.concat({
             isAsync,
             functionsFromContainers: [flowieItemDeclaration],
             hash,
-            steps: [{ generator: flowieItemDeclaration, isAsync }]
+            steps: [{ generator: flowieItemDeclaration, isAsync }, { finishGeneratorsCount: 1 }]
           }),
           splitStep: {
             isAsync: keepPreviousTrue(splitStep.isAsync, isAsync),
@@ -267,7 +267,7 @@ class SubFlowElementReader {
       return this.readSubFlowSplit(splitFlow)
     }
 
-    const flowieDeclaration = flowElement as FlowieDeclaration
+    const preparedFlowie = flowElement as PreparedFlowie
 
     const initialFlowReading: SubflowReading = {
       isAsync: false,
@@ -277,7 +277,7 @@ class SubFlowElementReader {
       generatorsCount: 0
     }
 
-    const subFlowReading = flowieDeclaration.flows.reduce(this.readSubFlowSteps, initialFlowReading)
+    const subFlowReading = preparedFlowie.flows.reduce(this.readSubFlowSteps, initialFlowReading)
 
     const { generatorsCount } = subFlowReading
 
@@ -340,7 +340,7 @@ class SubFlowElementReader {
       const willBeAsync = keepPreviousTrue(isAsync, this.isAsyncFunction(flowieItemDeclaration))
 
       if (isGenerator) {
-        const hash = `${flowieItemDeclaration}_${generateHash()}`
+        const hash = `generator_on_split_${flowieItemDeclaration}`
 
         return {
           isAsync: willBeAsync,
@@ -353,7 +353,7 @@ class SubFlowElementReader {
             isAsync,
             functionsFromContainers: [flowieItemDeclaration],
             hash,
-            steps: [{ generator: flowieItemDeclaration, isAsync }]
+            steps: [{ generator: flowieItemDeclaration, isAsync }, { finishGeneratorsCount: 1 }]
           }),
           generatorsCount: 0
         }
@@ -403,8 +403,8 @@ class SubFlowElementReader {
   }
 
   private readSubFlowItem (flowElement: FlowElement): SubflowReading {
-    const flowieDeclaration = flowElement as FlowieDeclaration
-    if (flowieDeclaration.flows) {
+    const preparedFlowie = flowElement as PreparedFlowie
+    if (preparedFlowie.flows) {
       const { flowStep, subFlows } = new SubFlowElementReader(this.isAsyncFunction, this.isGeneratorFunction)
         .read(flowElement)
       return {

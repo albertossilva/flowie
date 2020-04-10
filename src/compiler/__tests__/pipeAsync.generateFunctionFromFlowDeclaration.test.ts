@@ -2,15 +2,15 @@ import createFlowieContainer from '../../container/createFlowieContainer'
 import { createMock, createAsyncMock } from '../../../tests/features/step_definitions/mockCreators'
 
 import testFunctionGenerations from './testFunctionGenerations'
-import { FlowieExecutionDeclaration } from '../../types'
+import { PreparedFlowieExecution } from '../../prepared.types'
 
-const pipeOneAsyncFunction: FlowieExecutionDeclaration = {
+const pipeOneAsyncFunction: PreparedFlowieExecution = {
   isAsync: true,
   allFunctionsNames: new Set(['firstFlowieItem']),
   flows: [{ pipe: 'firstFlowieItem' }]
 }
 
-const pipeAsyncFunctionList: FlowieExecutionDeclaration = {
+const pipeAsyncFunctionList: PreparedFlowieExecution = {
   isAsync: true,
   allFunctionsNames: new Set(['firstFlowieItem', 'secondFlowieItem', 'thirdFlowieItem']),
   flows: [

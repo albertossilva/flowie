@@ -1,11 +1,11 @@
 import { When } from 'cucumber'
 import ConfigurationFlowieWorld from './ConfigurationFlowieWorld'
-import { FlowieDeclaration } from '../../../../src'
+import { PreparedFlowie } from '../../../../src'
 
 When(
   'I create a flow from configuration named {string} with value',
-  function (this: ConfigurationFlowieWorld, flowName: string, flowDeclarationString: string) {
-    const flowDeclaration = JSON.parse(flowDeclarationString) as FlowieDeclaration
-    this.createConfigurationFlow(flowName, flowDeclaration)
+  function (this: ConfigurationFlowieWorld, flowName: string, preparedFlowieString: string) {
+    const preparedFlowie = JSON.parse(preparedFlowieString) as PreparedFlowie
+    this.createConfigurationFlow(flowName, preparedFlowie)
   }
 )

@@ -1,8 +1,8 @@
-import { FlowItem, Flowie, FlowieExtender, FlowFunction, FlowFunctionDetailsWithItem } from '../types'
+import { FlowItem, Flowie, FlowieExtender, FlowFunction, FlowFunctionDetailsWithItem } from '../runtime.types'
 
 import createFlowieContainer, { FlowieContainer } from '../container/createFlowieContainer'
 import compileFlowDeclaration from '../compiler/compileFlowDeclaration'
-import createFlowDeclarationManager, { FlowDeclarationManager } from '../declaration/createFlowDeclarationManager'
+import createFlowDeclarationManager, { PreparedFlowieManager } from '../declaration/createFlowDeclarationManager'
 
 import { FlowResult } from './flowieResult'
 import {
@@ -14,9 +14,9 @@ import {
 
 export default function createFlowieRuntime<Argument, Result, InitialArgument = Argument> (
   flowieContainer: FlowieContainer,
-  flowDeclarationManager: FlowDeclarationManager
+  preparedFlowieManager: PreparedFlowieManager
 ): Flowie<Argument, Result> {
-  const executeCompiledFlow = compileFlowDeclaration<Argument, Result>(flowDeclarationManager, flowieContainer)
+  const executeCompiledFlow = compileFlowDeclaration<Argument, Result>(preparedFlowieManager, flowieContainer)
 
   function executeFlow (argument: Argument): FlowResult<Result> | Promise<FlowResult<Result>> {
     return executeCompiledFlow(argument)
@@ -29,7 +29,7 @@ export default function createFlowieRuntime<Argument, Result, InitialArgument = 
       const nextFlowieDeclarationManager = getFlowieDeclarationManager(flowie)
       const mergedFlowieContainer = flowieContainer.merge(nextFlowieContainer)
 
-      const nextFlowDeclaration = flowDeclarationManager.pipe(nextFlowieDeclarationManager)
+      const nextFlowDeclaration = preparedFlowieManager.pipe(nextFlowieDeclarationManager)
 
       return createFlowieRuntime<Result, NewResult, InitialArgument>(mergedFlowieContainer, nextFlowDeclaration)
     }
@@ -37,7 +37,7 @@ export default function createFlowieRuntime<Argument, Result, InitialArgument = 
     const nextFlowieContainer = flowieContainer.register(nextFlowItem)
     const [uniqueFlowItem] = nextFlowieContainer.latestDetailsAdded
 
-    const nextFlowDeclaration = flowDeclarationManager.pipe(uniqueFlowItem)
+    const nextFlowDeclaration = preparedFlowieManager.pipe(uniqueFlowItem)
 
     return createFlowieRuntime<Result, NewResult, InitialArgument>(nextFlowieContainer, nextFlowDeclaration)
   }
@@ -56,14 +56,14 @@ export default function createFlowieRuntime<Argument, Result, InitialArgument = 
         { flowieContainer: nextFlowieContainer }
       ) as readonly FlowieDeclarationOrFlowFunctionDetails<Argument, Result>[]
 
-    const nextFlowDeclaration = flowDeclarationManager.split(flowDeclarationOrFunctionList)
+    const nextFlowDeclaration = preparedFlowieManager.split(flowDeclarationOrFunctionList)
 
     return createFlowieRuntime<Result, NewResult, InitialArgument>(nextFlowieContainer, nextFlowDeclaration)
   }
 
   const flowieExtender: FlowieExtender<Argument, Result> = { pipe, split }
   // eslint-disable-next-line functional/immutable-data
-  return signAsFlowieFunction(Object.assign(executeFlow, flowieExtender), flowieContainer, flowDeclarationManager)
+  return signAsFlowieFunction(Object.assign(executeFlow, flowieExtender), flowieContainer, preparedFlowieManager)
 }
 
 export function createFlowieFromItems<Argument, Result> (
@@ -112,4 +112,4 @@ function getFlowieDeclarationOrFunction<Argument, Result> (
 }
 
 type FlowieDeclarationOrFlowFunctionDetails<Argument, Result> =
-  FlowDeclarationManager | FlowFunctionDetailsWithItem<Argument, Result>
+  PreparedFlowieManager | FlowFunctionDetailsWithItem<Argument, Result>

@@ -1,5 +1,5 @@
 import createFlowieContainer from '../../container/createFlowieContainer'
-import { FlowieExecutionDeclaration } from '../../types'
+import { PreparedFlowieExecution } from '../../prepared.types'
 
 import {
   createGeneratorMock,
@@ -9,7 +9,7 @@ import {
 
 import testFunctionGenerations from './testFunctionGenerations'
 
-const simpleGenerator: FlowieExecutionDeclaration = {
+const simpleGenerator: PreparedFlowieExecution = {
   isAsync: false,
   allFunctionsNames: new Set(['generatorFunction']),
   flows: [
@@ -17,7 +17,7 @@ const simpleGenerator: FlowieExecutionDeclaration = {
   ]
 }
 
-const asyncGeneratorOnSubFlow: FlowieExecutionDeclaration = {
+const asyncGeneratorOnSubFlow: PreparedFlowieExecution = {
   isAsync: true,
   allFunctionsNames: new Set(['generatorFunction']),
   flows: [
@@ -27,11 +27,11 @@ const asyncGeneratorOnSubFlow: FlowieExecutionDeclaration = {
   ]
 }
 
-const splitGeneratorOnSubFlow: FlowieExecutionDeclaration = {
+const splitGeneratorOnSubFlow: PreparedFlowieExecution = {
   isAsync: true,
   allFunctionsNames: new Set(['generatorFunction']),
   flows: [
-    { split: [{ pipe: 'generatorFunction' }], name: 'synGeneratorFlow' },
+    { split: ['generatorFunction'], name: 'syncGeneratorFlow' },
     { flows: [{ pipe: 'asyncGeneratorFunction' }], name: 'subAsynGeneratorFlow' },
     { pipe: 'otherFunction' }
   ]
@@ -55,7 +55,7 @@ describe('generators.generateFunctionFromFlowDeclaration', function () {
   )
 
   it(
-    '',
+    'generates a subflow for generators in split',
     testFunctionGenerations('splitGeneratorOnSubFlow', splitGeneratorOnSubFlow, flowieContainer)
   )
 })

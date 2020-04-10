@@ -1,7 +1,7 @@
 import { assert, expect } from 'chai'
 import { random } from 'faker'
 import { stub } from 'sinon'
-import { FlowieExecutionDeclaration } from '../../types'
+import { PreparedFlowieExecution } from '../../prepared.types'
 
 import convertFlowDeclarationToRunnableDeclaration, {
   RunnableDeclaration
@@ -15,7 +15,7 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
     this.oldMathRandom = Math.random
     Math.random = fakeMathRandom()
 
-    const flowieDeclaration: FlowieExecutionDeclaration = {
+    const preparedFlowieExecution: PreparedFlowieExecution = {
       isAsync: random.boolean(),
       allFunctionsNames: new Set(['it is not used']),
       flows: [
@@ -68,16 +68,16 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
     const isGeneratorFunction = isGeneratorFunctionStub as (functionName: string) => boolean
 
     this.runnableDeclaration = convertFlowDeclarationToRunnableDeclaration(
-      flowieDeclaration,
+      preparedFlowieExecution,
       isAsyncFunction,
       isGeneratorFunction
     )
-    this.flowieDeclaration = flowieDeclaration
+    this.preparedFlowieExecution = preparedFlowieExecution
   })
 
   it('copies isAsync from flowieDeclaration', function () {
     const runnableDeclaration = this.runnableDeclaration as RunnableDeclaration
-    const flowieDeclaration = this.flowieDeclaration as FlowieExecutionDeclaration
+    const flowieDeclaration = this.preparedFlowieExecution as PreparedFlowieExecution
     expect(runnableDeclaration.isAsync).to.equal(flowieDeclaration.isAsync)
   })
 
@@ -103,7 +103,7 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
         { flow: 'pipeInPipe', isAsync: false },
         { generator: 'generator', isAsync: false },
         { flow: 'subGenerator', isAsync: false },
-        { split: [{ flow: 'otherGenerator_asssssssssv', isAsync: true }, 'lastItem'], isAsync: true },
+        { split: [{ flow: 'generator_on_split_otherGenerator', isAsync: true }, 'lastItem'], isAsync: true },
         { flow: 'generatorInSplitInSubFlow', isAsync: true },
         { finishGeneratorsCount: 1 }
       ])
@@ -211,7 +211,7 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
     expect(generatorInSplitInSubFlow.hash).to.equal('generatorInSplitInSubFlow')
     expect(generatorInSplitInSubFlow.steps).to.have.length(1)
     expect((generatorInSplitInSubFlow.steps[0] as any).isAsync).to.true
-    expect((generatorInSplitInSubFlow.steps[0] as any).split[0].flow).to.match(/^otherGenerator_[a-z0-9]{9,12}$/)
+    expect((generatorInSplitInSubFlow.steps[0] as any).split[0].flow).to.equal('generator_on_split_otherGenerator')
     expect((generatorInSplitInSubFlow.steps[0] as any).split[0].isAsync).to.true
     expect((generatorInSplitInSubFlow.steps[0] as any).split[1]).to.equal('lastItem')
   })
@@ -221,8 +221,8 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
     expect(splitGeneratorSubFlow).to.deep.equal({
       isAsync: false,
       functionsFromContainers: ['otherGenerator'],
-      hash: 'otherGenerator_eeeeeeeeeeg',
-      steps: [{ generator: 'otherGenerator', isAsync: false }]
+      hash: 'generator_on_split_otherGenerator',
+      steps: [{ generator: 'otherGenerator', isAsync: false }, { finishGeneratorsCount: 1 }]
     })
   })
 })

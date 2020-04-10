@@ -1,10 +1,10 @@
 import createFlowieContainer from '../../container/createFlowieContainer'
-import { FlowieExecutionDeclaration } from '../../types'
+import { PreparedFlowieExecution } from '../../prepared.types'
 
 import { createMock, createAsyncMock } from '../../../tests/features/step_definitions/mockCreators'
 import testFunctionGenerations from './testFunctionGenerations'
 
-const splitAsyncFunctionList: FlowieExecutionDeclaration = {
+const splitAsyncFunctionList: PreparedFlowieExecution = {
   isAsync: true,
   allFunctionsNames: new Set(['splitOne', 'splitTwo']),
   flows: [

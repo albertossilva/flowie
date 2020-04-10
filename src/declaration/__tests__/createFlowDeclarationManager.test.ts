@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import createFlowDeclarationManager from '../createFlowDeclarationManager'
-import { Flows } from '../../types'
+import { Flows } from '../../prepared.types'
 
 describe('declaration/createFlowDeclarationManager', function () {
   it('creates a pipe for one item detail', function () {

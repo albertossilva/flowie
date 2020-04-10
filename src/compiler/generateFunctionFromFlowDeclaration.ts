@@ -2,7 +2,7 @@ import { FlowieContainer } from '../container/createFlowieContainer'
 import { FlowResult, CreateFlowieResult } from '../runtime/flowieResult'
 
 import FunctionConstructor from '../functionConstructors'
-import { FlowieExecutionDeclaration } from '../types'
+import { PreparedFlowieExecution } from '../prepared.types'
 
 import generateFlowFunction from './dot/generateFlowFunction'
 import generateFlow from './dot/generateFlow'
@@ -10,11 +10,11 @@ import generateFlow from './dot/generateFlow'
 import convertFlowDeclarationToRunnableDeclaration, { Step } from './convertFlowDeclarationToRunnableDeclaration'
 
 export default function generateFunctionFromFlowDeclaration<Argument, Result> (
-  flowieDeclaration: FlowieExecutionDeclaration,
+  preparedFlowieExecution: PreparedFlowieExecution,
   flowieContainer: FlowieContainer
 ): FlowFunctionGeneration<Argument, Result> {
   const runnableDeclaration = convertFlowDeclarationToRunnableDeclaration(
-    flowieDeclaration,
+    preparedFlowieExecution,
     flowieContainer.isAsyncFunction,
     flowieContainer.isGeneratorFunction
   )

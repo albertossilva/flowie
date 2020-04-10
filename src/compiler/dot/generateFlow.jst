@@ -29,8 +29,9 @@
   {{ const iteratorVariable = `iterator${it.parentIndex+1}`; }}
   {{ const itemVariable = `itemOfIterator${it.parentIndex+1}`; }}
   {{ const functionName = it.step.generator; }}
+  {{ const awaitOrNot = isAsync ? 'await' : ''; }}
   const {{=iteratorVariable}} = executeFunction_{{=functionName}}({{=argumentVariable}});
-  for (const {{=itemVariable}} of {{=iteratorVariable}}) {
+  for {{=awaitOrNot}}(const {{=itemVariable}} of {{=iteratorVariable}}) {
     {{=resultVariable}} = {{=itemVariable}};
 {{?}}
 {{? Boolean(it.step.finishGeneratorsCount)}}

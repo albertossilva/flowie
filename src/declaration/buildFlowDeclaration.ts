@@ -1,31 +1,26 @@
 import { FlowieContainer } from '../container/createFlowieContainer'
 
-import {
-  FlowieDeclaration,
-  PipeFlow,
-  SplitFlow,
-  FlowFunctionDetails,
-  FlowElement,
-  FlowieItemDeclaration
-} from '../types'
+import { FlowFunctionDetails } from '../runtime.types'
 
-import createFlowDeclarationManager, { FlowDeclarationManager } from './createFlowDeclarationManager'
+import { PreparedFlowie, PipeFlow, SplitFlow, FlowElement, FlowieItemDeclaration } from '../prepared.types'
 
-export default function buildFlowDeclaration (
-  flowDeclaration: FlowieDeclaration,
+import createFlowDeclarationManager, { PreparedFlowieManager } from './createFlowDeclarationManager'
+
+export default function buildPreparedFlowieManager (
+  preparedFlowie: PreparedFlowie,
   flowieContainer: FlowieContainer
-): FlowDeclarationManager {
-  const [firstFlow, ...restOfFlow] = flowDeclaration.flows
+): PreparedFlowieManager {
+  const [firstFlow, ...restOfFlow] = preparedFlowie.flows
 
   const flowFunctionDetails = convertFlowElementToDeclarable(firstFlow, flowieContainer)
-  const flowDeclarationManager = createFlowDeclarationManager(flowFunctionDetails)
+  const preparedFlowieManager = createFlowDeclarationManager(flowFunctionDetails)
 
-  return restOfFlow.reduce(parseFlows, { flowDeclarationManager, flowieContainer }).flowDeclarationManager
+  return restOfFlow.reduce(parseFlows, { preparedFlowieManager, flowieContainer }).preparedFlowieManager
 }
 
 function parseFlows (
-  { flowDeclarationManager, flowieContainer }: {
-    readonly flowDeclarationManager: FlowDeclarationManager,
+  { preparedFlowieManager, flowieContainer }: {
+    readonly preparedFlowieManager: PreparedFlowieManager,
     readonly flowieContainer: FlowieContainer
   },
   flowElement: FlowElement
@@ -34,21 +29,21 @@ function parseFlows (
   if ((flowElement as SplitFlow).split) {
     return {
       flowieContainer,
-      flowDeclarationManager: flowDeclarationManager.split(flowFunctionDetailsList)
+      preparedFlowieManager: preparedFlowieManager.split(flowFunctionDetailsList)
     }
   }
 
   const [flowFunctionDetails] = flowFunctionDetailsList
   return {
     flowieContainer,
-    flowDeclarationManager: flowDeclarationManager.pipe(flowFunctionDetails)
+    preparedFlowieManager: preparedFlowieManager.pipe(flowFunctionDetails)
   }
 }
 
 function convertFlowElementToDeclarable (
   flowElement: FlowElement,
   flowieContainer: FlowieContainer
-): readonly (FlowFunctionDetails | FlowDeclarationManager)[] {
+): readonly (FlowFunctionDetails | PreparedFlowieManager)[] {
   const pipeFlow = (flowElement as PipeFlow)
   if (pipeFlow.pipe) {
     if (typeof pipeFlow.pipe === 'string') {
@@ -56,7 +51,7 @@ function convertFlowElementToDeclarable (
     }
 
     return [
-      buildFlowDeclaration(
+      buildPreparedFlowieManager(
         { flows: [pipeFlow.pipe], name: pipeFlow.name },
         flowieContainer
       )
@@ -69,7 +64,7 @@ function convertFlowElementToDeclarable (
     return splitFlow.split.map(converSplitToFlowFunctionDetails, { flowieContainer })
   }
 
-  return [buildFlowDeclaration(flowElement as FlowieDeclaration, flowieContainer)]
+  return [buildPreparedFlowieManager(flowElement as PreparedFlowie, flowieContainer)]
 }
 
 function converSplitToFlowFunctionDetails (
@@ -80,7 +75,7 @@ function converSplitToFlowFunctionDetails (
     return converToFlowFunctionDetails(flowieItemDeclaration, this.flowieContainer)
   }
 
-  return buildFlowDeclaration(
+  return buildPreparedFlowieManager(
     { flows: [flowieItemDeclaration], name: flowieItemDeclaration.name },
     this.flowieContainer
   )

@@ -2,8 +2,8 @@ import { assert, expect } from 'chai'
 import { random, lorem } from 'faker'
 import { mock, stub, spy, assert as sinonAssert, SinonStub, SinonExpectation } from 'sinon'
 
+import { Flowie } from '../runtime.types'
 import createFlowie from '../runtime/createFlowie'
-import { Flowie } from '../types'
 import { FlowResult } from '../runtime/flowieResult'
 
 describe('createFlowie(integration tests as laboratory)', function () {
@@ -255,13 +255,23 @@ describe('createFlowie(integration tests as laboratory)', function () {
 
         assert.equal((byPass as SinonStub).callCount, 6)
       })
+
+      it('consumes all yiels from a generator in split', function () {
+        const yields = 'ABC'.split('')
+        const generatorMock = createGeneratorFrom<string, string>(yields, parameter)
+        const flow = createFlowie(generatorMock, createByPassFunction())
+
+        const { lastResult } = flow(parameter) as FlowResult<readonly [string, string]>
+
+        assert.deepEqual(lastResult, ['C', parameter])
+      })
     })
   })
 })
 
 const createByPassFunction = () => stub().returnsArg(0) as (x: string) => string
 const createPreffixer = (preffix: string) => {
-  const preffixForFunctionName = preffix.replace(/\s*/g, '_').replace(/[^0-9a-z_]/gi, '')
+  const preffixForFunctionName = preffix.replace(/\s+/g, '_').replace(/[^0-9a-z_]/gi, '')
   return stub().named(`preffixer_${preffixForFunctionName}`)
     .callsFake((x: string): string => `${preffix} ${x}`) as (x: string) => string
 }

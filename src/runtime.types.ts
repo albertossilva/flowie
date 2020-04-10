@@ -1,5 +1,6 @@
 import { FlowResult, FlowFunctionResult } from './runtime/flowieResult'
 import { FlowieContainer } from './container/createFlowieContainer'
+import { PreparedFlowie } from './prepared.types'
 
 export interface InitializeFlowie {
   <Argument, Result>(flowItem: FlowItem<Argument, Result>): Flowie<Argument, Result>
@@ -53,7 +54,7 @@ export interface InitializeFlowie {
     flowItem8: FlowItem<Argument, Result8>,
   ): Flowie<Argument, readonly [Result1, Result2, Result3, Result4, Result5, Result6, Result7, Result8]>
   <Argument, Result>(...flowItemsList: readonly FlowItem<Argument, Result>[]): Flowie<Argument, Result>
-  <Argument = any, Result = any>(flowieContainer: FlowieContainer, flowExecutionDeclaration: FlowieDeclaration)
+  <Argument = any, Result = any>(flowieContainer: FlowieContainer, preparedFlowie: PreparedFlowie)
 }
 
 export interface Flowie<Argument, Result, InitialArgument = Argument>
@@ -184,30 +185,4 @@ export interface FlowieCreator {
     flowFunction: FlowFunction<Argument, Result>,
     createFlowieRecursion: RootFlowieCreator,
   ): Flowie<Argument, Result, InitialArgument>
-}
-
-export interface FlowieDeclaration {
-  readonly flows: Flows
-  readonly name?: string
-}
-
-export type Flows = readonly FlowElement[]
-
-export type FlowElement = PipeFlow | SplitFlow | FlowieDeclaration
-
-export interface PipeFlow {
-  readonly pipe: FlowieItemDeclaration
-  readonly name?: string
-}
-
-export interface SplitFlow {
-  readonly split: readonly FlowieItemDeclaration[]
-  readonly name?: string
-}
-
-export type FlowieItemDeclaration = string | FlowElement
-
-export interface FlowieExecutionDeclaration extends FlowieDeclaration {
-  readonly isAsync: boolean
-  readonly allFunctionsNames: ReadonlySet<string>
 }

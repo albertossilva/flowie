@@ -1,5 +1,6 @@
+
 function anonymous() {
-  function executeFlow_synGeneratorFlow({
+  function executeFlow_generator_on_split_generatorFunction({
     flowieContainer,
     argument
   }) {
@@ -31,10 +32,10 @@ function anonymous() {
     } = executionArguments;
     const startTime = Date.now();
     const executeFunction_otherFunction = flowieContainer.functionsContainer.otherFunction.flowFunction;
-    const result1 = executeFlow_synGeneratorFlow({
+    const result1 = [executeFlow_generator_on_split_generatorFunction({
       flowieContainer,
       argument: argument
-    });
+    }), ];
     const result2 = await executeFlow_subAsynGeneratorFlow({
       flowieContainer,
       argument: result1

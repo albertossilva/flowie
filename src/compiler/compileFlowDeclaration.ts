@@ -1,15 +1,15 @@
-import { FlowieExecutionDeclaration } from '../types'
+import { PreparedFlowieExecution } from '../prepared.types'
 import { FlowieContainer } from '../container/createFlowieContainer'
 import flowieResult from '../runtime/flowieResult'
 
 import generateFunctionFromFlowDeclaration from './generateFunctionFromFlowDeclaration'
 
 export default function compileFlowDeclaration<Argument, Result> (
-  flowieDeclaration: FlowieExecutionDeclaration,
+  preparedFlowieManager: PreparedFlowieExecution,
   flowieContainer: FlowieContainer
 ) {
   const { generatedFlowFunction } = generateFunctionFromFlowDeclaration<Argument, Result>(
-    flowieDeclaration,
+    preparedFlowieManager,
     flowieContainer
   )
 
