@@ -66,8 +66,8 @@ Both modes return `Flowie` flows, which can be execute or enhanced.
 ### <a name="api-creating"></a>Creating `flowie(...flowItemsList: FlowItem[]) : Flowie`
 
 This creates a flow that takes the initial argument then the *"flow"* starts.
-> Two or more functions means that it will works as a split split
-`FlowItem` is a `Function` or another `Flowie`
+> Two or more functions means that it will works as a [split](#split-api-the-flow)
+[FlowItem](#flow-item-api-the-flow) can be a `function` or another `Flowie`
 
 Suppose you have these functions:
 * `isMyLuckyNumber`: that receives `number` and returns `boolean`
