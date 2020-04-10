@@ -21,7 +21,7 @@ If you have a lot of functions and you want to connect them, monitor, and build 
     - [.split](#split-api-the-flow)
     - [FlowItem](#flow-item-api-the-flow)
     - [Complex Example](#other-example-api-the-flow)
-- [Configuration API](#configuration-api)
+- [Prepared API](#prepared-api)
 - [Plans](#plans)
 
 
@@ -54,9 +54,9 @@ const { lastResult } = await flow('http://api.open-notify.org/iss-now.json')
 ## <a name="runtime-mode"></a>Running modes
 There are two ways of creating a flow:
 1. **Runtime** ➡️ `flowie(...ƒunctions | Flowie): Flowie`: it create a flow with its own container.
-2. **Configuration** ➡️ `flowie(flow: FlowDeclaration, container: FlowieContainer): Flowie`: it builds a flow from a declaration and uses this container.
+2. **Prepared** ➡️ `flowie(flow: FlowDeclaration, container: FlowieContainer): Flowie`: it builds a flow from a declaration and uses this container.
 
-> a `container` is the object that flowie uses to store function details, i.e: name, isAsync, etc. When building using the configuration.
+> a `container` is the object that flowie uses to store function details, i.e: name, isAsync, etc. When building using the prepared.
 
 Both modes return `Flowie` flows, which can be execute or enhanced.
 
@@ -220,21 +220,21 @@ console.log(lastResult) // {delta: 49, x": -2, x': 5}
 See the execution on [runkit, clicking here](https://https://runkit.com/albertossilva/2nd-deegree-equation-flowiee)
 
 
-## <a name="configuration-api"></a>Configuration API
+## <a name="prepared-api"></a>Prepared API
 ## <a name="plans"></a>Plans
 There is no priorization on this list yet
 
-- [x] Pipe/Split (Runtime and Configuration)
-- [x] Async Pipe/Split (Runtime and Configuration)
+- [x] Pipe/Split (Runtime and Prepared)
+- [x] Async Pipe/Split (Runtime and Prepared)
 - [x] Accept flowie as flowItem
 - [x] Check on runkit
 - [x] Accept generators on pipe/split
 - [x] Accept async generators on pipe/split
 - [ ] add Debug library calls
-- [ ] Validate function names
+- [ ] Validate function names on prepared
 - [ ] add Flags (actAsGenerator, actAsAsync) on .pipe/.split in order to be able to receive functions that returns `() => Promise.resolve()` or iterators `() => { [Symbol.iterator]: () => {} }`
-- [ ] Accept yaml as flow declaration on configuration mode
-- [ ] Validate flow declaration on configuration mode
+- [ ] Accept yaml as flow declaration on prepared mode
+- [ ] Validate flow declaration on prepared mode
 - [ ] Detect recursion flowie on runtime
 - [ ] Validate parameteres on FlowItems
 - [ ] Reporting (timePerFunction, numberOfCalls, slowestExecution, AvgExecution, fastestExecution )
@@ -244,7 +244,7 @@ There is no priorization on this list yet
 - [ ] Limit concurrency on split
 - [ ] Context Parameters
 - [ ] Event Emitter
-- [ ] Enhance reports (custom configuration, log input/output)
+- [ ] Enhance reports (custom prepared, log input/output)
 - [ ] Filter flowItem (FlowItem that 'stop' current flow or subFlow)
 - [ ] Report flowItem (bypass argument, but is called)
 - [ ] Decider flowItem (like split, with names, based on argument, decide which flow ot execute)
