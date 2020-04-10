@@ -43,9 +43,12 @@ async function whereIAm({ latitude, longitude }) {
     return getJSONByUrl(`https://mygeocode?q=${latitude},${longitude}`)
 }
 
-const flow = flowie(getJSONByUrl).pipe(getLatituteLongititudeOfISS).pipe(whereIAm)
+const flow = flowie(getJSONByUrl)
+  .pipe(getLatituteLongititudeOfISS)
+  .pipe(whereIAm)
 
-const { lastResult } = await flow('http://api.open-notify.org/iss-now.json') // the result of your geococode service
+const { lastResult } = await flow('http://api.open-notify.org/iss-now.json')
+// the result of your geococode service
 ```
 
 ## <a name="runtime-mode"></a>Running modes
