@@ -42,12 +42,12 @@ module.exports = {
     env: {},
     globals: {},
     rules: {
-      'max-params': ['error'],
+      'max-params': ['error', 4],
     },
     extends: [
       'plugin:functional/no-mutations',
       'plugin:functional/no-exceptions',
-    ] //
+    ]
   }, {
       files: ['src/compiler/__fixtures__/*.fixture.js'],
       env: {},

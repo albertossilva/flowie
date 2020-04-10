@@ -41,11 +41,10 @@ function parseFlows (
   const [flowFunctionDetails] = flowFunctionDetailsList
   return {
     flowieContainer,
-    flowDeclarationManager: flowDeclarationManager.pipe(flowFunctionDetails as any) // TODO
+    flowDeclarationManager: flowDeclarationManager.pipe(flowFunctionDetails)
   }
 }
 
-// TODO subflows
 function convertFlowElementToDeclarable (
   flowElement: FlowElement,
   flowieContainer: FlowieContainer

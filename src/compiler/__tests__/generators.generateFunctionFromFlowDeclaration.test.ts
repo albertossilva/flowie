@@ -27,15 +27,15 @@ const asyncGeneratorOnSubFlow: FlowieExecutionDeclaration = {
   ]
 }
 
-// const splitGeneratorOnSubFlow: FlowieExecutionDeclaration = {
-//   isAsync: true,
-//   allFunctionsNames: new Set(['generatorFunction']),
-//   flows: [
-//     { split }: [{ pipe: 'generatorFunction' }], name: 'synGeneratorFlow' },
-//     { flows: [{ pipe: 'asyncGeneratorFunction' }], name: 'subAsynGeneratorFlow' },
-//     { pipe: 'otherFunction' }
-//   ]
-// }
+const splitGeneratorOnSubFlow: FlowieExecutionDeclaration = {
+  isAsync: true,
+  allFunctionsNames: new Set(['generatorFunction']),
+  flows: [
+    { split: [{ pipe: 'generatorFunction' }], name: 'synGeneratorFlow' },
+    { flows: [{ pipe: 'asyncGeneratorFunction' }], name: 'subAsynGeneratorFlow' },
+    { pipe: 'otherFunction' }
+  ]
+}
 
 const flowieContainer = createFlowieContainer().register(
   createMock('otherFunction', 'not used', 'not used'),
@@ -52,5 +52,10 @@ describe('generators.generateFunctionFromFlowDeclaration', function () {
   it(
     'create an async function returning the last yield from a generator in as subflow',
     testFunctionGenerations('asyncGeneratorOnSubFlow', asyncGeneratorOnSubFlow, flowieContainer)
+  )
+
+  it(
+    '',
+    testFunctionGenerations('splitGeneratorOnSubFlow', splitGeneratorOnSubFlow, flowieContainer)
   )
 })

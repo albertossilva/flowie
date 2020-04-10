@@ -24,6 +24,8 @@ export interface FlowDeclarationManager extends FlowieExecutionDeclaration {
 
 interface PipeDeclaration {
   (flowFunctionDetails: FlowFunctionDetails): FlowDeclarationManager
+  (flowieExecutionDeclaration: FlowieExecutionDeclaration): FlowDeclarationManager
+  (flowieExecutionDeclaration: FlowFunctionDetails | FlowieExecutionDeclaration): FlowDeclarationManager
   (nextFlowieExecuteDeclaration: FlowDeclarationManager): FlowDeclarationManager
 }
 

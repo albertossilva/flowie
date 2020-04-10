@@ -42,7 +42,6 @@ export default function convertFlowDeclarationToRunnableDeclaration (
   return runnableDeclaration
 }
 
-// eslint-disable-next-line max-params
 function readFlowsAndSubFlows (
   readFlowsAndSubFlowsReducer: ReadFlowsAndSubFlowsReducer,
   flowElement: FlowElement,
@@ -88,7 +87,6 @@ class FlowElementReader {
   private readonly mainFlow: MainFlow
   private readonly subFlows: readonly SubFlow[]
 
-  // eslint-disable-next-line max-params
   constructor (
     isAsyncFunction: CheckFunction,
     isGeneratorFunction: CheckFunction,

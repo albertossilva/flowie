@@ -71,10 +71,6 @@ export interface PipeFlowFunction<Result, InitialArgument> {
 }
 
 export interface SplitFlowFunction2<Result, InitialArgument> {
-  // <NewResult1>(
-  //   flowItem1: FlowItem<Result, NewResult1, InitialArgument>
-  // ): Flowie<Result, Promise<Unpacked<NewResult1>>, InitialArgument>
-
   <NewResult1, NewResult2>(
     flowItem1: FlowItem<Result, NewResult1, InitialArgument>,
     flowItem2: FlowItem<Result, NewResult2, InitialArgument>
@@ -209,7 +205,7 @@ export interface SplitFlow {
   readonly name?: string
 }
 
-export type FlowieItemDeclaration = string | FlowElement // TODO Check if not
+export type FlowieItemDeclaration = string | FlowElement
 
 export interface FlowieExecutionDeclaration extends FlowieDeclaration {
   readonly isAsync: boolean
