@@ -143,7 +143,7 @@ flow(10)
 ---
 #### <a name="flow-item-api-the-flow"></a> FlowItem
 A flow item is the node of a flow, it can be a function, an async function, a generator function,
-an async generator function or a Flowie Flow. So, whenever you are usinf
+an async generator function or a Flowie Flow. Unfornately `FlowItem` don't work well with spread(`...`) operator
 
 ##### 1. Functions
 When [piping](#pipe-api-the-flow) or [splitting](#split-api-the-flow), you can use functions, the result type will be
@@ -230,6 +230,7 @@ There is no priorization on this list yet
 - [x] Check on runkit
 - [x] Accept generators on pipe/split
 - [x] Accept async generators on pipe/split
+- [x] Context Parameter
 - [ ] add Debug library calls
 - [ ] Validate function names on prepared
 - [ ] add Flags (actAsGenerator, actAsAsync) on .pipe/.split in order to be able to receive functions that returns `() => Promise.resolve()` or iterators `() => { [Symbol.iterator]: () => {} }`
@@ -242,7 +243,6 @@ There is no priorization on this list yet
 - [ ] Backpressure for generator
 - [ ] Batching***
 - [ ] Limit concurrency on split
-- [ ] Context Parameters
 - [ ] Event Emitter
 - [ ] Enhance reports (custom prepared, log input/output)
 - [ ] Filter flowItem (FlowItem that 'stop' current flow or subFlow)

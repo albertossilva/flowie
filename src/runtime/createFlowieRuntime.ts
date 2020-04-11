@@ -12,14 +12,14 @@ import {
   getFlowieDeclarationManager
 } from './flowieSignature'
 
-export default function createFlowieRuntime<Argument, Result, InitialArgument = Argument> (
+export default function createFlowieRuntime<Argument, Result, InitialArgument = Argument, Context = never> (
   flowieContainer: FlowieContainer,
   preparedFlowieManager: PreparedFlowieManager
-): Flowie<Argument, Result> {
-  const executeCompiledFlow = compileFlowDeclaration<Argument, Result>(preparedFlowieManager, flowieContainer)
+): Flowie<Argument, Result, any, Context> {
+  const executeCompiledFlow = compileFlowDeclaration<Argument, Result, Context>(preparedFlowieManager, flowieContainer)
 
-  function executeFlow (argument: Argument): FlowResult<Result> | Promise<FlowResult<Result>> {
-    return executeCompiledFlow(argument)
+  function executeFlow (argument: Argument, context: Context): FlowResult<Result> | Promise<FlowResult<Result>> {
+    return executeCompiledFlow(argument, context)
   }
 
   function pipe<NewResult> (nextFlowItem: FlowItem<Result, NewResult>): Flowie<Result, NewResult, InitialArgument> {
@@ -31,7 +31,10 @@ export default function createFlowieRuntime<Argument, Result, InitialArgument = 
 
       const nextFlowDeclaration = preparedFlowieManager.pipe(nextFlowieDeclarationManager)
 
-      return createFlowieRuntime<Result, NewResult, InitialArgument>(mergedFlowieContainer, nextFlowDeclaration)
+      return createFlowieRuntime<Result, NewResult, InitialArgument, Context>(
+        mergedFlowieContainer,
+        nextFlowDeclaration
+      )
     }
 
     const nextFlowieContainer = flowieContainer.register(nextFlowItem)
@@ -39,7 +42,7 @@ export default function createFlowieRuntime<Argument, Result, InitialArgument = 
 
     const nextFlowDeclaration = preparedFlowieManager.pipe(uniqueFlowItem)
 
-    return createFlowieRuntime<Result, NewResult, InitialArgument>(nextFlowieContainer, nextFlowDeclaration)
+    return createFlowieRuntime<Result, NewResult, InitialArgument, Context>(nextFlowieContainer, nextFlowDeclaration)
   }
 
   function split<NewResult> (

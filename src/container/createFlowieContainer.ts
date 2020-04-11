@@ -42,7 +42,7 @@ function registerFlowFunctionsList (
   ...possibleFunctionRegister: readonly PossibleFunctionRegister[]
 ): FlowieContainer {
   const initialFunctionRegister = {
-    functions: new Map<Function, string>(Object.values(previousFunctionsContainer).map(getFunctionAsKey) as any),
+    functions: new Map<Function, string>(Object.values(previousFunctionsContainer).map(getFunctionAsKey)),
     functionsDetailsList: [] as readonly FlowFunctionDetailsWithItem[]
   }
 
@@ -94,20 +94,20 @@ function getUniqueFunctionDetails (
 }
 
 function getFlowFunctionDetailsForFlowFunction (
-  flowFunction: FlowFunction<any, any>,
+  flowFunction: FlowFunction,
   uniqueFunctionDetails: UniqueFunctionDetails
 ) {
   const name = getNameForFunction(flowFunction)
 
-  const flowFunctionDetailsList: FlowFunctionDetailsWithItem<any, any> = buildFlowFunctionDetails(name, flowFunction)
+  const flowFunctionDetailsList: FlowFunctionDetailsWithItem = buildFlowFunctionDetails(name, flowFunction)
 
   return incrementUniqueFunctionDetails(uniqueFunctionDetails, [flowFunction, name], flowFunctionDetailsList)
 }
 
 function buildFlowFunctionDetails (
   name: string,
-  flowFunction: FlowFunction<any, any>
-): FlowFunctionDetailsWithItem<any, any> {
+  flowFunction: FlowFunction
+): FlowFunctionDetailsWithItem {
   return {
     name,
     flowFunction,
@@ -156,7 +156,7 @@ function mergeWithOtherContainerOrRegisterFunctions (
 
 function createContainer (
   functionsContainer: FunctionsContainer,
-  flowFunctionDetailsList: readonly FlowFunctionDetailsWithItem<any, any> []
+  flowFunctionDetailsList: readonly FlowFunctionDetailsWithItem []
 ) {
   const newFlowieContainer = {
     [flowieContainerSignature]: flowieContainerSignature,

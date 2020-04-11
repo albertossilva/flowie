@@ -1,11 +1,12 @@
 {{ const asyncPreffixOrNot = it.isAsync ? 'async ': ''; }}
+{{ const contextOrNot = it.includeContext ? `, context` : ''; }}
 {{~it.subFlows :subFlow}}
   {{ const asyncPreffixOrNotForFlow = subFlow.isAsync ? 'async ' : ''; }}
   {{ const [lastStepSubFlow] = subFlow.steps.slice(-1); }}
   {{ const hasGeneratorsSubFlow = Boolean(lastStepSubFlow.finishGeneratorsCount); }}
   {{ const reduceWhenLastIsFinishGeneratorsOnSubFlow = Number(hasGeneratorsSubFlow); }}
 
-  {{=asyncPreffixOrNotForFlow}}function executeFlow_{{=subFlow.hash}}({ flowieContainer, argument }) {
+  {{=asyncPreffixOrNotForFlow}}function executeFlow_{{=subFlow.hash}}({ flowieContainer, argument{{=contextOrNot}} }) {
     {{~Object.values(subFlow.functionsFromContainers) :functionName}}
       const executeFunction_{{=functionName}} = flowieContainer.functionsContainer.{{=functionName}}.flowFunction;
     {{~}}
@@ -27,7 +28,7 @@
 {{ const reduceWhenLastIsFinishGenerators = Number(hasGenerators); }}
 
 return {{=asyncPreffixOrNot}}function executeMainFlow(executionArguments) {
-  const { flowieContainer, argument, createFlowieResult } = executionArguments;
+  const { flowieContainer, argument, createFlowieResult{{=contextOrNot}} } = executionArguments;
   const startTime = Date.now();
 
   {{~Object.values(it.mainFlow.functionsFromContainers) :functionName}}
