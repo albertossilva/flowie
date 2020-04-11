@@ -46,7 +46,7 @@ function readFlowsAndSubFlows (
   readFlowsAndSubFlowsReducer: ReadFlowsAndSubFlowsReducer,
   flowElement: FlowElement,
   currentIndex: number,
-  array: readonly any[]
+  array: readonly unknown[]
 ): ReadFlowsAndSubFlowsReducer {
   const { isAsyncFunction, isGeneratorFunction, mainFlow, subFlows, generatorsCount } = readFlowsAndSubFlowsReducer
 

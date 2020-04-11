@@ -3,7 +3,7 @@ import { random, lorem } from 'faker'
 import { mock, stub, spy, assert as sinonAssert, SinonStub, SinonExpectation } from 'sinon'
 
 import { Flowie } from '../runtime.types'
-import createFlowie from '../runtime/createFlowie'
+import createFlowie, { flowie } from '../runtime/createFlowie'
 import { FlowResult } from '../runtime/flowieResult'
 
 describe('createFlowie(integration tests as laboratory)', function () {
@@ -76,7 +76,7 @@ describe('createFlowie(integration tests as laboratory)', function () {
         const { lastResult: actual } = await flow(parameter)
 
         assert.equal(actual, expected);
-        (middleWareFunction as any).verify()
+        (middleWareFunction as SinonExpectation).verify()
       })
     })
 
@@ -173,98 +173,126 @@ describe('createFlowie(integration tests as laboratory)', function () {
     })
   })
 
-  context('generators/iterators', function () {
-    describe('pipe', function () {
-      it('returns the last item of a generator when it is the only item', function () {
-        const yields = 'ABC'.split('')
-        const generatorMock = createGeneratorFrom<string, string>(yields, parameter)
-        const flow = createFlowie(generatorMock)
+  describe('generators/iterators', function () {
+    it('returns the last item of a generator when it is the only item', function () {
+      const yields = 'ABC'.split('')
+      const generatorMock = createGeneratorFrom<string, string>(yields, parameter)
+      const flow = createFlowie(generatorMock)
 
-        const { lastResult } = flow(parameter) as FlowResult<string>
+      const { lastResult } = flow(parameter) as FlowResult<string>
 
-        assert.equal(lastResult, 'C')
-      })
+      assert.equal(lastResult, 'C')
+    })
 
-      it('calls the functions piped after a generator once per yield', async function () {
-        const preffixWithResult = createPreffixer('result')
-        const yields = '123'.split('')
-        const generatorMock = createAsyncGeneratorFrom(yields, parameter)
+    it('calls the functions piped after a generator once per yield', async function () {
+      const preffixWithResult = createPreffixer('result')
+      const yields = '123'.split('')
+      const generatorMock = createAsyncGeneratorFrom(yields, parameter)
 
-        const flow = createFlowie(generatorMock).pipe(createByPassFunction()).pipe(preffixWithResult)
+      const flow = createFlowie(generatorMock).pipe(createByPassFunction()).pipe(preffixWithResult)
 
-        const promise = flow(parameter)
-        expect(promise).to.instanceOf(Promise)
-        const { lastResult } = await promise
-        sinonAssert.calledThrice(preffixWithResult as SinonStub)
-        sinonAssert.calledWith(preffixWithResult as SinonStub, '1')
-        sinonAssert.calledWith(preffixWithResult as SinonStub, '2')
-        sinonAssert.calledWith(preffixWithResult as SinonStub, '3')
-        assert.equal(lastResult, 'result 3')
-      })
+      const promise = flow(parameter)
+      expect(promise).to.instanceOf(Promise)
+      const { lastResult } = await promise
+      sinonAssert.calledThrice(preffixWithResult as SinonStub)
+      sinonAssert.calledWith(preffixWithResult as SinonStub, '1')
+      sinonAssert.calledWith(preffixWithResult as SinonStub, '2')
+      sinonAssert.calledWith(preffixWithResult as SinonStub, '3')
+      assert.equal(lastResult, 'result 3')
+    })
 
-      it('returns the last item of generator when it is the last item', function () {
-        const generatorMock = createGeneratorFrom<string, string>('XYZ'.split(''), parameter)
+    it('returns the last item of generator when it is the last item', function () {
+      const generatorMock = createGeneratorFrom<string, string>('XYZ'.split(''), parameter)
 
-        const flow = createFlowie(createByPassFunction())
-          .pipe(createByPassFunction())
-          .pipe(generatorMock)
+      const flow = createFlowie(createByPassFunction())
+        .pipe(createByPassFunction())
+        .pipe(generatorMock)
 
-        const { lastResult } = flow(parameter) as FlowResult<string>
+      const { lastResult } = flow(parameter) as FlowResult<string>
 
-        assert.equal(lastResult, 'Z')
-      })
+      assert.equal(lastResult, 'Z')
+    })
 
-      it('accepts generators piped in the middle of flow, and all piped function are called', function () {
-        const preffixWithHome = createPreffixer('home,')
-        const preffixWithSweetHome = createPreffixer('sweet home')
-        const preffixWithOwMy = createPreffixer('ow my!')
+    it('accepts generators piped in the middle of flow, and all piped function are called', function () {
+      const preffixWithHome = createPreffixer('home,')
+      const preffixWithSweetHome = createPreffixer('sweet home')
+      const preffixWithOwMy = createPreffixer('ow my!')
 
-        const yields = '#@?!'
-        const generatorMock = createGeneratorFrom(yields.split(''), parameter)
+      const yields = '#@?!'
+      const generatorMock = createGeneratorFrom(yields.split(''), parameter)
 
-        const flow = createFlowie(createByPassFunction())
-          .pipe(generatorMock)
-          .pipe(preffixWithSweetHome)
-          .pipe(createFlowie(preffixWithHome).pipe(preffixWithOwMy))
+      const flow = createFlowie(createByPassFunction())
+        .pipe(generatorMock)
+        .pipe(preffixWithSweetHome)
+        .pipe(createFlowie(preffixWithHome).pipe(preffixWithOwMy))
 
-        const { lastResult } = flow(parameter) as FlowResult<string>
+      const { lastResult } = flow(parameter) as FlowResult<string>
 
-        assert.equal(lastResult, 'ow my! home, sweet home !')
-        assert.equal((preffixWithSweetHome as SinonStub).callCount, yields.length)
-        assert.equal((preffixWithHome as SinonStub).callCount, yields.length)
-        assert.equal((preffixWithOwMy as SinonStub).callCount, yields.length)
-      })
+      assert.equal(lastResult, 'ow my! home, sweet home !')
+      assert.equal((preffixWithSweetHome as SinonStub).callCount, yields.length)
+      assert.equal((preffixWithHome as SinonStub).callCount, yields.length)
+      assert.equal((preffixWithOwMy as SinonStub).callCount, yields.length)
+    })
 
-      it('calls 6 times piped function after generators with 3 and 2 yields', function () {
-        const byPass = createByPassFunction()
+    it('calls 6 times piped function after generators with 3 and 2 yields', function () {
+      const byPass = createByPassFunction()
 
-        const generatorMock = createGeneratorFrom<string, string>(['1', '2', '3'], parameter)
+      const generatorMock = createGeneratorFrom<string, string>(['1', '2', '3'], parameter)
 
-        function * generatorThatConcatenatesAB (previousValue: string) {
-          const lettersList = ['A', 'B']
-          for (const letter of lettersList) {
-            yield previousValue + letter
-          }
+      function * generatorThatConcatenatesAB (previousValue: string) {
+        const lettersList = ['A', 'B']
+        for (const letter of lettersList) {
+          yield previousValue + letter
         }
+      }
 
-        const flow = createFlowie(generatorMock)
-          .pipe(generatorThatConcatenatesAB)
-          .pipe(byPass)
+      const flow = createFlowie(generatorMock)
+        .pipe(generatorThatConcatenatesAB)
+        .pipe(byPass)
 
-        flow(parameter)
+      flow(parameter)
 
-        assert.equal((byPass as SinonStub).callCount, 6)
-      })
+      assert.equal((byPass as SinonStub).callCount, 6)
+    })
 
-      it('consumes all yiels from a generator in split', function () {
-        const yields = 'ABC'.split('')
-        const generatorMock = createGeneratorFrom<string, string>(yields, parameter)
-        const flow = createFlowie(generatorMock, createByPassFunction())
+    it('consumes all yiels from a generator in split', function () {
+      const yields = 'ABC'.split('')
+      const generatorMock = createGeneratorFromWithContext(yields, parameter, undefined)
+      const flow = createFlowie(generatorMock, createByPassFunction())
 
-        const { lastResult } = flow(parameter) as FlowResult<readonly [string, string]>
+      const { lastResult } = flow(parameter, undefined) as FlowResult<readonly [string, string]>
 
-        assert.deepEqual(lastResult, ['C', parameter])
-      })
+      assert.deepEqual(lastResult, ['C', parameter])
+    })
+  })
+
+  describe('context', function () {
+    it('sends the context of same type on every flowItem', async function () {
+      const contextValue = lorem.word()
+
+      const commonFunction =
+        createSimpleFunctionMock(parameter, expected) as (argument: string, context: string) => string
+
+      const asyncFunction =
+        createAsyncFunctionMock(expected, 'Splitted') as (argument: string, context: string) => Promise<string>
+      const generatorFunction = spy(createGeneratorFromWithContext([1, 2, 3], expected, contextValue))
+      generatorFunction[Symbol.toStringTag] = 'GeneratorFunction'
+      const commonFunctionWithoutContext = createSimpleFunctionMock(expected, 'no context')
+      const subFlowFunction =
+        createSimpleFunctionMock(expected, 'subflow') as (argument: string, context: string) => string
+
+      const subFlow = flowie(subFlowFunction)
+
+      const flow = createFlowie(commonFunction)
+        .split(asyncFunction, generatorFunction, commonFunctionWithoutContext, subFlow)
+      const { lastResult: actual } = await flow(parameter, contextValue)
+
+      assert.deepEqual(actual, ['Splitted', 3, 'no context', 'subflow'])
+      sinonAssert.calledWithExactly(commonFunction as SinonStub, parameter, contextValue)
+      sinonAssert.calledWithExactly(asyncFunction as SinonStub, expected, contextValue)
+      sinonAssert.calledWithExactly(generatorFunction, expected, contextValue)
+      sinonAssert.calledWithExactly(commonFunctionWithoutContext as SinonStub, expected, contextValue)
+      sinonAssert.calledWithExactly(subFlowFunction as SinonStub, expected, contextValue)
     })
   })
 })
@@ -317,6 +345,16 @@ function createAsyncFunctionMock (
 function createGeneratorFrom<A, T> (array: readonly T[], expected: A) {
   return function * traverseArray (actual: A) {
     assert.equal(expected, actual, 'Wrong parameter received')
+    for (const item of array) {
+      yield item
+    }
+  }
+}
+
+function createGeneratorFromWithContext<A, T, C> (array: readonly T[], expected: A, expectedContext: C) {
+  return function * traverseArray (actual: A, actualContext: C) {
+    assert.equal(expected, actual, 'Wrong parameter received')
+    assert.equal(expectedContext, actualContext, 'Wrong context received')
     for (const item of array) {
       yield item
     }

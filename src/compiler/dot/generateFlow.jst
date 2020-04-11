@@ -1,11 +1,12 @@
 {{ const variablePreffix = it.hasGenerators ? `` : `const `; }}
 {{ const resultVariable = `${variablePreffix}result${it.parentIndex+1}`; }}
 {{ const argumentVariable = it.parentIndex === 0 ? 'argument' : `result${it.parentIndex}`; }}
+{{ const contextOrNot = it.includeContext ? `, context` : ''; }}
 {{ const isAsync = it.step.isAsync; }}
 {{? Boolean(it.step.pipe)}}
   {{ const functionName = it.step.pipe; }}
   {{ const awaitOrNot = isAsync ? 'await ' : ''; }}
-  {{=resultVariable}} = {{=awaitOrNot}}executeFunction_{{=functionName}}({{=argumentVariable}});
+  {{=resultVariable}} = {{=awaitOrNot}}executeFunction_{{=functionName}}({{=argumentVariable}}{{=contextOrNot}});
 {{?}}
 {{? Boolean(it.step.split)}}
   {{ const promiseAllOrNot = isAsync ? ' await Promise.all(' : ''; }}
@@ -13,9 +14,9 @@
   {{=resultVariable}} = {{=promiseAllOrNot}}[
   {{~it.step.split :splitFunction}}
     {{? typeof splitFunction === 'string'}}
-      executeFunction_{{=splitFunction}}({{=argumentVariable}}),
+      executeFunction_{{=splitFunction}}({{=argumentVariable}}{{=contextOrNot}}),
     {{??}}
-      executeFlow_{{=splitFunction.flow}}({ flowieContainer, argument: {{=argumentVariable}}}),
+      executeFlow_{{=splitFunction.flow}}({ flowieContainer, argument: {{=argumentVariable}}{{=contextOrNot}} }),
     {{?}}
   {{~}}
 ]{{=closeParenthesisOrNot}};
@@ -23,14 +24,14 @@
 {{? Boolean(it.step.flow)}}
   {{ const flowName = it.step.flow; }}
   {{ const awaitOrNot = isAsync ? 'await ' : ''; }}
-  {{=resultVariable}} = {{=awaitOrNot}}executeFlow_{{=flowName}}({ flowieContainer, argument: {{=argumentVariable}}});
+  {{=resultVariable}} = {{=awaitOrNot}}executeFlow_{{=flowName}}({ flowieContainer, argument: {{=argumentVariable}}{{=contextOrNot}} });
 {{?}}
 {{? Boolean(it.step.generator)}}
   {{ const iteratorVariable = `iterator${it.parentIndex+1}`; }}
   {{ const itemVariable = `itemOfIterator${it.parentIndex+1}`; }}
   {{ const functionName = it.step.generator; }}
   {{ const awaitOrNot = isAsync ? 'await' : ''; }}
-  const {{=iteratorVariable}} = executeFunction_{{=functionName}}({{=argumentVariable}});
+  const {{=iteratorVariable}} = executeFunction_{{=functionName}}({{=argumentVariable}}{{=contextOrNot}});
   for {{=awaitOrNot}}(const {{=itemVariable}} of {{=iteratorVariable}}) {
     {{=resultVariable}} = {{=itemVariable}};
 {{?}}

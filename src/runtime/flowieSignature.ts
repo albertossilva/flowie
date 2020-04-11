@@ -24,11 +24,11 @@ export function isSignedAsFlowieFunction (flowFunction: Function): boolean {
   return Boolean(flowFunction) && flowieSignature in flowFunction
 }
 
-export function getFlowieContainer (flowFunction: Flowie<any, any>): FlowieContainer {
+export function getFlowieContainer (flowFunction: Flowie<unknown, unknown>): FlowieContainer {
   return flowFunction[flowieSignature].flowieContainer
 }
 
-export function getFlowieDeclarationManager (flowFunction: Flowie<any, any>): PreparedFlowieManager {
+export function getFlowieDeclarationManager (flowFunction: Flowie<unknown, unknown>): PreparedFlowieManager {
   return flowFunction[flowieSignature].preparedFlowieManager
 }
 

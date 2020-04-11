@@ -16,6 +16,7 @@ If you have a lot of functions and you want to connect them, monitor, and build 
 - [Creating modes](#running-modes)
 - [Runtime API](#runtime-api)
   - [Creating flows](#api-creating)
+  - [Executing a flow](#executing-api-the-flow)
   - [The flow API](#api-the-flow)
     - [.pipe](#pipe-api-the-flow)
     - [.split](#split-api-the-flow)
@@ -53,7 +54,7 @@ const { lastResult } = await flow('http://api.open-notify.org/iss-now.json')
 
 ## <a name="runtime-mode"></a>Running modes
 There are two ways of creating a flow:
-1. **Runtime** ➡️ `flowie(...ƒunctions | Flowie): Flowie`: it create a flow with its own container.
+1. **Runtime** ➡️ `flowie(...flowItemsList: FlowItem[]): Flowie`: it create a flow with its own container.
 2. **Prepared** ➡️ `flowie(flow: FlowDeclaration, container: FlowieContainer): Flowie`: it builds a flow from a declaration and uses this container.
 
 > a `container` is the object that flowie uses to store function details, i.e: name, isAsync, etc. When building using the prepared.
@@ -95,11 +96,36 @@ const flow = flowie(flow1, flow2, flow3)
 This result is the same example 2, but the execution is a bit different.
 
 ---
+### <a name="executing-api-the-flow"></a> Executing a flow `const flow: Flowie<Argument, Result, InitialArgument, Context> = flowie(...)`
+`flow(initialArgument: InitialArgument, context?: Context)`<br>
+Every flow receive can receive two arguments, the initialArgument, and context:
 
-### <a name="api-the-flow"></a> The flow API `Flowie<Argument, Result, InitialArgument>`
+#### InitialArgument
+This is provided as argument for the first FlowItems provided, does not matter if it is an function, more than one
+function (split), or a Flowie.
+
+#### Context
+If the some of the flow items need context object, you can receive as second argument, but all the flow items should use
+the same type for context, for instance:
+
+```typescript
+function getUser(email: string, dbConnection: DbConnection): User {...}
+function getMessages(fromEmail: string, dbConnection: DbConnection): Messages[] {...}
+function getFilesOfUser(fromEmail: string, dbConnection: DbConnection): Messages[] {...}
+
+const flow = flowie(getUser, getMessages)
+/* getFilesOfUser would not be accepted,
+ because the second argument(context),
+ and it is not of the same for the previous flow items: getUser and getMessages */
+const [users, messages] = flow('michael@jackson5.com', connectToMySql('mysql://127.0.0.1:3306'))
+```
+
+
+---
+### <a name="api-the-flow"></a> The flow API `Flowie<Argument, Result, InitialArgument, Context>`
 
 This is the `result` returned by `flowie` function, for instance:
-`const flow: Flowie<string, boolean, number> = flowie(...)`
+`const flow: Flowie<string, boolean, number, never> = flowie(...)`
 
 It means, that this is a flow, that takes a `number` as first argument, and the last step of the flow is a flow item
 that receives a string and returns a boolean.
@@ -143,7 +169,7 @@ flow(10)
 ---
 #### <a name="flow-item-api-the-flow"></a> FlowItem
 A flow item is the node of a flow, it can be a function, an async function, a generator function,
-an async generator function or a Flowie Flow. So, whenever you are usinf
+an async generator function or a Flowie Flow. Unfornately `FlowItem` don't work well with spread(`...`) operator
 
 ##### 1. Functions
 When [piping](#pipe-api-the-flow) or [splitting](#split-api-the-flow), you can use functions, the result type will be
@@ -230,6 +256,7 @@ There is no priorization on this list yet
 - [x] Check on runkit
 - [x] Accept generators on pipe/split
 - [x] Accept async generators on pipe/split
+- [x] Context Parameter
 - [ ] add Debug library calls
 - [ ] Validate function names on prepared
 - [ ] add Flags (actAsGenerator, actAsAsync) on .pipe/.split in order to be able to receive functions that returns `() => Promise.resolve()` or iterators `() => { [Symbol.iterator]: () => {} }`
@@ -242,7 +269,6 @@ There is no priorization on this list yet
 - [ ] Backpressure for generator
 - [ ] Batching***
 - [ ] Limit concurrency on split
-- [ ] Context Parameters
 - [ ] Event Emitter
 - [ ] Enhance reports (custom prepared, log input/output)
 - [ ] Filter flowItem (FlowItem that 'stop' current flow or subFlow)

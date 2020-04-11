@@ -134,7 +134,7 @@ function createFlowElementFromElements (
   }
 }
 
-function getFunctionNames (declarationManagerOrFunctionDetails: DeclarationManagerOrFunctionDetails<any, any>) {
+function getFunctionNames (declarationManagerOrFunctionDetails: DeclarationManagerOrFunctionDetails<unknown, unknown>) {
   const flowDeclaration = declarationManagerOrFunctionDetails as PreparedFlowieManager
   if (isFlowieExecutionDeclaration(flowDeclaration)) {
     return Array.from(flowDeclaration.allFunctionsNames)
