@@ -1,3 +1,4 @@
+// the idea of formatting here is not to follow any pattern, but getting a "debuggable" code
 export default function formatCode (sourceCode: string, shouldDebugFlow: boolean) {
   if (!shouldDebugFlow) return sourceCode
 
