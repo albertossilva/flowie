@@ -28,7 +28,7 @@ const flowieContainer = createFlowieContainer().register(
 
 describe('pipeAsync.generateFunctionFromFlowDeclaration', function () {
   it(
-    'generates sync function when there is no async function pipe',
+    'generates async function when flow is async',
     testFunctionGenerations('pipeOneAsyncFunction', pipeOneAsyncFunction, flowieContainer)
   )
 

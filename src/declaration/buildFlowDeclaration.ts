@@ -1,3 +1,5 @@
+import createDebugger from 'debug'
+
 import { FlowieContainer } from '../container/createFlowieContainer'
 
 import { FlowFunctionDetails } from '../runtime.types'
@@ -6,6 +8,8 @@ import { PreparedFlowie, PipeFlow, SplitFlow, FlowElement, FlowieItemDeclaration
 
 import createFlowDeclarationManager, { PreparedFlowieManager } from './createFlowDeclarationManager'
 
+const debug = createDebugger('flowie:builder')
+
 export default function buildPreparedFlowieManager (
   preparedFlowie: PreparedFlowie,
   flowieContainer: FlowieContainer
@@ -13,9 +17,15 @@ export default function buildPreparedFlowieManager (
   const [firstFlow, ...restOfFlow] = preparedFlowie.flows
 
   const flowFunctionDetails = convertFlowElementToDeclarable(firstFlow, flowieContainer)
-  const preparedFlowieManager = createFlowDeclarationManager(flowFunctionDetails)
+  const firstManager = createFlowDeclarationManager(flowFunctionDetails)
 
-  return restOfFlow.reduce(parseFlows, { preparedFlowieManager, flowieContainer }).preparedFlowieManager
+  const { preparedFlowieManager } = restOfFlow.reduce(parseFlows, {
+    preparedFlowieManager: firstManager,
+    flowieContainer
+  })
+  debug('Prepared flow built successfully!')
+
+  return preparedFlowieManager
 }
 
 function parseFlows (

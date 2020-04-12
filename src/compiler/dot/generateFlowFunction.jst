@@ -28,6 +28,7 @@
 {{ const reduceWhenLastIsFinishGenerators = Number(hasGenerators); }}
 
 return {{=asyncPreffixOrNot}}function executeMainFlow(executionArguments) {
+  {{=it.shouldDebugFlow ? 'debugger;' : ''}}
   const { flowieContainer, argument, createFlowieResult{{=contextOrNot}} } = executionArguments;
   const startTime = Date.now();
 

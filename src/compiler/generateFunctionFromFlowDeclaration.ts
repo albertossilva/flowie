@@ -1,3 +1,5 @@
+import debug from 'debug'
+
 import { FlowieContainer } from '../container/createFlowieContainer'
 import { FlowResult, CreateFlowieResult } from '../runtime/flowieResult'
 
@@ -6,6 +8,8 @@ import { PreparedFlowieExecution } from '../prepared.types'
 
 import generateFlowFunction from './dot/generateFlowFunction'
 import generateFlow from './dot/generateFlow'
+
+import formatCode from './formatCode'
 
 import convertFlowDeclarationToRunnableDeclaration, { Step } from './convertFlowDeclarationToRunnableDeclaration'
 
@@ -34,13 +38,16 @@ export default function generateFunctionFromFlowDeclaration<Argument, Result, Co
     }
   }
 
-  const sourceCode = generateFlowFunction({ ...generationOptions, includeContext: false })
-  const sourceCodeWithContext = generateFlowFunction({ ...generationOptions, includeContext: true })
+  const shouldDebugFlow = debug.enabled('debugFlowie')
+  const sourceCode = generateFlowFunction({ ...generationOptions, includeContext: false, shouldDebugFlow })
+  const sourceCodeWithContext = generateFlowFunction({ ...generationOptions, includeContext: true, shouldDebugFlow })
 
-  // console.log(sourceCode.split(';').join(';\n').split('{').join('{\n').split('}').join('\n}')) //  to debug
-  const generatedFlowFunction = new FunctionConstructor(sourceCode) as GeneratedFlowFunction<Argument, Result>
+  const finalSourceCode = formatCode(sourceCode, shouldDebugFlow)
+  const finalSourceCodeWithContext = formatCode(sourceCodeWithContext, shouldDebugFlow)
+
+  const generatedFlowFunction = new FunctionConstructor(finalSourceCode) as GeneratedFlowFunction<Argument, Result>
   const generatedFlowFunctionWithContext =
-    new FunctionConstructor(sourceCodeWithContext) as GeneratedFlowFunctionForContext<Argument, Result, Context>
+    new FunctionConstructor(finalSourceCodeWithContext) as GeneratedFlowFunctionForContext<Argument, Result, Context>
 
   return { generatedFlowFunction, generatedFlowFunctionWithContext }
 }

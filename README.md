@@ -23,6 +23,7 @@ If you have a lot of functions and you want to connect them, monitor, and build 
     - [FlowItem](#flow-item-api-the-flow)
     - [Complex Example](#other-example-api-the-flow)
 - [Prepared API](#prepared-api)
+- [Debugging](#debugging)
 - [Plans](#plans)
 
 
@@ -245,8 +246,17 @@ console.log(lastResult) // {delta: 49, x": -2, x': 5}
 ```
 See the execution on [runkit, clicking here](https://https://runkit.com/albertossilva/2nd-deegree-equation-flowiee)
 
-
+--
 ## <a name="prepared-api"></a>Prepared API
+
+## <a name="debugging">Debugging
+The only dependency that `flowie` have is [debug](https://www.npmjs.com/package/debug), in order to help you to see what
+is happening. The namespace is **flowie**, so `DEBUG=flowie*`, as the value of the variable `DEBUG` will active the debug.
+
+One extra feature is, if the namespace `debugFlowie` is enabled, than a
+[debugger](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/debugger) statement will be included
+on the first line of the flow that will be executed.
+
 ## <a name="plans"></a>Plans
 There is no priorization on this list yet
 
@@ -257,7 +267,7 @@ There is no priorization on this list yet
 - [x] Accept generators on pipe/split
 - [x] Accept async generators on pipe/split
 - [x] Context Parameter
-- [ ] add Debug library calls
+- [x] add Debug library calls and debugger statemete to flows
 - [ ] Validate function names on prepared
 - [ ] add Flags (actAsGenerator, actAsAsync) on .pipe/.split in order to be able to receive functions that returns `() => Promise.resolve()` or iterators `() => { [Symbol.iterator]: () => {} }`
 - [ ] Accept yaml as flow declaration on prepared mode

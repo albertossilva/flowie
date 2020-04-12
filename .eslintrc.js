@@ -54,6 +54,7 @@ module.exports = {
       globals: {},
       rules: {
         'max-len': 'off',
+        'padded-blocks': 'off',
         'space-before-function-paren': 'off',
         'camelcase': 'off',
         '@typescript-eslint/camelcase': 'off',

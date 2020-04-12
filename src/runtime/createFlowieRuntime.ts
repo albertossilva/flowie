@@ -1,3 +1,4 @@
+import createDebugger from 'debug'
 import { FlowItem, Flowie, FlowieExtender, FlowFunction, FlowFunctionDetailsWithItem } from '../runtime.types'
 
 import createFlowieContainer, { FlowieContainer } from '../container/createFlowieContainer'
@@ -12,14 +13,22 @@ import {
   getFlowieDeclarationManager
 } from './flowieSignature'
 
+const debug = createDebugger('flowie:runtime')
+
 export default function createFlowieRuntime<Argument, Result, InitialArgument = Argument, Context = never> (
   flowieContainer: FlowieContainer,
   preparedFlowieManager: PreparedFlowieManager
 ): Flowie<Argument, Result, any, Context> {
   const executeCompiledFlow = compileFlowDeclaration<Argument, Result, Context>(preparedFlowieManager, flowieContainer)
+  debug('Functions registered %o', Array.from(flowieContainer.allFunctionsNames))
 
   function executeFlow (argument: Argument, context: Context): FlowResult<Result> | Promise<FlowResult<Result>> {
-    return executeCompiledFlow(argument, context)
+    const transaction = Math.random().toString(36).slice(2)
+    const flowName = preparedFlowieManager.name || 'anonymous'
+    debug('Starting flow %o, transaction %o', preparedFlowieManager.name || 'anonymous', transaction)
+    const result = executeCompiledFlow(argument, context)
+    debug('Finished flow %o, transaction %o', flowName, transaction)
+    return result
   }
 
   function pipe<NewResult> (nextFlowItem: FlowItem<Result, NewResult>): Flowie<Result, NewResult, InitialArgument> {
