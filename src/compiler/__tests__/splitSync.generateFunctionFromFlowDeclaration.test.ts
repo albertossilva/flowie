@@ -19,7 +19,7 @@ const flowieContainer = createFlowieContainer().register(
 
 describe('pipeSync.generateFunctionFromFlowDeclaration', function () {
   it(
-    'generates sync function when there is no async function pipe',
+    'generates an await to wait split async calls',
     testFunctionGenerations('splitAsyncFunctionList', splitAsyncFunctionList, flowieContainer)
   )
 })
