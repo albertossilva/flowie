@@ -270,7 +270,6 @@ There is no priorization on this list yet
 - [x] add Debug library calls and debugger statemete to flows
 - [ ] Validate function names on prepared
 - [ ] add Flags (actAsGenerator, actAsAsync) on .pipe/.split in order to be able to receive functions that returns `() => Promise.resolve()` or iterators `() => { [Symbol.iterator]: () => {} }`
-- [ ] Accept yaml as flow declaration on prepared mode
 - [ ] Validate flow declaration on prepared mode
 - [ ] Detect recursion flowie on runtime
 - [ ] Validate parameteres on FlowItems
