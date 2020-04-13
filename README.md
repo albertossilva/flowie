@@ -192,12 +192,12 @@ considered as generator functions on flowie. Every flowItem piped after the same
 For instance:
 
 ```typescript
-function* generatorLetters(count: number) { ... } // yields from A to Z, limited by counter. Counter: 3, yields A,B, and C
+function* generatorLetters(count: number) { ... } // yields from A to Z, limited by count. Count: 3, yields A,B, and C
 async function* getUserStartingWith(letter: string) { ... } // yields users that start with the letter
 async function sendEmailMarketing(user: User) { ... } // sends a mail marketing to a user
 
 const sendEmailMarketingFlow = flowie(generatorLetters).pipe(getUserStartingWith).pipe(sendEmailMarketing)
-sendEmailMarketingFlow(5).then(() => console.log('Emails sent to user starting with A-E!'))
+sendEmailMarketingFlow(5).then(() => console.log('Emails sent to users starting with A-E!'))
 // the generator function getUserStartingWith will be invoked 5 times
 // sendEmailMarketing will be invoked for every user starting with letters A,B,C,D and E
 ```
@@ -246,7 +246,7 @@ console.log(lastResult) // {delta: 49, x": -2, x': 5}
 ```
 See the execution on [runkit, clicking here](https://https://runkit.com/albertossilva/2nd-deegree-equation-flowiee)
 
---
+---
 ## <a name="prepared-api"></a>Prepared API
 
 ## <a name="debugging">Debugging
@@ -267,18 +267,18 @@ There is no priorization on this list yet
 - [x] Accept generators on pipe/split
 - [x] Accept async generators on pipe/split
 - [x] Context Parameter
-- [x] add Debug library calls and debugger statemete to flows
+- [x] add Debug library calls and debugger statement to flows
+- [ ] Reporting (timePerFunction, numberOfCalls, slowestExecution, AvgExecution, fastestExecution)
+- [ ] Event Emitter
 - [ ] Validate function names on prepared
 - [ ] add Flags (actAsGenerator, actAsAsync) on .pipe/.split in order to be able to receive functions that returns `() => Promise.resolve()` or iterators `() => { [Symbol.iterator]: () => {} }`
 - [ ] Validate flow declaration on prepared mode
 - [ ] Detect recursion flowie on runtime
 - [ ] Validate parameteres on FlowItems
-- [ ] Reporting (timePerFunction, numberOfCalls, slowestExecution, AvgExecution, fastestExecution )
 - [ ] Error Handling (interrupt flow or not)
 - [ ] Backpressure for generator
 - [ ] Batching***
 - [ ] Limit concurrency on split
-- [ ] Event Emitter
 - [ ] Enhance reports (custom prepared, log input/output)
 - [ ] Filter flowItem (FlowItem that 'stop' current flow or subFlow)
 - [ ] Report flowItem (bypass argument, but is called)

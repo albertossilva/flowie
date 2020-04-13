@@ -12,7 +12,7 @@ function anonymous() {
     }
     return result1;
   }
-  async function executeFlow_subAsynGeneratorFlow({
+  async function executeFlow_subAsyncGeneratorFlow({
     flowieContainer,
     argument
   }) {
@@ -36,7 +36,7 @@ function anonymous() {
       flowieContainer,
       argument: argument
     }), ];
-    const result2 = await executeFlow_subAsynGeneratorFlow({
+    const result2 = await executeFlow_subAsyncGeneratorFlow({
       flowieContainer,
       argument: result1
     });

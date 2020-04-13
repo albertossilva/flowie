@@ -1,5 +1,5 @@
 function anonymous() {
-  function executeFlow_synGeneratorFlow({
+  function executeFlow_syncGeneratorFlow({
     flowieContainer,
     argument
   }) {
@@ -11,7 +11,7 @@ function anonymous() {
     }
     return result1;
   }
-  async function executeFlow_subAsynGeneratorFlow({
+  async function executeFlow_subAsyncGeneratorFlow({
     flowieContainer,
     argument
   }) {
@@ -31,11 +31,11 @@ function anonymous() {
     } = executionArguments;
     const startTime = Date.now();
     const executeFunction_otherFunction = flowieContainer.functionsContainer.otherFunction.flowFunction;
-    const result1 = executeFlow_synGeneratorFlow({
+    const result1 = executeFlow_syncGeneratorFlow({
       flowieContainer,
       argument: argument
     });
-    const result2 = await executeFlow_subAsynGeneratorFlow({
+    const result2 = await executeFlow_subAsyncGeneratorFlow({
       flowieContainer,
       argument: result1
     });

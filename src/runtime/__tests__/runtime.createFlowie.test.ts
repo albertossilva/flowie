@@ -2,11 +2,11 @@ import { assert, expect } from 'chai'
 import { random, lorem } from 'faker'
 import { mock, stub, spy, assert as sinonAssert, SinonStub, SinonExpectation } from 'sinon'
 
-import { Flowie } from '../runtime.types'
-import createFlowie, { flowie } from '../runtime/createFlowie'
-import { FlowResult } from '../runtime/flowieResult'
+import { Flowie } from '../../runtime.types'
+import createFlowie, { flowie } from '../createFlowie'
+import { FlowResult } from '../flowieResult'
 
-describe('createFlowie(integration tests as laboratory)', function () {
+describe('runtime.createFlowie (integration tests as laboratory)', function () {
   const parameter = 'ARGUMENT'
   const expected = 'FINAL RESULT'
 
