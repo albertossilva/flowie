@@ -33,7 +33,7 @@ describe('pipeAsync.generateFunctionFromFlowDeclaration', function () {
   )
 
   it(
-    'generates sync function when there is no async function when piping more functions',
+    'generates async function when there is one async function',
     testFunctionGenerations('pipeAsyncFunctionList', pipeAsyncFunctionList, flowieContainer)
   )
 })

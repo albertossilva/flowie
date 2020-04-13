@@ -7,8 +7,6 @@ export interface Flowie<Argument, Result, InitialArgument = Argument, Context = 
   (parameter: InitialArgument, context?: Context): FlowResult<Result> | Promise<FlowResult<Result>>
 }
 
-type A<T = never> = T extends never ? never : number
-
 export interface InitializeFlowie {
   <Argument, Result, Context = never>(flowItem: FlowItem<Argument, Result, Argument, Context>):
     Flowie<Argument, Result, Argument, Context>

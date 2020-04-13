@@ -2,6 +2,7 @@ import debug from 'debug'
 
 import { FlowieContainer } from '../container/createFlowieContainer'
 import { FlowResult, CreateFlowieResult } from '../runtime/flowieResult'
+import Reporter from '../reporter/reporter.types'
 
 import FunctionConstructor from '../functionConstructors'
 import { PreparedFlowieExecution } from '../prepared.types'
@@ -45,9 +46,11 @@ export default function generateFunctionFromFlowDeclaration<Argument, Result, Co
   const finalSourceCode = formatCode(sourceCode, shouldDebugFlow)
   const finalSourceCodeWithContext = formatCode(sourceCodeWithContext, shouldDebugFlow)
 
-  const generatedFlowFunction = new FunctionConstructor(finalSourceCode) as GeneratedFlowFunction<Argument, Result>
+  const generatedFlowFunction = new FunctionConstructor('separateReportListFromResult', finalSourceCode) as
+    GeneratedFlowFunction<Argument, Result>
   const generatedFlowFunctionWithContext =
-    new FunctionConstructor(finalSourceCodeWithContext) as GeneratedFlowFunctionForContext<Argument, Result, Context>
+    new FunctionConstructor('separateReportListFromResult', finalSourceCodeWithContext) as
+    GeneratedFlowFunctionForContext<Argument, Result, Context>
 
   return { generatedFlowFunction, generatedFlowFunctionWithContext }
 }
@@ -58,20 +61,23 @@ export interface FlowFunctionGeneration<Argument, Result, Context> {
 }
 
 export interface GeneratedFlowFunction<Argument, Result> {
-  (): (executionArguments: ExecutionArguments<Argument>) => FlowResult<Result> | Promise<FlowResult<Result>>
+  (separateReportListFromResult: Function):
+    (executionArguments: ExecutionArguments<Argument, Result>) => FlowResult<Result> | Promise<FlowResult<Result>>
 }
 
 export interface GeneratedFlowFunctionForContext<Argument, Result, Context> {
-  (): (executionArguments: ExecutionArgumentsForContext<Argument, Context>) =>
-    FlowResult<Result> | Promise<FlowResult<Result>>
+  (separateReportListFromResult: Function):
+    (executionArguments: ExecutionArgumentsForContext<Argument, Result, Context>) =>
+      FlowResult<Result> | Promise<FlowResult<Result>>
 }
 
-interface ExecutionArguments<Argument> {
+interface ExecutionArguments<Argument, Result> {
   readonly flowieContainer: FlowieContainer
   readonly argument: Argument
-  readonly createFlowieResult: CreateFlowieResult
+  readonly flowieResult: CreateFlowieResult
+  readonly reporter: Reporter<Argument, Result, any>
 }
 
-interface ExecutionArgumentsForContext<Argument, Context> extends ExecutionArguments<Argument> {
+interface ExecutionArgumentsForContext<Argument, Result, Context> extends ExecutionArguments<Argument, Result> {
   readonly context: Context
 }

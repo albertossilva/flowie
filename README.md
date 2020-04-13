@@ -1,6 +1,7 @@
 # F🅻⌽𝕎↓⒠: connect functions as a flow
 
-If you have a lot of functions and you want to connect them, monitor, and build complex flows without taking care about a lot or promises, [flowie](https://www.npmjs.com/package/flowie) is the package for you.
+If you have a lot of functions and you want to connect them, monitor, and build complex flows without taking care about
+a lot of promises, [flowie](https://www.npmjs.com/package/flowie) is the package for you.
 
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com)
 [![npm](https://img.shields.io/npm/v/flowie.svg)](https://www.npmjs.com/package/flowie)
