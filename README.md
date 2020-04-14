@@ -137,8 +137,9 @@ The result will have the following attributes:
 - `executionTime`: The total execution time of the flow in miliseconds
 - `functions`: This is an object, where key is the name of a functions, and the values follow this structure:
 ```typescript
-const { functions } = flow(...)
-// functions.someFunction will something like
+const { functions } = flow(/* ... */)
+
+/* functions.someFunction will something like */
 {
   calls: 3, // total of calls
   slowestExecutionTime: 0.050902, // in miliseconds
@@ -303,17 +304,18 @@ There is no priorization on this list yet
 - [x] add Debug library calls and debugger statement to flows
 - [x] Reporting (timePerFunction, numberOfCalls, slowestExecution, AvgExecution, fastestExecution)
 - [ ] Event Emitter
-- [ ] Validate function names on prepared
-- [ ] When there is two functions with same name suffix the second
+- [ ] Validate prepared flowie, and function names on container
+- [ ] When there is two functions with same name, add a suffix
 - [ ] add Flags (actAsGenerator, actAsAsync) on .pipe/.split in order to be able to receive functions that returns `() => Promise.resolve()` or iterators `() => { [Symbol.iterator]: () => {} }`
 - [ ] Validate flow declaration on prepared mode
 - [ ] Detect recursion flowie on runtime
 - [ ] Validate parameteres on FlowItems
-- [ ] Error Handling (interrupt flow or not)
+- [ ] Global Error Handling (interrupt flow or not)
+- [ ] Error Handling for split/generators
 - [ ] Backpressure for generator
 - [ ] Batching***
 - [ ] Limit concurrency on split
-- [ ] Enhance reports (custom prepared, log input/output)
+- [ ] Enhance reports (custom prepared, log input/output)***
 - [ ] Filter flowItem (FlowItem that 'stop' current flow or subFlow)
 - [ ] Report flowItem (bypass argument, but is called)
 - [ ] Decider flowItem (like split, with names, based on argument, decide which flow ot execute)
