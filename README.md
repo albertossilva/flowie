@@ -18,6 +18,9 @@ a lot of promises, [flowie](https://www.npmjs.com/package/flowie) is the package
 - [Runtime API](#runtime-api)
   - [Creating flows](#api-creating)
   - [Executing a flow](#executing-api-the-flow)
+    - [Initial Argument](#initial-argument-executing-api-the-flow)
+    - [Context Argument](#context-argument-executing-api-the-flow)
+    - [The result](#the-result-executing-api-the-flow)
   - [The flow API](#api-the-flow)
     - [.pipe](#pipe-api-the-flow)
     - [.split](#split-api-the-flow)
@@ -33,8 +36,8 @@ a lot of promises, [flowie](https://www.npmjs.com/package/flowie) is the package
 npm install flowie
 ```
 
-```typescript
-import flowie from 'flowie'
+```javascript
+const flowie = require('flowie')
 
 async getJSONByUrl(url) { ... }
 
@@ -98,15 +101,15 @@ const flow = flowie(flow1, flow2, flow3)
 This result is the same example 2, but the execution is a bit different.
 
 ---
-### <a name="executing-api-the-flow"></a> Executing a flow `const flow: Flowie<Argument, Result, InitialArgument, Context> = flowie(...)`
+### <a name="executing-api-the-flow"></a> Executing a flow `const flow: Flowie<Argument, Result, InitialArgument, Context> = flowie(...)(initialArgument)`
 `flow(initialArgument: InitialArgument, context?: Context)`<br>
 Every flow receive can receive two arguments, the initialArgument, and context:
 
-#### InitialArgument
+#### <a name="initial-argument-executing-api-the-flow"></a>Initial Argument
 This is provided as argument for the first FlowItems provided, does not matter if it is an function, more than one
 function (split), or a Flowie.
 
-#### Context
+#### <a name="context-argument-executing-api-the-flow"></a>Context argument
 If the some of the flow items need context object, you can receive as second argument, but all the flow items should use
 the same type for context, for instance:
 
@@ -119,9 +122,38 @@ const flow = flowie(getUser, getMessages)
 /* getFilesOfUser would not be accepted,
  because the second argument(context),
  and it is not of the same for the previous flow items: getUser and getMessages */
-const [users, messages] = flow('michael@jackson5.com', connectToMySql('mysql://127.0.0.1:3306'))
+const { lastResult } = flow('michael@jackson5.com', connectToMySql('mysql://127.0.0.1:3306'))
+const [users, messages] = lastResult
 ```
 
+#### <a name="the-result-executing-api-the-flow"></a> The result of a flow `const result =  flow(initialArgument, context)`
+```typescript
+const flow: Flowie<Argument, Result, InitialArgument, Context> = flowie(...).pipe(...).split(...)
+const result =  flow(initialArgument, context)
+```
+
+The result will have the following attributes:
+- `lastResult`: this is the result of the last part of flow, `pipe` returns a single value, and `split` returns a tuple of all the result.
+- `executionTime`: The total execution time of the flow in miliseconds
+- `functions`: This is an object, where key is the name of a functions, and the values follow this structure:
+```typescript
+const { functions } = flow(...)
+// functions.someFunction will something like
+{
+  calls: 3, // total of calls
+  slowestExecutionTime: 0.050902, // in miliseconds
+  averageExecutionTime: 0.017708, // in miliseconds
+  fastestExecutionTime: 0.000965, // in miliseconds
+  totalExecutionTime: 0.053124, // in miliseconds, the sum of all executions
+  iterations: { // just for generator functions
+    count: 6, // total of iterations made
+    slowestIterationTime: 0.135559, // in miliseconds
+    averageIterationTime: 0.0388, // in miliseconds
+    fastestIterationTime: 0.003701, // in miliseconds
+    totalIterationTime: 0.232623 // in miliseconds, the sum of iterations
+  }
+}
+```
 
 ---
 ### <a name="api-the-flow"></a> The flow API `Flowie<Argument, Result, InitialArgument, Context>`
@@ -272,6 +304,7 @@ There is no priorization on this list yet
 - [x] Reporting (timePerFunction, numberOfCalls, slowestExecution, AvgExecution, fastestExecution)
 - [ ] Event Emitter
 - [ ] Validate function names on prepared
+- [ ] When there is two functions with same name suffix the second
 - [ ] add Flags (actAsGenerator, actAsAsync) on .pipe/.split in order to be able to receive functions that returns `() => Promise.resolve()` or iterators `() => { [Symbol.iterator]: () => {} }`
 - [ ] Validate flow declaration on prepared mode
 - [ ] Detect recursion flowie on runtime

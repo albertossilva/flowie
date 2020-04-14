@@ -33,7 +33,7 @@ describe('reporter/reporter', function () {
 
     it('reports the execution time', function () {
       expect(this.actualReport.functionName).to.equal('functionToReport')
-      expect(this.actualReport.executionTime).to.within(0, 2)
+      expect(this.actualReport.executionTime).to.greaterThan(0)
     })
   })
 
@@ -55,7 +55,7 @@ describe('reporter/reporter', function () {
 
     it('reports the execution time', function () {
       expect(this.actualReport.functionName).to.equal('functionToReport')
-      expect(this.actualReport.executionTime).to.within(0, 2)
+      expect(this.actualReport.executionTime).to.greaterThan(0)
     })
   })
 
@@ -73,7 +73,7 @@ describe('reporter/reporter', function () {
 
     it('reports the execution time', function () {
       expect(this.actualReport.functionName).to.equal('asyncFunctionToReport')
-      expect(this.actualReport.executionTime).to.within(0, 2)
+      expect(this.actualReport.executionTime).to.greaterThan(0)
     })
   })
 
@@ -96,7 +96,7 @@ describe('reporter/reporter', function () {
 
     it('reports the execution time', function () {
       expect(this.actualReport.functionName).to.equal('functionToReport')
-      expect(this.actualReport.executionTime).to.within(0, 2)
+      expect(this.actualReport.executionTime).to.greaterThan(0)
     })
   })
 
@@ -109,13 +109,13 @@ describe('reporter/reporter', function () {
 
       const iteration1 = generatorReporter.next()
       expect(iteration1.report.functionName).to.equal(functionName)
-      expect(iteration1.report.iterationTime).to.within(0, 1)
+      expect(iteration1.report.iterationTime).to.greaterThan(0)
 
       await sleep(10)
 
       const iteration2 = generatorReporter.next()
       expect(iteration2.report.functionName).to.equal(functionName)
-      expect(iteration2.report.iterationTime).to.within(10, 15)
+      expect(iteration2.report.iterationTime).to.greaterThan(10)
     })
   })
 
@@ -125,7 +125,7 @@ describe('reporter/reporter', function () {
       await sleep(10)
       const actual = calculateHRTimeDifference(initialTime)
 
-      expect(actual).to.within(10, 15)
+      expect(actual).to.least(10)
       expect(actual).to.not.equal(Math.floor(actual)) // isInteger
     })
   })

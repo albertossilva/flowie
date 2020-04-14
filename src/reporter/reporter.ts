@@ -130,11 +130,11 @@ function collectReport (
 function collectIterationReport (savedReport: FlowFunctionResult, generatorReport: GeneratorReport) {
   const savedIterations = savedReport.iterations || emptyIterationReport
   const count = savedIterations.count + 1
-  const totalIterationTime = savedIterations.totalIterationTime + generatorReport.iterationTime
+  const totalIterationTime = round(savedIterations.totalIterationTime + generatorReport.iterationTime, 6)
   const iterations = {
     count,
     slowestIterationTime: Math.max(savedIterations.slowestIterationTime, generatorReport.iterationTime),
-    averageIterationTime: totalIterationTime / count,
+    averageIterationTime: round(totalIterationTime / count, 6),
     fastestIterationTime: Math.min(savedIterations.fastestIterationTime, generatorReport.iterationTime),
     totalIterationTime
   }
@@ -142,16 +142,20 @@ function collectIterationReport (savedReport: FlowFunctionResult, generatorRepor
 }
 
 function collectFunctionCall (savedReport: FlowFunctionResult, functionReport: FunctionReport) {
-  const totalExecutionTime = savedReport.totalExecutionTime + functionReport.executionTime
+  const totalExecutionTime = round(savedReport.totalExecutionTime + functionReport.executionTime, 6)
   const calls = savedReport.calls + 1
 
   return Object.assign({
     calls,
     slowestExecutionTime: Math.max(savedReport.slowestExecutionTime, functionReport.executionTime),
-    averageExecutionTime: totalExecutionTime / calls,
+    averageExecutionTime: round(totalExecutionTime / calls, 6),
     fastestExecutionTime: Math.min(savedReport.fastestExecutionTime, functionReport.executionTime),
     totalExecutionTime
   }, savedReport.iterations ? { iterations: savedReport.iterations } : {})
+}
+
+function round (numberToRound: number, decimalPoints: number) {
+  return parseFloat(numberToRound.toFixed(decimalPoints))
 }
 
 const emptyFunctionCallReport = {
