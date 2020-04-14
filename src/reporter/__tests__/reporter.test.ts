@@ -125,7 +125,7 @@ describe('reporter/reporter', function () {
       await sleep(10)
       const actual = calculateHRTimeDifference(initialTime)
 
-      expect(actual).to.least(10)
+      expect(actual).to.least(9)
       expect(actual).to.not.equal(Math.floor(actual)) // isInteger
     })
   })
