@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 import { mock } from 'sinon'
-import { lorem, helpers } from 'faker'
+import { lorem } from 'faker'
 
 import {
   reportFunctionCall,

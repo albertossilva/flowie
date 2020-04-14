@@ -1,5 +1,4 @@
 import { assert, expect } from 'chai'
-import { lorem } from 'faker'
 import { mock, stub, spy, assert as sinonAssert, SinonStub, SinonExpectation } from 'sinon'
 
 import { Flowie } from '../../runtime.types'
