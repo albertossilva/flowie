@@ -123,8 +123,6 @@ describe('reporting.createFlowie (integration tests as laboratory)', function ()
 
       const { functions } = await flow(parameter)
 
-      console.log(functions)
-
       expect(functions.traverseArray.calls).to.equal(1)
       expect(functions.traverseArray.iterations.count).to.equal(3)
       expect(functions.generatorThatConcatenatesAB.calls).to.equal(3)
