@@ -57,7 +57,7 @@ const { lastResult } = await flow('http://api.open-notify.org/iss-now.json')
 ## <a name="runtime-mode"></a>Running modes
 There are two ways of creating a flow:
 1. **Runtime** ➡️ `flowie(...flowItemsList: FlowItem[]): Flowie`: it create a flow with its own container.
-2. **Prepared** ➡️ `flowie(flow: FlowDeclaration, container: FlowieContainer): Flowie`: it builds a flow from a declaration and uses this container.
+2. **Prepared** ➡️ `flowie(flowieContainer: FlowieContainer, preparedFlowie: PreparedFlowie): Flowie`: it builds a flow from a declaration and uses this container.
 
 > a `container` is the object that flowie uses to store function details, i.e: name, isAsync, etc. When building using the prepared.
 
