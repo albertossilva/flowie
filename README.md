@@ -278,7 +278,7 @@ const secondDeegreeResolverFlow = flowie(detectsABC)
 const { lastResult } = secondDeegreeResolverFlow('1x² - 3x - 10 = 0')
 console.log(lastResult) // {delta: 49, x": -2, x': 5}
 ```
-See the execution on [runkit, clicking here](https://https://runkit.com/albertossilva/2nd-deegree-equation-flowiee)
+See the execution on [runkit, clicking here](https://runkit.com/albertossilva/2nd-deegree-equation-flowie-example)
 
 ---
 ## <a name="prepared-api"></a>Prepared API
