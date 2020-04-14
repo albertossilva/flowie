@@ -1,6 +1,7 @@
 # F🅻⌽𝕎↓⒠: connect functions as a flow
 
-If you have a lot of functions and you want to connect them, monitor, and build complex flows without taking care about a lot or promises, [flowie](https://www.npmjs.com/package/flowie) is the package for you.
+If you have a lot of functions and you want to connect them, monitor, and build complex flows without taking care about
+a lot of promises, [flowie](https://www.npmjs.com/package/flowie) is the package for you.
 
 [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com)
 [![npm](https://img.shields.io/npm/v/flowie.svg)](https://www.npmjs.com/package/flowie)
@@ -17,6 +18,9 @@ If you have a lot of functions and you want to connect them, monitor, and build 
 - [Runtime API](#runtime-api)
   - [Creating flows](#api-creating)
   - [Executing a flow](#executing-api-the-flow)
+    - [Initial Argument](#initial-argument-executing-api-the-flow)
+    - [Context Argument](#context-argument-executing-api-the-flow)
+    - [The result](#the-result-executing-api-the-flow)
   - [The flow API](#api-the-flow)
     - [.pipe](#pipe-api-the-flow)
     - [.split](#split-api-the-flow)
@@ -32,8 +36,8 @@ If you have a lot of functions and you want to connect them, monitor, and build 
 npm install flowie
 ```
 
-```typescript
-import flowie from 'flowie'
+```javascript
+const flowie = require('flowie')
 
 async getJSONByUrl(url) { ... }
 
@@ -56,7 +60,7 @@ const { lastResult } = await flow('http://api.open-notify.org/iss-now.json')
 ## <a name="runtime-mode"></a>Running modes
 There are two ways of creating a flow:
 1. **Runtime** ➡️ `flowie(...flowItemsList: FlowItem[]): Flowie`: it create a flow with its own container.
-2. **Prepared** ➡️ `flowie(flow: FlowDeclaration, container: FlowieContainer): Flowie`: it builds a flow from a declaration and uses this container.
+2. **Prepared** ➡️ `flowie(flowieContainer: FlowieContainer, preparedFlowie: PreparedFlowie): Flowie`: it builds a flow from a declaration and uses this container.
 
 > a `container` is the object that flowie uses to store function details, i.e: name, isAsync, etc. When building using the prepared.
 
@@ -97,15 +101,15 @@ const flow = flowie(flow1, flow2, flow3)
 This result is the same example 2, but the execution is a bit different.
 
 ---
-### <a name="executing-api-the-flow"></a> Executing a flow `const flow: Flowie<Argument, Result, InitialArgument, Context> = flowie(...)`
+### <a name="executing-api-the-flow"></a> Executing a flow `const flow: Flowie<Argument, Result, InitialArgument, Context> = flowie(...)(initialArgument)`
 `flow(initialArgument: InitialArgument, context?: Context)`<br>
 Every flow receive can receive two arguments, the initialArgument, and context:
 
-#### InitialArgument
+#### <a name="initial-argument-executing-api-the-flow"></a>Initial Argument
 This is provided as argument for the first FlowItems provided, does not matter if it is an function, more than one
 function (split), or a Flowie.
 
-#### Context
+#### <a name="context-argument-executing-api-the-flow"></a>Context argument
 If the some of the flow items need context object, you can receive as second argument, but all the flow items should use
 the same type for context, for instance:
 
@@ -118,9 +122,39 @@ const flow = flowie(getUser, getMessages)
 /* getFilesOfUser would not be accepted,
  because the second argument(context),
  and it is not of the same for the previous flow items: getUser and getMessages */
-const [users, messages] = flow('michael@jackson5.com', connectToMySql('mysql://127.0.0.1:3306'))
+const { lastResult } = flow('michael@jackson5.com', connectToMySql('mysql://127.0.0.1:3306'))
+const [users, messages] = lastResult
 ```
 
+#### <a name="the-result-executing-api-the-flow"></a> The result of a flow `const result =  flow(initialArgument, context)`
+```typescript
+const flow: Flowie<Argument, Result, InitialArgument, Context> = flowie(...).pipe(...).split(...)
+const result =  flow(initialArgument, context)
+```
+
+The result will have the following attributes:
+- `lastResult`: this is the result of the last part of flow, `pipe` returns a single value, and `split` returns a tuple of all the result.
+- `executionTime`: The total execution time of the flow in miliseconds
+- `functions`: This is an object, where key is the name of a functions, and the values follow this structure:
+```typescript
+const { functions } = flow(/* ... */)
+
+/* functions.someFunction will something like */
+{
+  calls: 3, // total of calls
+  slowestExecutionTime: 0.050902, // in miliseconds
+  averageExecutionTime: 0.017708, // in miliseconds
+  fastestExecutionTime: 0.000965, // in miliseconds
+  totalExecutionTime: 0.053124, // in miliseconds, the sum of all executions
+  iterations: { // just for generator functions
+    count: 6, // total of iterations made
+    slowestIterationTime: 0.135559, // in miliseconds
+    averageIterationTime: 0.0388, // in miliseconds
+    fastestIterationTime: 0.003701, // in miliseconds
+    totalIterationTime: 0.232623 // in miliseconds, the sum of iterations
+  }
+}
+```
 
 ---
 ### <a name="api-the-flow"></a> The flow API `Flowie<Argument, Result, InitialArgument, Context>`
@@ -192,12 +226,12 @@ considered as generator functions on flowie. Every flowItem piped after the same
 For instance:
 
 ```typescript
-function* generatorLetters(count: number) { ... } // yields from A to Z, limited by counter. Counter: 3, yields A,B, and C
+function* generatorLetters(count: number) { ... } // yields from A to Z, limited by count. Count: 3, yields A,B, and C
 async function* getUserStartingWith(letter: string) { ... } // yields users that start with the letter
 async function sendEmailMarketing(user: User) { ... } // sends a mail marketing to a user
 
 const sendEmailMarketingFlow = flowie(generatorLetters).pipe(getUserStartingWith).pipe(sendEmailMarketing)
-sendEmailMarketingFlow(5).then(() => console.log('Emails sent to user starting with A-E!'))
+sendEmailMarketingFlow(5).then(() => console.log('Emails sent to users starting with A-E!'))
 // the generator function getUserStartingWith will be invoked 5 times
 // sendEmailMarketing will be invoked for every user starting with letters A,B,C,D and E
 ```
@@ -244,9 +278,9 @@ const secondDeegreeResolverFlow = flowie(detectsABC)
 const { lastResult } = secondDeegreeResolverFlow('1x² - 3x - 10 = 0')
 console.log(lastResult) // {delta: 49, x": -2, x': 5}
 ```
-See the execution on [runkit, clicking here](https://https://runkit.com/albertossilva/2nd-deegree-equation-flowiee)
+See the execution on [runkit, clicking here](https://runkit.com/albertossilva/2nd-deegree-equation-flowie-example)
 
---
+---
 ## <a name="prepared-api"></a>Prepared API
 
 ## <a name="debugging">Debugging
@@ -267,19 +301,21 @@ There is no priorization on this list yet
 - [x] Accept generators on pipe/split
 - [x] Accept async generators on pipe/split
 - [x] Context Parameter
-- [x] add Debug library calls and debugger statemete to flows
-- [ ] Validate function names on prepared
+- [x] add Debug library calls and debugger statement to flows
+- [x] Reporting (timePerFunction, numberOfCalls, slowestExecution, AvgExecution, fastestExecution)
+- [ ] Event Emitter
+- [ ] Validate prepared flowie, and function names on container
+- [ ] When there is two functions with same name, add a suffix
 - [ ] add Flags (actAsGenerator, actAsAsync) on .pipe/.split in order to be able to receive functions that returns `() => Promise.resolve()` or iterators `() => { [Symbol.iterator]: () => {} }`
 - [ ] Validate flow declaration on prepared mode
 - [ ] Detect recursion flowie on runtime
 - [ ] Validate parameteres on FlowItems
-- [ ] Reporting (timePerFunction, numberOfCalls, slowestExecution, AvgExecution, fastestExecution )
-- [ ] Error Handling (interrupt flow or not)
+- [ ] Global Error Handling (interrupt flow or not)
+- [ ] Error Handling for split/generators
 - [ ] Backpressure for generator
 - [ ] Batching***
 - [ ] Limit concurrency on split
-- [ ] Event Emitter
-- [ ] Enhance reports (custom prepared, log input/output)
+- [ ] Enhance reports (custom prepared, log input/output)***
 - [ ] Filter flowItem (FlowItem that 'stop' current flow or subFlow)
 - [ ] Report flowItem (bypass argument, but is called)
 - [ ] Decider flowItem (like split, with names, based on argument, decide which flow ot execute)

@@ -1,38 +1,51 @@
-function anonymous() {
+function anonymous(separateReportListFromResult) {
   async function executeFlow_subFlowLevel1({
     flowieContainer,
+    reporter,
     argument
   }) {
+    let reportsList = [];
     const executeFunction_secondFlowieItem = flowieContainer.functionsContainer.secondFlowieItem.flowFunction;
-    const result1 = await executeFunction_secondFlowieItem(argument);
-    const result2 = executeFlow_subFlowLevel2({
+    const [report1, result1] = await reporter.reportAsyncFunctionCall(executeFunction_secondFlowieItem, 'secondFlowieItem', argument);
+    reportsList = reportsList.concat(report1);
+    const [report2, result2] = executeFlow_subFlowLevel2({
       flowieContainer,
+      reporter,
       argument: result1
     });
-    return result2;
+    reportsList = reportsList.concat(report2);
+    return [reportsList, result2];
   }
 
   function executeFlow_subFlowLevel2({
     flowieContainer,
+    reporter,
     argument
   }) {
+    let reportsList = [];
     const executeFunction_thirdFlowieItem = flowieContainer.functionsContainer.thirdFlowieItem.flowFunction;
-    const result1 = executeFunction_thirdFlowieItem(argument);
-    return result1;
+    const [report1, result1] = reporter.reportFunctionCall(executeFunction_thirdFlowieItem, 'thirdFlowieItem', argument);
+    reportsList = reportsList.concat(report1);
+    return [reportsList, result1];
   }
   return async function executeMainFlow(executionArguments) {
     const {
       flowieContainer,
       argument,
-      createFlowieResult
+      flowieResult,
+      reporter
     } = executionArguments;
-    const startTime = Date.now();
+    let reportsList = [];
+    const startHRTime = process.hrtime();
     const executeFunction_firstFlowieItem = flowieContainer.functionsContainer.firstFlowieItem.flowFunction;
-    const result1 = executeFunction_firstFlowieItem(argument);
-    const result2 = await executeFlow_subFlowLevel1({
+    const [report1, result1] = reporter.reportFunctionCall(executeFunction_firstFlowieItem, 'firstFlowieItem', argument);
+    reportsList = reportsList.concat(report1);
+    const [report2, result2] = await executeFlow_subFlowLevel1({
       flowieContainer,
+      reporter,
       argument: result1
     });
-    return createFlowieResult.success(result2, startTime, {});
+    reportsList = reportsList.concat(report2);
+    return flowieResult.success(result2, startHRTime, reportsList);
   }
 }

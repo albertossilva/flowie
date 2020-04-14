@@ -1,13 +1,27 @@
+import createDebugger from 'debug'
+import { HRTime, FunctionReport, GeneratorReport, FlowFunctionsResultList } from '../reporter/reporter.types'
+import { calculateHRTimeDifference, compactFunctionReport } from '../reporter/reporter'
+
+const debug = createDebugger('flowie:runtime:result')
+
 const flowieResult: CreateFlowieResult = {
   success<ResultType = null> (
     lastResult: ResultType,
-    startTime: number,
-    functions: FlowFunctionsResultList
+    startHRTime: HRTime,
+    functionsReportList: readonly (FunctionReport | GeneratorReport)[]
   ): FlowResult<ResultType> {
+    const executionTime = calculateHRTimeDifference(startHRTime)
+
+    const initialHRTime = process.hrtime()
+    const functions = compactFunctionReport(functionsReportList)
+    const reportCostTime = calculateHRTimeDifference(initialHRTime)
+
+    debug('Functions report compacted in %o', reportCostTime)
+
     return {
       success: true,
       lastResult,
-      executionTime: Date.now() - startTime,
+      executionTime,
       functions
     }
   }
@@ -16,8 +30,8 @@ const flowieResult: CreateFlowieResult = {
 export interface CreateFlowieResult {
   readonly success: <ResultType = null>(
     lastResult: ResultType,
-    startTime: number,
-    functions: FlowFunctionsResultList
+    startHRTime: HRTime,
+    functions: readonly (FunctionReport | GeneratorReport)[]
   ) => FlowResult<ResultType>
 }
 
@@ -27,12 +41,6 @@ export interface FlowResult<Result> {
   readonly lastResult: Result
   readonly executionTime: number
   readonly functions: FlowFunctionsResultList
-}
-
-export type FlowFunctionsResultList = Readonly <Record<string, FlowFunctionResult>>
-
-export interface FlowFunctionResult {
-  readonly executionTime: number
 }
 
 export default flowieResult

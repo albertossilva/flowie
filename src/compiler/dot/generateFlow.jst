@@ -1,38 +1,75 @@
 {{ const variablePreffix = it.hasGenerators ? `` : `const `; }}
-{{ const resultVariable = `${variablePreffix}result${it.parentIndex+1}`; }}
+{{ const resultVariable = `result${it.parentIndex+1}`; }}
+{{ const reportVariable = it.hasGenerators ? 'reportOnGenerator' : `report${it.parentIndex+1}`; }}
+{{ const constOrNot = it.hasGenerators ? '' : 'const '; }}
 {{ const argumentVariable = it.parentIndex === 0 ? 'argument' : `result${it.parentIndex}`; }}
 {{ const contextOrNot = it.includeContext ? `, context` : ''; }}
+{{ const ContextReportOrNot = it.includeContext ? `Context` : ''; }}
 {{ const isAsync = it.step.isAsync; }}
+
 {{? Boolean(it.step.pipe)}}
   {{ const functionName = it.step.pipe; }}
   {{ const awaitOrNot = isAsync ? 'await ' : ''; }}
-  {{=resultVariable}} = {{=awaitOrNot}}executeFunction_{{=functionName}}({{=argumentVariable}}{{=contextOrNot}});
+  {{ const asyncOrNot = isAsync ? 'Async' : ''; }}
+  {{=constOrNot}}[{{=reportVariable}},{{=resultVariable}}] = {{=awaitOrNot}}reporter.report{{=asyncOrNot}}FunctionCall{{=ContextReportOrNot}}(
+    executeFunction_{{=functionName}},
+    '{{=functionName}}',
+    {{=argumentVariable}}
+    {{=contextOrNot}}
+  );
+  reportsList = reportsList.concat({{=reportVariable}});
 {{?}}
+
 {{? Boolean(it.step.split)}}
   {{ const promiseAllOrNot = isAsync ? ' await Promise.all(' : ''; }}
   {{ const closeParenthesisOrNot = isAsync ? ')' : ''; }}
-  {{=resultVariable}} = {{=promiseAllOrNot}}[
+  {{ const asyncOrNot = isAsync ? 'Async' : ''; }}
+  {{ const temporarySplitVariable = `splittingResult${it.parentIndex+1}`; }}
+  const {{=temporarySplitVariable}} = {{=promiseAllOrNot}}[
   {{~it.step.split :splitFunction}}
     {{? typeof splitFunction === 'string'}}
-      executeFunction_{{=splitFunction}}({{=argumentVariable}}{{=contextOrNot}}),
+      reporter.report{{=asyncOrNot}}FunctionCall{{=ContextReportOrNot}}(
+        executeFunction_{{=splitFunction}},
+        'splitFunction',
+        {{=argumentVariable}}
+        {{=contextOrNot}}
+      ),
     {{??}}
-      executeFlow_{{=splitFunction.flow}}({ flowieContainer, argument: {{=argumentVariable}}{{=contextOrNot}} }),
+      executeFlow_{{=splitFunction.flow}}({ flowieContainer, reporter, argument: {{=argumentVariable}}{{=contextOrNot}} }),
     {{?}}
   {{~}}
-]{{=closeParenthesisOrNot}};
+  ]{{=closeParenthesisOrNot}};
+
+  {{=constOrNot}}[{{=reportVariable}},{{=resultVariable}}] = separateReportListFromResult({{=temporarySplitVariable}});
+  reportsList = reportsList.concat({{=reportVariable}});
 {{?}}
+
 {{? Boolean(it.step.flow)}}
   {{ const flowName = it.step.flow; }}
   {{ const awaitOrNot = isAsync ? 'await ' : ''; }}
-  {{=resultVariable}} = {{=awaitOrNot}}executeFlow_{{=flowName}}({ flowieContainer, argument: {{=argumentVariable}}{{=contextOrNot}} });
+  {{=constOrNot}}[{{=reportVariable}},{{=resultVariable}}] = {{=awaitOrNot}}executeFlow_{{=flowName}}({ flowieContainer, reporter, argument: {{=argumentVariable}}{{=contextOrNot}} });
+  reportsList = reportsList.concat({{=reportVariable}});
 {{?}}
+
 {{? Boolean(it.step.generator)}}
   {{ const iteratorVariable = `iterator${it.parentIndex+1}`; }}
+  {{ const pageReportVariable = `pageReport${it.parentIndex+1}`; }}
   {{ const itemVariable = `itemOfIterator${it.parentIndex+1}`; }}
   {{ const functionName = it.step.generator; }}
   {{ const awaitOrNot = isAsync ? 'await' : ''; }}
-  const {{=iteratorVariable}} = executeFunction_{{=functionName}}({{=argumentVariable}}{{=contextOrNot}});
+  {{ const asyncOrNot = isAsync ? 'Async' : ''; }}
+  let {{=iteratorVariable}};
+  {{=constOrNot}}[{{=reportVariable}},{{=iteratorVariable}}] = {{=awaitOrNot}} reporter.report{{=asyncOrNot}}FunctionCall{{=ContextReportOrNot}}(
+    executeFunction_{{=functionName}},
+    '{{=functionName}}',
+    {{=argumentVariable}}
+    {{=contextOrNot}}
+  );
+  reportsList = reportsList.concat({{=reportVariable}});
+  let {{=pageReportVariable}} = reporter.startGeneratorReport('{{=functionName}}');
   for {{=awaitOrNot}}(const {{=itemVariable}} of {{=iteratorVariable}}) {
+    {{=pageReportVariable}} = {{=pageReportVariable}}.next();
+    reportsList = reportsList.concat({{=pageReportVariable}}.report);
     {{=resultVariable}} = {{=itemVariable}};
 {{?}}
 {{? Boolean(it.step.finishGeneratorsCount)}}

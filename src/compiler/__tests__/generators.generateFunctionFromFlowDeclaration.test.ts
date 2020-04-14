@@ -21,8 +21,8 @@ const asyncGeneratorOnSubFlow: PreparedFlowieExecution = {
   isAsync: true,
   allFunctionsNames: new Set(['generatorFunction']),
   flows: [
-    { flows: [{ pipe: 'generatorFunction' }], name: 'synGeneratorFlow' },
-    { flows: [{ pipe: 'asyncGeneratorFunction' }], name: 'subAsynGeneratorFlow' },
+    { flows: [{ pipe: 'generatorFunction' }], name: 'syncGeneratorFlow' },
+    { flows: [{ pipe: 'asyncGeneratorFunction' }], name: 'subAsyncGeneratorFlow' },
     { pipe: 'otherFunction' }
   ]
 }
@@ -32,7 +32,7 @@ const splitGeneratorOnSubFlow: PreparedFlowieExecution = {
   allFunctionsNames: new Set(['generatorFunction']),
   flows: [
     { split: ['generatorFunction'], name: 'syncGeneratorFlow' },
-    { flows: [{ pipe: 'asyncGeneratorFunction' }], name: 'subAsynGeneratorFlow' },
+    { flows: [{ pipe: 'asyncGeneratorFunction' }], name: 'subAsyncGeneratorFlow' },
     { pipe: 'otherFunction' }
   ]
 }

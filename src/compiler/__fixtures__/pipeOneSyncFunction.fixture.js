@@ -1,13 +1,16 @@
-function anonymous() {
+function anonymous(separateReportListFromResult) {
   return function executeMainFlow(executionArguments) {
     const {
       flowieContainer,
       argument,
-      createFlowieResult
+      flowieResult,
+      reporter
     } = executionArguments;
-    const startTime = Date.now();
+    let reportsList = [];
+    const startHRTime = process.hrtime();
     const executeFunction_firstFlowieItem = flowieContainer.functionsContainer.firstFlowieItem.flowFunction;
-    const result1 = executeFunction_firstFlowieItem(argument);
-    return createFlowieResult.success(result1, startTime, {});
+    const [report1, result1] = reporter.reportFunctionCall(executeFunction_firstFlowieItem, 'firstFlowieItem', argument);
+    reportsList = reportsList.concat(report1);
+    return flowieResult.success(result1, startHRTime, reportsList);
   }
 }

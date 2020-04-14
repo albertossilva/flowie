@@ -4,6 +4,13 @@ import { FlowItem, Flowie, FlowieExtender, FlowFunction, FlowFunctionDetailsWith
 import createFlowieContainer, { FlowieContainer } from '../container/createFlowieContainer'
 import compileFlowDeclaration from '../compiler/compileFlowDeclaration'
 import createFlowDeclarationManager, { PreparedFlowieManager } from '../declaration/createFlowDeclarationManager'
+import {
+  reportFunctionCall,
+  reportAsyncFunctionCall,
+  reportFunctionCallContext,
+  reportAsyncFunctionCallContext,
+  startGeneratorReport
+} from '../reporter/reporter'
 
 import { FlowResult } from './flowieResult'
 import {
@@ -14,6 +21,14 @@ import {
 } from './flowieSignature'
 
 const debug = createDebugger('flowie:runtime')
+
+const reporter = {
+  reportFunctionCall,
+  reportAsyncFunctionCall,
+  reportFunctionCallContext,
+  reportAsyncFunctionCallContext,
+  startGeneratorReport
+}
 
 export default function createFlowieRuntime<Argument, Result, InitialArgument = Argument, Context = never> (
   flowieContainer: FlowieContainer,
@@ -26,7 +41,7 @@ export default function createFlowieRuntime<Argument, Result, InitialArgument = 
     const transaction = Math.random().toString(36).slice(2)
     const flowName = preparedFlowieManager.name || 'anonymous'
     debug('Starting flow %o, transaction %o', preparedFlowieManager.name || 'anonymous', transaction)
-    const result = executeCompiledFlow(argument, context)
+    const result = executeCompiledFlow(reporter, argument, context)
     debug('Finished flow %o, transaction %o', flowName, transaction)
     return result
   }

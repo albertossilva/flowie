@@ -2,11 +2,11 @@ import { assert, expect } from 'chai'
 import { random, lorem } from 'faker'
 import { mock, stub, spy, assert as sinonAssert, SinonStub, SinonExpectation } from 'sinon'
 
-import { Flowie } from '../runtime.types'
-import createFlowie, { flowie } from '../runtime/createFlowie'
-import { FlowResult } from '../runtime/flowieResult'
+import { Flowie } from '../../runtime.types'
+import createFlowie from '../createFlowie'
+import { FlowResult } from '../flowieResult'
 
-describe('createFlowie(integration tests as laboratory)', function () {
+describe('runtime.createFlowie (integration tests as laboratory)', function () {
   const parameter = 'ARGUMENT'
   const expected = 'FINAL RESULT'
 
@@ -57,26 +57,26 @@ describe('createFlowie(integration tests as laboratory)', function () {
       it('pipes multiple synchronous function', async function () {
         const firstReturn = 'RESULT'
         const firstFunction = createSimpleFunctionMock(parameter, firstReturn, { functionName: 'firstFunction' })
-        const middleWareFunction = createSimpleFunctionMock(firstReturn, firstReturn, {
-          functionName: 'middleWareFunction',
+        const middlewareFunction = createSimpleFunctionMock(firstReturn, firstReturn, {
+          functionName: 'middlewareFunction',
           timesToBeExecuted: 7
         })
 
         const lastFunction = createSimpleFunctionMock(firstReturn, expected, { functionName: 'lastFunction' })
 
         const flow = createFlowie(firstFunction)
-          .pipe(middleWareFunction)
-          .pipe(middleWareFunction)
-          .pipe(middleWareFunction)
-          .pipe(middleWareFunction)
-          .pipe(createFlowie(middleWareFunction).pipe(middleWareFunction))
-          .pipe(middleWareFunction)
+          .pipe(middlewareFunction)
+          .pipe(middlewareFunction)
+          .pipe(middlewareFunction)
+          .pipe(middlewareFunction)
+          .pipe(createFlowie(middlewareFunction).pipe(middlewareFunction))
+          .pipe(middlewareFunction)
           .pipe(lastFunction)
 
         const { lastResult: actual } = await flow(parameter)
 
         assert.equal(actual, expected);
-        (middleWareFunction as SinonExpectation).verify()
+        (middlewareFunction as SinonExpectation).verify()
       })
     })
 
@@ -281,7 +281,7 @@ describe('createFlowie(integration tests as laboratory)', function () {
       const subFlowFunction =
         createSimpleFunctionMock(expected, 'subflow') as (argument: string, context: string) => string
 
-      const subFlow = flowie(subFlowFunction)
+      const subFlow = createFlowie(subFlowFunction)
 
       const flow = createFlowie(commonFunction)
         .split(asyncFunction, generatorFunction, commonFunctionWithoutContext, subFlow)
