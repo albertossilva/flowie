@@ -1,6 +1,6 @@
 {
   "name": "flowie",
-  "version": "0.0.1-alpha.7",
+  "version": "0.0.1-alpha.8",
   "description": "Library for creating, and working with flows",
   "main": "dist/index.js",
   "scripts": {
@@ -59,8 +59,8 @@
     "@types/mocha": "^7.0.2",
     "@types/node": "^13.11.1",
     "@types/sinon": "^9.0.0",
-    "@typescript-eslint/eslint-plugin": "^2.27.0",
-    "@typescript-eslint/parser": "^2.27.0",
+    "@typescript-eslint/eslint-plugin": "^2.28.0",
+    "@typescript-eslint/parser": "^2.28.0",
     "chai": "^4.2.0",
     "coveralls": "^3.0.11",
     "cucumber": "^6.0.5",
