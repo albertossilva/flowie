@@ -7,10 +7,10 @@ function anonymous(separateReportListFromResult) {
       reporter
     } = executionArguments;
     let reportsList = [];
-    const startTime = Date.now();
+    const startHRTime = process.hrtime();
     const executeFunction_firstFlowieItem = flowieContainer.functionsContainer.firstFlowieItem.flowFunction;
     const [report1, result1] = await reporter.reportAsyncFunctionCall(executeFunction_firstFlowieItem, 'firstFlowieItem', argument);
     reportsList = reportsList.concat(report1);
-    return flowieResult.success(result1, startTime, reportsList);
+    return flowieResult.success(result1, startHRTime, reportsList);
   }
 }

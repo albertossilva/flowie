@@ -53,6 +53,7 @@
 
 {{? Boolean(it.step.generator)}}
   {{ const iteratorVariable = `iterator${it.parentIndex+1}`; }}
+  {{ const pageReportVariable = `pageReport${it.parentIndex+1}`; }}
   {{ const itemVariable = `itemOfIterator${it.parentIndex+1}`; }}
   {{ const functionName = it.step.generator; }}
   {{ const awaitOrNot = isAsync ? 'await' : ''; }}
@@ -65,7 +66,10 @@
     {{=contextOrNot}}
   );
   reportsList = reportsList.concat({{=reportVariable}});
+  let {{=pageReportVariable}} = reporter.startGeneratorReport('{{=functionName}}');
   for {{=awaitOrNot}}(const {{=itemVariable}} of {{=iteratorVariable}}) {
+    {{=pageReportVariable}} = {{=pageReportVariable}}.next();
+    reportsList = reportsList.concat({{=pageReportVariable}}.report);
     {{=resultVariable}} = {{=itemVariable}};
 {{?}}
 {{? Boolean(it.step.finishGeneratorsCount)}}

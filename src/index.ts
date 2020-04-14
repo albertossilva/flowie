@@ -5,4 +5,5 @@ export { default as createFlowieContainer, FlowieContainer } from './container/c
 export default createFlowie
 export * from './runtime.types'
 export * from './prepared.types'
-export { FlowResult, FlowFunctionsResultList, FlowFunctionResult } from './runtime/flowieResult'
+export { FlowFunctionsResultList, FlowFunctionResult } from './reporter/reporter.types'
+export { FlowResult } from './runtime/flowieResult'

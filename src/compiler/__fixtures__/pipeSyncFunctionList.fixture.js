@@ -7,7 +7,7 @@ function anonymous(separateReportListFromResult) {
       reporter
     } = executionArguments;
     let reportsList = [];
-    const startTime = Date.now();
+    const startHRTime = process.hrtime();
     const executeFunction_firstFlowieItem = flowieContainer.functionsContainer.firstFlowieItem.flowFunction;
     const executeFunction_secondFlowieItem = flowieContainer.functionsContainer.secondFlowieItem.flowFunction;
     const executeFunction_thirdFlowieItem = flowieContainer.functionsContainer.thirdFlowieItem.flowFunction;
@@ -17,6 +17,6 @@ function anonymous(separateReportListFromResult) {
     reportsList = reportsList.concat(report2);
     const [report3, result3] = reporter.reportFunctionCall(executeFunction_thirdFlowieItem, 'thirdFlowieItem', result2);
     reportsList = reportsList.concat(report3);
-    return flowieResult.success(result3, startTime, reportsList);
+    return flowieResult.success(result3, startHRTime, reportsList);
   }
 }

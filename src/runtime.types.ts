@@ -1,6 +1,7 @@
-import { FlowResult, FlowFunctionResult } from './runtime/flowieResult'
+import { FlowResult } from './runtime/flowieResult'
 import { FlowieContainer } from './container/createFlowieContainer'
 import { PreparedFlowie } from './prepared.types'
+import { FlowFunctionResult } from './reporter/reporter.types'
 
 export interface Flowie<Argument, Result, InitialArgument = Argument, Context = never>
   extends FlowieExtender<Argument, Result, InitialArgument, Context> {

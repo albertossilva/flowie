@@ -269,7 +269,7 @@ There is no priorization on this list yet
 - [x] Accept async generators on pipe/split
 - [x] Context Parameter
 - [x] add Debug library calls and debugger statement to flows
-- [ ] Reporting (timePerFunction, numberOfCalls, slowestExecution, AvgExecution, fastestExecution)
+- [x] Reporting (timePerFunction, numberOfCalls, slowestExecution, AvgExecution, fastestExecution)
 - [ ] Event Emitter
 - [ ] Validate function names on prepared
 - [ ] add Flags (actAsGenerator, actAsAsync) on .pipe/.split in order to be able to receive functions that returns `() => Promise.resolve()` or iterators `() => { [Symbol.iterator]: () => {} }`

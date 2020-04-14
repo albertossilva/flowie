@@ -8,7 +8,8 @@ import {
   reportFunctionCall,
   reportAsyncFunctionCall,
   reportFunctionCallContext,
-  reportAsyncFunctionCallContext
+  reportAsyncFunctionCallContext,
+  startGeneratorReport
 } from '../reporter/reporter'
 
 import { FlowResult } from './flowieResult'
@@ -25,7 +26,8 @@ const reporter = {
   reportFunctionCall,
   reportAsyncFunctionCall,
   reportFunctionCallContext,
-  reportAsyncFunctionCallContext
+  reportAsyncFunctionCallContext,
+  startGeneratorReport
 }
 
 export default function createFlowieRuntime<Argument, Result, InitialArgument = Argument, Context = never> (

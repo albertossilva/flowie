@@ -33,7 +33,7 @@ return {{=asyncPreffixOrNot}}function executeMainFlow(executionArguments) {
   {{=it.shouldDebugFlow ? 'debugger;' : ''}}
   const { flowieContainer, argument, flowieResult, reporter{{=contextOrNot}} } = executionArguments;
   let reportsList = [];
-  const startTime = Date.now();
+  const startHRTime = process.hrtime();
 
   {{~Object.values(it.mainFlow.functionsFromContainers) :functionName}}
     const executeFunction_{{=functionName}} = flowieContainer.functionsContainer.{{=functionName}}.flowFunction;
@@ -50,5 +50,5 @@ return {{=asyncPreffixOrNot}}function executeMainFlow(executionArguments) {
     {{=it.generateFlow(it, { step, parentIndex: index, hasGenerators })}}
   {{~}}
 
-  return flowieResult.success(result{{=it.mainFlow.steps.length - reduceWhenLastIsFinishGenerators}}, startTime, reportsList);
+  return flowieResult.success(result{{=it.mainFlow.steps.length - reduceWhenLastIsFinishGenerators}}, startHRTime, reportsList);
 }

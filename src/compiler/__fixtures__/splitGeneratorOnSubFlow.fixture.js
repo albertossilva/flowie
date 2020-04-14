@@ -11,7 +11,10 @@ function anonymous(separateReportListFromResult) {
     let iterator1;
     [reportOnGenerator, iterator1] = reporter.reportFunctionCall(executeFunction_generatorFunction, 'generatorFunction', argument);
     reportsList = reportsList.concat(reportOnGenerator);
+    let pageReport1 = reporter.startGeneratorReport('generatorFunction');
     for (const itemOfIterator1 of iterator1) {
+      pageReport1 = pageReport1.next();
+      reportsList = reportsList.concat(pageReport1.report);
       result1 = itemOfIterator1;
     }
     return [reportsList, result1];
@@ -28,7 +31,10 @@ function anonymous(separateReportListFromResult) {
     let iterator1;
     [reportOnGenerator, iterator1] = await reporter.reportAsyncFunctionCall(executeFunction_asyncGeneratorFunction, 'asyncGeneratorFunction', argument);
     reportsList = reportsList.concat(reportOnGenerator);
+    let pageReport1 = reporter.startGeneratorReport('asyncGeneratorFunction');
     for await (const itemOfIterator1 of iterator1) {
+      pageReport1 = pageReport1.next();
+      reportsList = reportsList.concat(pageReport1.report);
       result1 = itemOfIterator1;
     }
     return [reportsList, result1];
@@ -41,7 +47,7 @@ function anonymous(separateReportListFromResult) {
       reporter
     } = executionArguments;
     let reportsList = [];
-    const startTime = Date.now();
+    const startHRTime = process.hrtime();
     const executeFunction_otherFunction = flowieContainer.functionsContainer.otherFunction.flowFunction;
     const splittingResult1 = [executeFlow_generator_on_split_generatorFunction({
       flowieContainer,
@@ -58,6 +64,6 @@ function anonymous(separateReportListFromResult) {
     reportsList = reportsList.concat(report2);
     const [report3, result3] = reporter.reportFunctionCall(executeFunction_otherFunction, 'otherFunction', result2);
     reportsList = reportsList.concat(report3);
-    return flowieResult.success(result3, startTime, reportsList);
+    return flowieResult.success(result3, startHRTime, reportsList);
   }
 }
