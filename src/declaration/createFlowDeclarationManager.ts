@@ -52,7 +52,7 @@ function createFlowieDeclarationManagerRuntime<Argument, Result> (
   })
 }
 
-export function isFlowieExecutionDeclaration (preparedFlowieExecutionCandidate: PreparedFlowieExecution) {
+export function isFlowieExecutionDeclaration (preparedFlowieExecutionCandidate: PreparedFlowieExecution): boolean {
   return typeof preparedFlowieExecutionCandidate.isAsync === 'boolean' &&
     Array.isArray(preparedFlowieExecutionCandidate.flows) &&
     preparedFlowieExecutionCandidate.allFunctionsNames instanceof Set

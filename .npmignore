@@ -1,12 +1,16 @@
-# ignore test files
+# ignore test and coverage they don't need to be uploaded
 **/*.test.js
 **/__tests__
 tests/**
 coverage/**
+
+#files not used after library is released
 src
-.vscode
-.nyc_output
 .editorconfig
 .eslintrc.js
+.nyc_output
+.vscode
+.travis.yml
 .unit.mocharc.js
 nyc.config.js
+tsconfig.json

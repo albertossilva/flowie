@@ -115,7 +115,7 @@ describe('reporter/reporter', function () {
 
       const iteration2 = generatorReporter.next()
       expect(iteration2.report.functionName).to.equal(functionName)
-      expect(iteration2.report.iterationTime).to.greaterThan(10)
+      expect(iteration2.report.iterationTime).to.greaterThan(9)
     })
   })
 
@@ -241,4 +241,4 @@ describe('reporter/reporter', function () {
   })
 })
 
-const sleep = (timeMS: number) => new Promise((resolve: Function) => setTimeout(resolve, timeMS))
+const sleep = (timeMS: number) => new Promise((resolve: (value: number) => void) => setTimeout(resolve, timeMS))

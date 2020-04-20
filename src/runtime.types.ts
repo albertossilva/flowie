@@ -158,7 +158,9 @@ export interface SplitFlowFunction<Result, InitialArgument, Context> {
 }
 
 export type FlowItem<Argument = any, Result = any, InitialArgument = Argument, Context = never> =
-  FlowFunction<Argument, Result, Context> | Flowie<Argument, Result, InitialArgument, Context>
+  FlowFunction<Argument, Result, Context> |
+  Flowie<Argument, Result, InitialArgument, Context>// |
+  // readonly [GeneratorFlowFunction<Argument, Result, Context>, GeneratorExecutionOptions]
 
 export type FlowFunction<Argument = any, Result = any, Context = never> =
   GeneratorFlowFunction<Argument, Result, Context> |
@@ -168,6 +170,10 @@ export type FlowFunction<Argument = any, Result = any, Context = never> =
 export type GeneratorFlowFunction<Argument, Result, Context> =
   ((argument: Argument, context: Context) => AsyncGenerator<Result, void>) |
   ((argument: Argument, context: Context) => Generator<Result, void>)
+
+export interface GeneratorExecutionOptions {
+  readonly parallelExecutions: number
+}
 
 export interface FlowFunctionDetails<Argument = any, Result = any> {
   readonly name: string

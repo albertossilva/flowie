@@ -110,7 +110,7 @@ export function createFlowieFromItems<Argument, Result> (
     .map(
       getFlowieDeclarationOrFunction,
       { flowieContainer }
-    ) as readonly FlowieDeclarationOrFlowFunctionDetails<Argument, Result>[]
+    )
 
   const flowDeclaration = createFlowDeclarationManager(flowDeclarationOrFunctionList)
 

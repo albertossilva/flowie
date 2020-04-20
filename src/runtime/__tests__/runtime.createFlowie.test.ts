@@ -104,14 +104,14 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
         assert.deepEqual(flowieResult.lastResult, [11, 12])
       })
 
-      it('executes two functions in paralell', function () {
+      it('executes two functions in parallel', function () {
         const flow = createFlowie(add1).split(add1, add3)
         const flowieResult = flow(3) as FlowResult<readonly [number, number]>
 
         assert.deepEqual(flowieResult.lastResult, [5, 7])
       })
 
-      it('accepts flowies on split', function () {
+      it('accepts flowie on split', function () {
         const add1Flowie = createFlowie(add1)
         const flow = add1Flowie.split(createFlowie(add1).pipe(add1), add3)
         const flowieResult = flow(6) as FlowResult<readonly [number, number]>
@@ -119,7 +119,7 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
         assert.deepEqual(flowieResult.lastResult, [9, 10])
       })
 
-      it('executes N functions in paralell', async function () {
+      it('executes N functions in parallel', async function () {
         const numberOfFlowsThatReturnsFive = random.number({ min: 10, max: 20 })
         const add1Flowie = createFlowie(add1)
         const nineAddFlowieThatAdd1AndOneAddThreeFlowie = [
@@ -132,7 +132,7 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
         assert.deepEqual(flowieResult.lastResult, [...new Array(numberOfFlowsThatReturnsFive).fill(6), 7])
       })
 
-      it('executes N flowies in paralell', async function () {
+      it('executes N flowie in parallel', async function () {
         const numberOfFlowsThatReturnsFive = random.number({ min: 10, max: 20 })
         const add1Flowie = createFlowie(add1)
         const nineAddFlowieThatAdd1AndOneAddThreeFlowie = [
@@ -146,7 +146,7 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
       })
 
       it(
-        'executes functions in paralell, but later functions does not affect the order of the results',
+        'executes functions in parallel, but later functions does not affect the order of the results',
         async function () {
           const spySooner = spy().named('sooner')
           const mockSooner = mock().named('soonerResult').returns('sooner')
@@ -185,19 +185,19 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
     })
 
     it('calls the functions piped after a generator once per yield', async function () {
-      const preffixWithResult = createPreffixer('result')
+      const prefixWithResult = createPrefixed('result')
       const yields = '123'.split('')
       const generatorMock = createAsyncGeneratorFrom(yields, parameter)
 
-      const flow = createFlowie(generatorMock).pipe(createByPassFunction()).pipe(preffixWithResult)
+      const flow = createFlowie(generatorMock).pipe(createByPassFunction()).pipe(prefixWithResult)
 
       const promise = flow(parameter)
       expect(promise).to.instanceOf(Promise)
       const { lastResult } = await promise
-      sinonAssert.calledThrice(preffixWithResult as SinonStub)
-      sinonAssert.calledWith(preffixWithResult as SinonStub, '1')
-      sinonAssert.calledWith(preffixWithResult as SinonStub, '2')
-      sinonAssert.calledWith(preffixWithResult as SinonStub, '3')
+      sinonAssert.calledThrice(prefixWithResult as SinonStub)
+      sinonAssert.calledWith(prefixWithResult as SinonStub, '1')
+      sinonAssert.calledWith(prefixWithResult as SinonStub, '2')
+      sinonAssert.calledWith(prefixWithResult as SinonStub, '3')
       assert.equal(lastResult, 'result 3')
     })
 
@@ -214,24 +214,24 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
     })
 
     it('accepts generators piped in the middle of flow, and all piped function are called', function () {
-      const preffixWithHome = createPreffixer('home,')
-      const preffixWithSweetHome = createPreffixer('sweet home')
-      const preffixWithOwMy = createPreffixer('ow my!')
+      const prefixWithHome = createPrefixed('home,')
+      const prefixWithSweetHome = createPrefixed('sweet home')
+      const prefixWithOwMy = createPrefixed('ow my!')
 
       const yields = '#@?!'
       const generatorMock = createGeneratorFrom(yields.split(''), parameter)
 
       const flow = createFlowie(createByPassFunction())
         .pipe(generatorMock)
-        .pipe(preffixWithSweetHome)
-        .pipe(createFlowie(preffixWithHome).pipe(preffixWithOwMy))
+        .pipe(prefixWithSweetHome)
+        .pipe(createFlowie(prefixWithHome).pipe(prefixWithOwMy))
 
       const { lastResult } = flow(parameter) as FlowResult<string>
 
       assert.equal(lastResult, 'ow my! home, sweet home !')
-      assert.equal((preffixWithSweetHome as SinonStub).callCount, yields.length)
-      assert.equal((preffixWithHome as SinonStub).callCount, yields.length)
-      assert.equal((preffixWithOwMy as SinonStub).callCount, yields.length)
+      assert.equal((prefixWithSweetHome as SinonStub).callCount, yields.length)
+      assert.equal((prefixWithHome as SinonStub).callCount, yields.length)
+      assert.equal((prefixWithOwMy as SinonStub).callCount, yields.length)
     })
 
     it('calls 6 times piped function after generators with 3 and 2 yields', function () {
@@ -255,15 +255,63 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
       assert.equal((byPass as SinonStub).callCount, 6)
     })
 
-    it('consumes all yiels from a generator in split', function () {
+    it('consumes all yields from a generator in split, but do not yields on flow items after', function () {
       const yields = 'ABC'.split('')
       const generatorMock = createGeneratorFromWithContext(yields, parameter, undefined)
-      const flow = createFlowie(generatorMock, createByPassFunction())
+      const countingCallsAfterSplitGenerator = stub().named('countingCallsAfterSplitGenerator').returnsArg(0)
+      const flow = createFlowie(generatorMock, createByPassFunction()).pipe(countingCallsAfterSplitGenerator)
 
       const { lastResult } = flow(parameter, undefined) as FlowResult<readonly [string, string]>
 
       assert.deepEqual(lastResult, ['C', parameter])
+      sinonAssert.calledOnce(countingCallsAfterSplitGenerator)
     })
+
+    // it('process iteration in parallel', async function () {
+    //   const yields = '1_2_3_4_5_6_7_8_9_10_11'.split('_')
+    //   const generatorMock = createGeneratorFromWithContext(yields, parameter, undefined)
+
+    //   const executeIn50 = takeTimeToBeExecuted(50)
+    //   const executeIn5 = takeTimeToBeExecuted(5)
+
+    //   const stubThatTakesLongerOnFirstCall = stub()
+    //     .named('stubThatTakesLongerOnFirstCall')
+    //     .onFirstCall().callsFake(executeIn50)
+    //     .callsFake(executeIn5)
+
+    //   stubThatTakesLongerOnFirstCall[Symbol.toStringTag] = 'AsyncFunction'
+
+    //   const flow = createFlowie([generatorMock, { parallelExecutions: 10 }]).pipe(stubThatTakesLongerOnFirstCall)
+
+    //   const { lastResult, executionTime } = await flow(parameter)
+
+    //   assert.deepEqual(lastResult, '11')
+    //   assert.isAtMost(executionTime, 70)
+    // })
+
+    // it('process iteration in parallel in generators in the middle', async function () {
+    //   const yields = '11_12_13_14_15_16_17_18_19_20_21'.split('_')
+    //   const generatorMock = createGeneratorFromWithContext(yields, parameter, undefined)
+
+    //   const executeIn50 = takeTimeToBeExecuted(50)
+    //   const executeIn5 = takeTimeToBeExecuted(5)
+
+    //   const stubThatTakesLongerOnFirstCall = stub()
+    //     .named('stubThatTakesLongerOnFirstCall')
+    //     .onFirstCall().callsFake(executeIn50)
+    //     .callsFake(executeIn5)
+
+    //   stubThatTakesLongerOnFirstCall[Symbol.toStringTag] = 'AsyncFunction'
+
+    //   const flow = createFlowie(createByPassFunction())
+    //     .pipe([generatorMock, { parallelExecutions: 2 }])
+    //     .pipe(stubThatTakesLongerOnFirstCall)
+
+    //   const { lastResult, executionTime } = await flow(parameter)
+
+    //   assert.deepEqual(lastResult, '21')
+    //   assert.isAtMost(executionTime, 100)
+    // })
   })
 
   describe('context', function () {
@@ -274,12 +322,12 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
         createSimpleFunctionMock(parameter, expected) as (argument: string, context: string) => string
 
       const asyncFunction =
-        createAsyncFunctionMock(expected, 'Splitted') as (argument: string, context: string) => Promise<string>
+        createAsyncFunctionMock(expected, 'Split') as (argument: string, context: string) => Promise<string>
       const generatorFunction = spy(createGeneratorFromWithContext([1, 2, 3], expected, contextValue))
       generatorFunction[Symbol.toStringTag] = 'GeneratorFunction'
       const commonFunctionWithoutContext = createSimpleFunctionMock(expected, 'no context')
       const subFlowFunction =
-        createSimpleFunctionMock(expected, 'subflow') as (argument: string, context: string) => string
+        createSimpleFunctionMock(expected, 'subFlow') as (argument: string, context: string) => string
 
       const subFlow = createFlowie(subFlowFunction)
 
@@ -287,7 +335,7 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
         .split(asyncFunction, generatorFunction, commonFunctionWithoutContext, subFlow)
       const { lastResult: actual } = await flow(parameter, contextValue)
 
-      assert.deepEqual(actual, ['Splitted', 3, 'no context', 'subflow'])
+      assert.deepEqual(actual, ['Split', 3, 'no context', 'subFlow'])
       sinonAssert.calledWithExactly(commonFunction as SinonStub, parameter, contextValue)
       sinonAssert.calledWithExactly(asyncFunction as SinonStub, expected, contextValue)
       sinonAssert.calledWithExactly(generatorFunction, expected, contextValue)
@@ -298,19 +346,18 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
 })
 
 const createByPassFunction = () => stub().returnsArg(0) as (x: string) => string
-const createPreffixer = (preffix: string) => {
-  const preffixForFunctionName = preffix.replace(/\s+/g, '_').replace(/[^0-9a-z_]/gi, '')
-  return stub().named(`preffixer_${preffixForFunctionName}`)
-    .callsFake((x: string): string => `${preffix} ${x}`) as (x: string) => string
+const createPrefixed = (prefix: string) => {
+  const prefixForFunctionName = prefix.replace(/\s+/g, '_').replace(/[^0-9a-z_]/gi, '')
+  return stub().named(`prefixed_${prefixForFunctionName}`)
+    .callsFake((x: string): string => `${prefix} ${x}`) as (x: string) => string
 }
 const add = (shouldBeAdded: number) => (numberToAdd: number) => numberToAdd + shouldBeAdded
 const add1 = add(1)
 const add2 = add(2)
 const add3 = add(3)
 
-const takeTimeToBeExecuted = (miliseconds: number) => async (x: any) => {
-  await new Promise((resolve) => setTimeout(() => resolve(), miliseconds))
-  return x
+const takeTimeToBeExecuted = (milliseconds: number) => async (x: any) => {
+  return new Promise((resolve) => setTimeout(() => resolve(x), milliseconds))
 }
 
 function createSimpleFunctionMock (

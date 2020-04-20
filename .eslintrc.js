@@ -11,7 +11,7 @@ module.exports = {
     'plugin:import/errors',
     'plugin:import/warnings',
     'plugin:import/typescript',
-    'plugin:mocha/recommended',
+    'plugin:mocha/recommended'
   ],
   globals: {
     Atomics: 'readonly',
@@ -26,11 +26,11 @@ module.exports = {
     'mocha',
     'import',
     'functional',
-    '@typescript-eslint',
+    '@typescript-eslint'
   ],
   rules: {
     complexity: ['error', 4],
-    'max-len': ['error', { 'code': 120, 'ignoreComments': true }],
+    'max-len': ['error', { code: 120, ignoreComments: true }],
     'no-param-reassign': ['error'],
     '@typescript-eslint/member-delimiter-style': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
@@ -42,45 +42,46 @@ module.exports = {
     env: {},
     globals: {},
     rules: {
-      'max-params': ['error', 4],
+      'max-params': ['error', 4]
     },
     extends: [
       'plugin:functional/no-mutations',
-      'plugin:functional/no-exceptions',
+      'plugin:functional/no-exceptions'
     ]
   }, {
-      files: ['src/compiler/__fixtures__/*.fixture.js'],
-      env: {},
-      globals: {},
-      rules: {
-        'max-len': 'off',
-        'padded-blocks': 'off',
-        'space-before-function-paren': 'off',
-        'camelcase': 'off',
-        '@typescript-eslint/camelcase': 'off',
-        'semi': 'off',
-        'array-bracket-spacing': 'off',
-        'comma-dangle': 'off',
-      }
-    }, {
-    files: ['src/**/*.test.ts', 'src/**/*.type-test.ts'],
+    files: ['src/compiler/__fixtures__/*.fixture.js'],
+    env: {},
+    globals: {},
+    rules: {
+      'max-len': 'off',
+      'padded-blocks': 'off',
+      'space-before-function-paren': 'off',
+      camelcase: 'off',
+      '@typescript-eslint/camelcase': 'off',
+      semi: 'off',
+      'array-bracket-spacing': 'off',
+      'comma-dangle': 'off'
+    }
+  }, {
+    files: ['src/**/__tests__/*.ts', 'tests/features/step_definitions/**/*'],
     env: {
-      mocha: true,
+      mocha: true
     },
     globals: {
       describe: true,
-      it: true,
+      it: true
     },
     rules: {
+      '@typescript-eslint/explicit-module-boundary-types': 'off',
       'no-unused-expressions': 'off',
-      'functional/immutable-data': 'off',
-    },
+      'functional/immutable-data': 'off'
+    }
   }, {
     files: ['tests/**/*.step.ts'],
     env: {},
     globals: {},
     rules: {
-      'no-unused-expressions': 'off',
-    },
+      'no-unused-expressions': 'off'
+    }
   }]
 }

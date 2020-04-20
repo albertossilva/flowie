@@ -85,7 +85,7 @@ describe('reporting.createFlowie (integration tests as laboratory)', function ()
           const flow = await createFlowie(spy().named('doesNotMatter')).split(...shuffleSlowFlowie)
           const { executionTime, functions } = await flow(null)
 
-          expect(executionTime).to.greaterThan(30)
+          expect(executionTime).to.greaterThan(29)
           expect(functions.shorter.totalExecutionTime).to.greaterThan(9)
           expect(functions.average.totalExecutionTime).to.greaterThan(19)
           expect(functions.longer.totalExecutionTime).to.greaterThan(29)
@@ -134,9 +134,9 @@ describe('reporting.createFlowie (integration tests as laboratory)', function ()
 
 const createByPassFunction = () => stub().named('bypass').returnsArg(0) as (x: string) => string
 
-const takeTimeToBeExecuted = (miliseconds: number, functionName: string) => {
+const takeTimeToBeExecuted = (milliseconds: number, functionName: string) => {
   const functionStub = stub().named(functionName).callsFake(async (x: any) =>
-    new Promise((resolve) => setTimeout(() => resolve(x), miliseconds))
+    new Promise((resolve) => setTimeout(() => resolve(x), milliseconds))
   )
   functionStub[Symbol.toStringTag] = 'AsyncFunction'
   return functionStub

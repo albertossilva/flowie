@@ -43,4 +43,6 @@ export interface FlowResult<Result> {
   readonly functions: FlowFunctionsResultList
 }
 
+export type FlowExecutionResult<Result> = FlowResult<Result> | Promise<FlowResult<Result>>
+
 export default flowieResult

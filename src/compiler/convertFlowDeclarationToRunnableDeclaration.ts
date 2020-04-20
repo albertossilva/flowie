@@ -256,7 +256,7 @@ class SubFlowElementReader {
     }
   }
 
-  private readSubFlow (flowElement: FlowElement): SubflowReading {
+  private readSubFlow (flowElement: FlowElement): SubFlowReading {
     const pipeFlow = flowElement as PipeFlow
     if (pipeFlow.pipe) {
       return this.readSubFlowPipe(pipeFlow)
@@ -269,7 +269,7 @@ class SubFlowElementReader {
 
     const preparedFlowie = flowElement as PreparedFlowie
 
-    const initialFlowReading: SubflowReading = {
+    const initialFlowReading: SubFlowReading = {
       isAsync: false,
       functionsFromContainers: [],
       steps: [],
@@ -287,7 +287,7 @@ class SubFlowElementReader {
     }
   }
 
-  private readSubFlowPipe (pipeFlow: PipeFlow): SubflowReading<PipeStep | GeneratorStep> {
+  private readSubFlowPipe (pipeFlow: PipeFlow): SubFlowReading<PipeStep | GeneratorStep> {
     if (typeof pipeFlow.pipe === 'string') {
       const functionName = pipeFlow.pipe
       const isAsync = this.isAsyncFunction(functionName)
@@ -316,8 +316,8 @@ class SubFlowElementReader {
     }
   }
 
-  private readSubFlowSplit (splitFlow: SplitFlow): SubflowReading<SplitStep> {
-    const initialFlowReading: SubflowReading<SplitStep> = {
+  private readSubFlowSplit (splitFlow: SplitFlow): SubFlowReading<SplitStep> {
+    const initialFlowReading: SubFlowReading<SplitStep> = {
       isAsync: false,
       functionsFromContainers: [],
       steps: [{ split: [], isAsync: false }],
@@ -329,10 +329,10 @@ class SubFlowElementReader {
   }
 
   private readSubFlowSplitItem (
-    subflowReading: SubflowReading<SplitStep>,
+    subFlowReading: SubFlowReading<SplitStep>,
     flowieItemDeclaration: FlowieItemDeclaration
-  ): SubflowReading<SplitStep> {
-    const { isAsync, functionsFromContainers, steps, subFlows } = subflowReading
+  ): SubFlowReading<SplitStep> {
+    const { isAsync, functionsFromContainers, steps, subFlows } = subFlowReading
     const [splitStep] = steps as readonly SplitStep[]
 
     if (typeof flowieItemDeclaration === 'string') {
@@ -389,7 +389,7 @@ class SubFlowElementReader {
     }
   }
 
-  private readSubFlowSteps (subFlowReading: SubflowReading, flowElement: FlowElement): SubflowReading {
+  private readSubFlowSteps (subFlowReading: SubFlowReading, flowElement: FlowElement): SubFlowReading {
     const { isAsync, steps, subFlows, functionsFromContainers, generatorsCount } = this.readSubFlowItem(flowElement)
 
     return {
@@ -402,7 +402,7 @@ class SubFlowElementReader {
     }
   }
 
-  private readSubFlowItem (flowElement: FlowElement): SubflowReading {
+  private readSubFlowItem (flowElement: FlowElement): SubFlowReading {
     const preparedFlowie = flowElement as PreparedFlowie
     if (preparedFlowie.flows) {
       const { flowStep, subFlows } = new SubFlowElementReader(this.isAsyncFunction, this.isGeneratorFunction)
@@ -489,7 +489,7 @@ interface SplitStepReading {
   readonly splitStep: SplitStep
 }
 
-interface SubflowReading<StepType = Step> {
+interface SubFlowReading<StepType = Step> {
   readonly isAsync: boolean,
   readonly functionsFromContainers: readonly string[]
   readonly steps: readonly StepType[]

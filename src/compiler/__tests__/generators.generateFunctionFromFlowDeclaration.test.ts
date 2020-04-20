@@ -50,12 +50,12 @@ describe('generators.generateFunctionFromFlowDeclaration', function () {
   )
 
   it(
-    'create an async function returning the last yield from a generator in as subflow',
+    'create an async function returning the last yield from a generator in as subFlow',
     testFunctionGenerations('asyncGeneratorOnSubFlow', asyncGeneratorOnSubFlow, flowieContainer)
   )
 
   it(
-    'generates a subflow for generators in split',
+    'generates a subFlow for generators in split',
     testFunctionGenerations('splitGeneratorOnSubFlow', splitGeneratorOnSubFlow, flowieContainer)
   )
 })

@@ -67,7 +67,7 @@ export function compactFunctionReport (
 }
 
 function reportFunction<Result> (
-  functionToCall: Function,
+  functionToCall: (...parameters: readonly any[]) => Result,
   functionNameToReport: string,
   ...argumentAndContext: readonly any[]
 ): readonly [FunctionReport, Result] {
@@ -80,7 +80,7 @@ function reportFunction<Result> (
 }
 
 async function reportAsyncFunction<Result> (
-  functionToCall: Function,
+  functionToCall: (...parameters: readonly any[]) => Promise<Result>,
   functionNameToReport: string,
   ...argumentAndContext: readonly any[]
 ): Promise<readonly [FunctionReport, Result]> {
@@ -107,7 +107,7 @@ function buildNextGeneratorReporter (report: GeneratorReport) {
 }
 
 function collectReport (
-  // perfomance issue
+  // performance issue
   // eslint-disable-next-line functional/prefer-readonly-type
   functionsReport: Map<string, FlowFunctionResult>,
   report: FunctionReport | GeneratorReport

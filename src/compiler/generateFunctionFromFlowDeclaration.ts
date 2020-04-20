@@ -27,7 +27,7 @@ export default function generateFunctionFromFlowDeclaration<Argument, Result, Co
   const generationOptions = {
     ...runnableDeclaration,
     generateFlow (
-      it: Function,
+      it: Record<string, unknown>,
       options: {
         readonly step: Step,
         readonly parentIndex: number,
@@ -61,14 +61,18 @@ export interface FlowFunctionGeneration<Argument, Result, Context> {
 }
 
 export interface GeneratedFlowFunction<Argument, Result> {
-  (separateReportListFromResult: Function):
+  (separateReportListFromResult: SeparateReportListFromResult):
     (executionArguments: ExecutionArguments<Argument, Result>) => FlowResult<Result> | Promise<FlowResult<Result>>
 }
 
 export interface GeneratedFlowFunctionForContext<Argument, Result, Context> {
-  (separateReportListFromResult: Function):
+  (separateReportListFromResult: SeparateReportListFromResult):
     (executionArguments: ExecutionArgumentsForContext<Argument, Result, Context>) =>
       FlowResult<Result> | Promise<FlowResult<Result>>
+}
+
+export interface SeparateReportListFromResult {
+  (listToConcatenate: readonly (readonly [unknown, any])[]): readonly [readonly unknown[], readonly any[]]
 }
 
 interface ExecutionArguments<Argument, Result> {
