@@ -9,7 +9,7 @@ import {
   reportAsyncFunctionCallContext,
   startGeneratorReport,
   calculateHRTimeDifference,
-  compactFunctionReport
+  compactFunctionReport,
 } from '../reporter'
 import { HRTime } from '../reporter.types'
 
@@ -84,8 +84,12 @@ describe('reporter/reporter', function () {
         .resolves(expectedResult)
         .named('functionToReport')
 
-      const [report, result] =
-        await reportAsyncFunctionCallContext(mockedFunction, 'functionToReport', argument, contextArgument)
+      const [report, result] = await reportAsyncFunctionCallContext(
+        mockedFunction,
+        'functionToReport',
+        argument,
+        contextArgument,
+      )
       this.actualResult = result
       this.actualReport = report
     })
@@ -115,7 +119,7 @@ describe('reporter/reporter', function () {
 
       const iteration2 = generatorReporter.next()
       expect(iteration2.report.functionName).to.equal(functionName)
-      expect(iteration2.report.iterationTime).to.greaterThan(10)
+      expect(iteration2.report.iterationTime).to.greaterThan(9)
     })
   })
 
@@ -146,7 +150,7 @@ describe('reporter/reporter', function () {
         { functionName: 'calledThrice', executionTime: 60 },
         { functionName: 'calledThrice', iterationTime: 20, hrTime },
         { functionName: 'calledThrice', iterationTime: 40, hrTime },
-        { functionName: 'calledThrice', iterationTime: 60, hrTime }
+        { functionName: 'calledThrice', iterationTime: 60, hrTime },
       ])
     })
 
@@ -241,4 +245,4 @@ describe('reporter/reporter', function () {
   })
 })
 
-const sleep = (timeMS: number) => new Promise((resolve: Function) => setTimeout(resolve, timeMS))
+const sleep = (timeMS: number) => new Promise((resolve: (value: number) => void) => setTimeout(resolve, timeMS))

@@ -9,8 +9,12 @@ export interface Flowie<Argument, Result, InitialArgument = Argument, Context = 
 }
 
 export interface InitializeFlowie {
-  <Argument, Result, Context = never>(flowItem: FlowItem<Argument, Result, Argument, Context>):
-    Flowie<Argument, Result, Argument, Context>
+  <Argument, Result, Context = never>(flowItem: FlowItem<Argument, Result, Argument, Context>): Flowie<
+    Argument,
+    Result,
+    Argument,
+    Context
+  >
   <Argument, Result1, Result2, Context = never>(
     flowItem1: FlowItem<Argument, Result1, Argument, Context>,
     flowItem2: FlowItem<Argument, Result2, Argument, Context>,
@@ -65,10 +69,16 @@ export interface InitializeFlowie {
     Argument,
     Context
   >
-  <Argument, Result, Context = never>(...flowItemsList: readonly FlowItem<Argument, Result, Argument, Context>[]):
-    Flowie<Argument, Result, Argument, Context>
-  <Argument = any, Result = any, Context = never>(flowieContainer: FlowieContainer, preparedFlowie: PreparedFlowie):
-    Flowie<Argument, Result, Argument, Context>
+  <Argument, Result, Context = never>(...flowItemsList: ReadonlyArray<FlowItem<Argument, Result, Context>>): Flowie<
+    Argument,
+    Result,
+    Argument,
+    Context
+  >
+  <Argument = any, Result = any, Context = never>(
+    flowieContainer: FlowieContainer,
+    preparedFlowie: PreparedFlowie,
+  ): Flowie<Argument, Result, Argument, Context>
 }
 
 export interface FlowieExtender<Argument, Result, InitialArgument = Argument, Context = never> {
@@ -77,14 +87,18 @@ export interface FlowieExtender<Argument, Result, InitialArgument = Argument, Co
 }
 
 export interface PipeFlowFunction<Result, InitialArgument, Context> {
-  <NewResult>(flowItem: FlowItem<Result, NewResult, InitialArgument, Context>):
-  Flowie<Result, NewResult, InitialArgument, Context>
+  <NewResult>(flowItem: FlowItem<Result, NewResult, InitialArgument, Context>): Flowie<
+    Result,
+    NewResult,
+    InitialArgument,
+    Context
+  >
 }
 
 export interface SplitFlowFunction<Result, InitialArgument, Context> {
   <NewResult1, NewResult2>(
     flowItem1: FlowItem<Result, NewResult1, InitialArgument, Context>,
-    flowItem2: FlowItem<Result, NewResult2, InitialArgument, Context>
+    flowItem2: FlowItem<Result, NewResult2, InitialArgument, Context>,
   ): Flowie<Result, readonly [NewResult1, NewResult2], InitialArgument, Context>
 
   <NewResult1, NewResult2, NewResult3>(
@@ -153,29 +167,41 @@ export interface SplitFlowFunction<Result, InitialArgument, Context> {
     Context
   >
 
-  (...flowItemsList: readonly FlowItem<Result, any, InitialArgument, Context>[]):
-    Flowie<Result, readonly any[], InitialArgument, Context>
+  (...flowItemsList: ReadonlyArray<FlowItem<Result, any, InitialArgument, Context>>): Flowie<
+    Result,
+    ReadonlyArray<any>,
+    InitialArgument,
+    Context
+  >
 }
 
 export type FlowItem<Argument = any, Result = any, InitialArgument = Argument, Context = never> =
-  FlowFunction<Argument, Result, Context> | Flowie<Argument, Result, InitialArgument, Context>
+  | FlowFunction<Argument, Result, Context>
+  | Flowie<Argument, Result, InitialArgument, Context> // |
+// readonly [GeneratorFlowFunction<Argument, Result, Context>, GeneratorExecutionOptions]
+
+export type FlowItemList<Argument, Result, Context> = ReadonlyArray<FlowItem<Argument, Result, Argument, Context>>
 
 export type FlowFunction<Argument = any, Result = any, Context = never> =
-  GeneratorFlowFunction<Argument, Result, Context> |
-  ((argument: Argument, context: Context) => Promise<Result>) |
-  ((argument: Argument, context: Context) => Result)
+  | GeneratorFlowFunction<Argument, Result, Context>
+  | ((argument: Argument, context: Context) => Promise<Result>)
+  | ((argument: Argument, context: Context) => Result)
 
 export type GeneratorFlowFunction<Argument, Result, Context> =
-  ((argument: Argument, context: Context) => AsyncGenerator<Result, void>) |
-  ((argument: Argument, context: Context) => Generator<Result, void>)
+  | ((argument: Argument, context: Context) => AsyncGenerator<Result, void>)
+  | ((argument: Argument, context: Context) => Generator<Result, void>)
 
-export interface FlowFunctionDetails<Argument = any, Result = any> {
+export interface GeneratorExecutionOptions {
+  readonly parallelExecutions: number
+}
+
+export interface FlowFunctionDetails {
   readonly name: string
   readonly isAsync: boolean
   readonly isGenerator: boolean
 }
-export interface FlowFunctionDetailsWithItem<Argument = any, Result = any>
-  extends FlowFunctionDetails<Argument, Result> {
+
+export interface FlowFunctionDetailsWithItem<Argument = any, Result = any> extends FlowFunctionDetails {
   readonly flowFunction: FlowFunction<Argument, Result>
 }
 
@@ -190,7 +216,7 @@ export type Unpacked<T> = T extends Promise<infer U> ? U : T
 
 export interface RootFlowieCreator {
   <Argument, Result, InitialArgument = Argument, Context = never>(
-    flowFunction: FlowFunction<Argument, Result, Context>
+    flowFunction: FlowFunction<Argument, Result, Context>,
   ): Flowie<Argument, Result, InitialArgument, Context>
 }
 

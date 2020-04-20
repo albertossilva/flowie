@@ -6,7 +6,7 @@ npm-debug.log*
 .vscode/
 dist/
 
-# Coverage directory used by tools like istanbul
+# Coverage directory
 coverage
 .nyc_output
 
@@ -16,9 +16,9 @@ dist
 # Dependency directories
 node_modules/
 
-# Optional npm cache directory
+# cache directory
 .npm
-.idea
+.eslintcache
 
 # generate files
 src/compiler/dot/*.js

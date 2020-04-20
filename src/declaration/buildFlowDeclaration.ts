@@ -10,9 +10,9 @@ import createFlowDeclarationManager, { PreparedFlowieManager } from './createFlo
 
 const debug = createDebugger('flowie:builder')
 
-export default function buildPreparedFlowieManager (
+export default function buildPreparedFlowieManager(
   preparedFlowie: PreparedFlowie,
-  flowieContainer: FlowieContainer
+  flowieContainer: FlowieContainer,
 ): PreparedFlowieManager {
   const [firstFlow, ...restOfFlow] = preparedFlowie.flows
 
@@ -21,81 +21,79 @@ export default function buildPreparedFlowieManager (
 
   const { preparedFlowieManager } = restOfFlow.reduce(parseFlows, {
     preparedFlowieManager: firstManager,
-    flowieContainer
+    flowieContainer,
   })
   debug('Prepared flow built successfully!')
 
   return preparedFlowieManager
 }
 
-function parseFlows (
-  { preparedFlowieManager, flowieContainer }: {
-    readonly preparedFlowieManager: PreparedFlowieManager,
+function parseFlows(
+  {
+    preparedFlowieManager,
+    flowieContainer,
+  }: {
+    readonly preparedFlowieManager: PreparedFlowieManager
     readonly flowieContainer: FlowieContainer
   },
-  flowElement: FlowElement
+  flowElement: FlowElement,
 ) {
   const flowFunctionDetailsList = convertFlowElementToDeclarable(flowElement, flowieContainer)
   if ((flowElement as SplitFlow).split) {
     return {
       flowieContainer,
-      preparedFlowieManager: preparedFlowieManager.split(flowFunctionDetailsList)
+      preparedFlowieManager: preparedFlowieManager.split(flowFunctionDetailsList),
     }
   }
 
   const [flowFunctionDetails] = flowFunctionDetailsList
   return {
     flowieContainer,
-    preparedFlowieManager: preparedFlowieManager.pipe(flowFunctionDetails)
+    preparedFlowieManager: preparedFlowieManager.pipe(flowFunctionDetails),
   }
 }
 
-function convertFlowElementToDeclarable (
+function convertFlowElementToDeclarable(
   flowElement: FlowElement,
-  flowieContainer: FlowieContainer
-): readonly (FlowFunctionDetails | PreparedFlowieManager)[] {
-  const pipeFlow = (flowElement as PipeFlow)
+  flowieContainer: FlowieContainer,
+): ReadonlyArray<FlowFunctionDetails | PreparedFlowieManager> {
+  const pipeFlow = flowElement as PipeFlow
   if (pipeFlow.pipe) {
     if (typeof pipeFlow.pipe === 'string') {
-      return [converToFlowFunctionDetails(pipeFlow.pipe, flowieContainer)]
+      return [convertToFlowFunctionDetails(pipeFlow.pipe, flowieContainer)]
     }
 
-    return [
-      buildPreparedFlowieManager(
-        { flows: [pipeFlow.pipe], name: pipeFlow.name },
-        flowieContainer
-      )
-    ]
+    return [buildPreparedFlowieManager({ flows: [pipeFlow.pipe], name: pipeFlow.name }, flowieContainer)]
   }
 
-  const splitFlow = (flowElement as SplitFlow)
+  const splitFlow = flowElement as SplitFlow
   if (splitFlow.split) {
-    const splitFlow = (flowElement as SplitFlow)
-    return splitFlow.split.map(converSplitToFlowFunctionDetails, { flowieContainer })
+    const splitFlow = flowElement as SplitFlow
+    return splitFlow.split.map(convertSplitToFlowFunctionDetails, { flowieContainer })
   }
 
   return [buildPreparedFlowieManager(flowElement as PreparedFlowie, flowieContainer)]
 }
 
-function converSplitToFlowFunctionDetails (
+function convertSplitToFlowFunctionDetails(
   this: { readonly flowieContainer: FlowieContainer },
-  flowieItemDeclaration: FlowieItemDeclaration
+  flowieItemDeclaration: FlowieItemDeclaration,
 ) {
   if (typeof flowieItemDeclaration === 'string') {
-    return converToFlowFunctionDetails(flowieItemDeclaration, this.flowieContainer)
+    return convertToFlowFunctionDetails(flowieItemDeclaration, this.flowieContainer)
   }
 
   return buildPreparedFlowieManager(
     { flows: [flowieItemDeclaration], name: flowieItemDeclaration.name },
-    this.flowieContainer
+    this.flowieContainer,
   )
 }
 
-function converToFlowFunctionDetails (functionName: string, flowieContainer: FlowieContainer): FlowFunctionDetails {
+function convertToFlowFunctionDetails(functionName: string, flowieContainer: FlowieContainer): FlowFunctionDetails {
   const { isAsync, isGenerator } = flowieContainer.functionsContainer[functionName]
   return {
     name: functionName,
     isAsync,
-    isGenerator
+    isGenerator,
   }
 }

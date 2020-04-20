@@ -4,13 +4,14 @@ import { stub } from 'sinon'
 import { PreparedFlowieExecution } from '../../prepared.types'
 
 import convertFlowDeclarationToRunnableDeclaration, {
-  RunnableDeclaration
+  RunnableDeclaration,
 } from '../convertFlowDeclarationToRunnableDeclaration'
 
 describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
   after(function () {
     Math.random = this.oldMathRandom
   })
+
   before(function () {
     this.oldMathRandom = Math.random
     Math.random = fakeMathRandom()
@@ -28,34 +29,35 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
                 {
                   split: [
                     'thirdFlowieItem',
-                    { flows: [{ pipe: 'fourthFlowieItem' }, { pipe: 'fifthFlowieItem' }], name: 'deepFlow' }]
-                }
+                    { flows: [{ pipe: 'fourthFlowieItem' }, { pipe: 'fifthFlowieItem' }], name: 'deepFlow' },
+                  ],
+                },
               ],
-              name: 'secondLevelFlow'
+              name: 'secondLevelFlow',
             },
-            { pipe: { pipe: 'sixthFlowieItem' /* anonymous flow */ } }
+            { pipe: { pipe: 'sixthFlowieItem' /* anonymous flow */ } },
           ],
-          name: 'firstLevelFlow'
+          name: 'firstLevelFlow',
         },
         { pipe: 'firstFlowieItem' },
         {
           split: [
             'seventhFlowieItem',
-            { split: ['eighthFlowieItem', { pipe: 'ninethFlowieItem' }], name: 'splitIASplit' }
-          ]
+            { split: ['eighthFlowieItem', { pipe: 'ninthFlowieItem' }], name: 'splitIASplit' },
+          ],
         },
         { pipe: { pipe: 'lastItem', name: 'pipeInPipe' } },
         { pipe: 'generator' },
         { flows: [{ pipe: 'generator' }, { pipe: 'generator' }, { pipe: 'belowTheGenerator' }], name: 'subGenerator' },
         { split: ['otherGenerator', 'lastItem'] },
-        { flows: [{ split: ['otherGenerator', 'lastItem'] }], name: 'generatorInSplitInSubFlow' }
-      ]
+        { flows: [{ split: ['otherGenerator', 'lastItem'] }], name: 'generatorInSplitInSubFlow' },
+      ],
     }
 
     const isAsyncFunctionStub = stub().named('isAsyncFunction')
     isAsyncFunctionStub.returns(false)
     isAsyncFunctionStub.withArgs('fourthFlowieItem').returns(true)
-    isAsyncFunctionStub.withArgs('ninethFlowieItem').returns(true)
+    isAsyncFunctionStub.withArgs('ninthFlowieItem').returns(true)
     isAsyncFunctionStub.withArgs('otherGenerator').returns(true)
 
     const isAsyncFunction = isAsyncFunctionStub as (functionName: string) => boolean
@@ -70,7 +72,7 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
     this.runnableDeclaration = convertFlowDeclarationToRunnableDeclaration(
       preparedFlowieExecution,
       isAsyncFunction,
-      isGeneratorFunction
+      isGeneratorFunction,
     )
     this.preparedFlowieExecution = preparedFlowieExecution
   })
@@ -88,25 +90,28 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
 
   it('reads all functions for main function', function () {
     const runnableDeclaration = this.runnableDeclaration as RunnableDeclaration
-    expect(runnableDeclaration.mainFlow.functionsFromContainers)
-      .to.deep.equal(['firstFlowieItem', 'seventhFlowieItem', 'generator', 'lastItem'])
+    expect(runnableDeclaration.mainFlow.functionsFromContainers).to.deep.equal([
+      'firstFlowieItem',
+      'seventhFlowieItem',
+      'generator',
+      'lastItem',
+    ])
   })
 
   it('reads all steps for main function', function () {
     const runnableDeclaration = this.runnableDeclaration as RunnableDeclaration
-    expect(runnableDeclaration.mainFlow.steps)
-      .to.deep.equal([
-        { pipe: 'firstFlowieItem', isAsync: false },
-        { flow: 'firstLevelFlow', isAsync: true },
-        { pipe: 'firstFlowieItem', isAsync: false },
-        { split: ['seventhFlowieItem', { flow: 'splitIASplit', isAsync: true }], isAsync: true },
-        { flow: 'pipeInPipe', isAsync: false },
-        { generator: 'generator', isAsync: false },
-        { flow: 'subGenerator', isAsync: false },
-        { split: [{ flow: 'generator_on_split_otherGenerator', isAsync: true }, 'lastItem'], isAsync: true },
-        { flow: 'generatorInSplitInSubFlow', isAsync: true },
-        { finishGeneratorsCount: 1 }
-      ])
+    expect(runnableDeclaration.mainFlow.steps).to.deep.equal([
+      { pipe: 'firstFlowieItem', isAsync: false },
+      { flow: 'firstLevelFlow', isAsync: true },
+      { pipe: 'firstFlowieItem', isAsync: false },
+      { split: ['seventhFlowieItem', { flow: 'splitIASplit', isAsync: true }], isAsync: true },
+      { flow: 'pipeInPipe', isAsync: false },
+      { generator: 'generator', isAsync: false },
+      { flow: 'subGenerator', isAsync: false },
+      { split: [{ flow: 'generator_on_split_otherGenerator', isAsync: true }, 'lastItem'], isAsync: true },
+      { flow: 'generatorInSplitInSubFlow', isAsync: true },
+      { finishGeneratorsCount: 1 },
+    ])
   })
 
   it('reads functions on firstLevelFlow subFlow', function () {
@@ -131,7 +136,7 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
   it('reads steps on secondLevelFlow subFlow', function () {
     const secondLevelFlow = getSubFlowByHash(this.runnableDeclaration, 'secondLevelFlow')
     expect(secondLevelFlow.steps).to.deep.equal([
-      { split: ['thirdFlowieItem', { flow: 'deepFlow', isAsync: true }], isAsync: true }
+      { split: ['thirdFlowieItem', { flow: 'deepFlow', isAsync: true }], isAsync: true },
     ])
   })
 
@@ -144,7 +149,7 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
     const deepFlow = getSubFlowByHash(this.runnableDeclaration, 'deepFlow')
     expect(deepFlow.steps).to.deep.equal([
       { pipe: 'fourthFlowieItem', isAsync: true },
-      { pipe: 'fifthFlowieItem', isAsync: false }
+      { pipe: 'fifthFlowieItem', isAsync: false },
     ])
   })
 
@@ -176,21 +181,23 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
 
   it('reads one function on anonymousFlow inside splitIASplit flow', function () {
     const anonymousFlowInsideSplit = (this.runnableDeclaration as RunnableDeclaration).subFlows[5]
-    expect(anonymousFlowInsideSplit.functionsFromContainers).to.deep.equal(['ninethFlowieItem'])
+    expect(anonymousFlowInsideSplit.functionsFromContainers).to.deep.equal(['ninthFlowieItem'])
   })
 
   it('reads steps on anonymousFlow inside splitIASplit flow', function () {
     const anonymousFlowInsideSplit = (this.runnableDeclaration as RunnableDeclaration).subFlows[5]
     expect(anonymousFlowInsideSplit.hash).to.match(/^[a-z0-9]{9,12}$/)
-    expect(anonymousFlowInsideSplit.steps).to.deep.equal([{ pipe: 'ninethFlowieItem', isAsync: true }])
+    expect(anonymousFlowInsideSplit.steps).to.deep.equal([{ pipe: 'ninthFlowieItem', isAsync: true }])
   })
 
   it('creates steps on anonymousFlow inside splitIASplit flow', function () {
     const pipeInPipe = getSubFlowByHash(this.runnableDeclaration, 'pipeInPipe')
-    expect(pipeInPipe.steps).to.deep.equal([{
-      pipe: 'lastItem',
-      isAsync: false
-    }])
+    expect(pipeInPipe.steps).to.deep.equal([
+      {
+        pipe: 'lastItem',
+        isAsync: false,
+      },
+    ])
   })
 
   it('creates steps for subGenerator flow', function () {
@@ -200,7 +207,7 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
       { generator: 'generator', isAsync: false },
       { generator: 'generator', isAsync: false },
       { pipe: 'belowTheGenerator', isAsync: false },
-      { finishGeneratorsCount: 2 }
+      { finishGeneratorsCount: 2 },
     ])
   })
 
@@ -216,29 +223,29 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
     expect((generatorInSplitInSubFlow.steps[0] as any).split[1]).to.equal('lastItem')
   })
 
-  it('creates subflow for generator in split in the flow generatorInSplitInSubFlow', function () {
+  it('creates subFlow for generator in split in the flow generatorInSplitInSubFlow', function () {
     const splitGeneratorSubFlow = (this.runnableDeclaration as RunnableDeclaration).subFlows[10]
     expect(splitGeneratorSubFlow).to.deep.equal({
       isAsync: false,
       functionsFromContainers: ['otherGenerator'],
       hash: 'generator_on_split_otherGenerator',
-      steps: [{ generator: 'otherGenerator', isAsync: false }, { finishGeneratorsCount: 1 }]
+      steps: [{ generator: 'otherGenerator', isAsync: false }, { finishGeneratorsCount: 1 }],
     })
   })
 })
 
-function getSubFlowByHash (runnableDeclaration: RunnableDeclaration, subFlowHash: string) {
+function getSubFlowByHash(runnableDeclaration: RunnableDeclaration, subFlowHash: string) {
   const subFlow = runnableDeclaration.subFlows.find((subFlow: any) => subFlow.hash === subFlowHash)
   const hashes = runnableDeclaration.subFlows.map((subFlow: any) => subFlow.hash).join(', ')
-  assert.isNotNull(subFlow, `No subflow with hash ${subFlowHash}, hashes avaiable: ${hashes}`)
+  assert.isNotNull(subFlow, `No subFlow with hash ${subFlowHash}, hashes available: ${hashes}`)
 
   return subFlow
 }
 
-function fakeMathRandom () {
+function fakeMathRandom() {
   // eslint-disable-next-line functional/no-let
   let i = 0.1
-  return function random () {
+  return function random() {
     const randomValue = i
     i += 0.1
     return randomValue

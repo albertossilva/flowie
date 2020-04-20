@@ -63,12 +63,13 @@ describe('container/createFlowieContainer', function () {
   })
 
   it('generates a name for anonymous function and do not repeat the reference', function () {
-    const anonymousFunctionRegisteredList = Array.from(this.container.allFunctionsNames)
-      .filter((functionName: string) => functionName.startsWith('anoymous_'))
+    const anonymousFunctionRegisteredList = Array.from(
+      this.container.allFunctionsNames,
+    ).filter((functionName: string) => functionName.startsWith('anonymous_'))
 
     expect(anonymousFunctionRegisteredList).to.have.length(1)
     const [anonymousFunctionName] = anonymousFunctionRegisteredList
-    expect(anonymousFunctionName).to.match(/^anoymous_[a-z0-9]{9,12}$/)
+    expect(anonymousFunctionName).to.match(/^anonymous_[a-z0-9]{9,12}$/)
   })
 
   it('returns true for the container when checking isFlowieContainer', function () {
@@ -76,7 +77,7 @@ describe('container/createFlowieContainer', function () {
   })
 
   it('returns false for things that are not created by createFlowieContainer', function () {
-    expect(isFlowieContainer({} as any as FlowieContainer)).to.false
+    expect(isFlowieContainer(({} as any) as FlowieContainer)).to.false
     expect(isFlowieContainer(this.foo as FlowieContainer)).to.false
     expect(isFlowieContainer(undefined as FlowieContainer)).to.false
   })

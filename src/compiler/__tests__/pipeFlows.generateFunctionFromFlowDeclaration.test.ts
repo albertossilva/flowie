@@ -14,26 +14,21 @@ const pipeOtherFlowFunction: PreparedFlowieExecution = {
       flows: [
         { pipe: 'secondFlowieItem' },
         {
-          flows: [
-            { pipe: 'thirdFlowieItem' }
-          ],
-          name: 'subFlowLevel2'
-        }
+          flows: [{ pipe: 'thirdFlowieItem' }],
+          name: 'subFlowLevel2',
+        },
       ],
-      name: 'subFlowLevel1'
-    }
-  ]
+      name: 'subFlowLevel1',
+    },
+  ],
 }
 
 const flowieContainer = createFlowieContainer().register(
   createMock('firstFlowieItem', 'not used', 'not used'),
   createAsyncMock('secondFlowieItem', 'not used', 'not used'),
-  createMock('thirdFlowieItem', 'not used', 'not used')
+  createMock('thirdFlowieItem', 'not used', 'not used'),
 )
 
 describe('pipeFlows.generateFunctionFromFlowDeclaration', function () {
-  it(
-    'can pipe other flows',
-    testFunctionGenerations('pipeOtherFlowFunction', pipeOtherFlowFunction, flowieContainer)
-  )
+  it('can pipe other flows', testFunctionGenerations('pipeOtherFlowFunction', pipeOtherFlowFunction, flowieContainer))
 })

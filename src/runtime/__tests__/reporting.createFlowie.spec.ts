@@ -43,7 +43,7 @@ describe('reporting.createFlowie (integration tests as laboratory)', function ()
         const firstFunction = createSimpleFunctionMock(parameter, firstReturn, { functionName: 'firstFunction' })
         const middlewareFunction = createSimpleFunctionMock(firstReturn, firstReturn, {
           functionName: 'middlewareFunction',
-          timesToBeExecuted: 7
+          timesToBeExecuted: 7,
         })
 
         const lastFunction = createSimpleFunctionMock(firstReturn, expected, { functionName: 'lastFunction' })
@@ -64,33 +64,30 @@ describe('reporting.createFlowie (integration tests as laboratory)', function ()
     })
 
     describe('split', function () {
-      it(
-        'reports the right values for long running functions, but the longest run will drive the result',
-        async function () {
-          const spySooner = spy().named('sooner')
-          const mockSooner = mock().named('soonerResult').returns('sooner')
+      it('reports the right values for long running functions, but the longest run will drive the result', async function () {
+        const spySooner = spy().named('sooner')
+        const mockSooner = mock().named('soonerResult').returns('sooner')
 
-          const spyLater = spy().named('later')
-          const mockLater = mock().named('laterResult').returns('later')
+        const spyLater = spy().named('later')
+        const mockLater = mock().named('laterResult').returns('later')
 
-          const spyReallyLater = spy().named('reallyLater')
-          const mockReallyLater = mock().named('reallyLaterResult').returns('reallyLater')
+        const spyReallyLater = spy().named('reallyLater')
+        const mockReallyLater = mock().named('reallyLaterResult').returns('reallyLater')
 
-          const shuffleSlowFlowie = [
-            createFlowie(takeTimeToBeExecuted(30, 'longer')).pipe(spyReallyLater).pipe(mockReallyLater),
-            createFlowie(takeTimeToBeExecuted(10, 'shorter')).pipe(spySooner).pipe(mockSooner),
-            createFlowie(takeTimeToBeExecuted(20, 'average')).pipe(spyLater).pipe(mockLater)
-          ]
+        const shuffleSlowFlowie = [
+          createFlowie(takeTimeToBeExecuted(30, 'longer')).pipe(spyReallyLater).pipe(mockReallyLater),
+          createFlowie(takeTimeToBeExecuted(10, 'shorter')).pipe(spySooner).pipe(mockSooner),
+          createFlowie(takeTimeToBeExecuted(20, 'average')).pipe(spyLater).pipe(mockLater),
+        ]
 
-          const flow = await createFlowie(spy().named('doesNotMatter')).split(...shuffleSlowFlowie)
-          const { executionTime, functions } = await flow(null)
+        const flow = await createFlowie(spy().named('doesNotMatter')).split(...shuffleSlowFlowie)
+        const { executionTime, functions } = await flow(null)
 
-          expect(executionTime).to.greaterThan(30)
-          expect(functions.shorter.totalExecutionTime).to.greaterThan(9)
-          expect(functions.average.totalExecutionTime).to.greaterThan(19)
-          expect(functions.longer.totalExecutionTime).to.greaterThan(29)
-        }
-      )
+        expect(executionTime).to.greaterThan(29)
+        expect(functions.shorter.totalExecutionTime).to.greaterThan(9)
+        expect(functions.average.totalExecutionTime).to.greaterThan(19)
+        expect(functions.longer.totalExecutionTime).to.greaterThan(29)
+      })
     })
   })
 
@@ -110,16 +107,14 @@ describe('reporting.createFlowie (integration tests as laboratory)', function ()
 
       const generatorMock = createGeneratorFrom<string, string>(['1', '2', '3'], parameter)
 
-      function * generatorThatConcatenatesAB (previousValue: string) {
+      function* generatorThatConcatenatesAB(previousValue: string) {
         const lettersList = ['A', 'B']
         for (const letter of lettersList) {
           yield previousValue + letter
         }
       }
 
-      const flow = createFlowie(generatorMock)
-        .pipe(generatorThatConcatenatesAB)
-        .pipe(byPass)
+      const flow = createFlowie(generatorMock).pipe(generatorThatConcatenatesAB).pipe(byPass)
 
       const { functions } = await flow(parameter)
 
@@ -134,31 +129,28 @@ describe('reporting.createFlowie (integration tests as laboratory)', function ()
 
 const createByPassFunction = () => stub().named('bypass').returnsArg(0) as (x: string) => string
 
-const takeTimeToBeExecuted = (miliseconds: number, functionName: string) => {
-  const functionStub = stub().named(functionName).callsFake(async (x: any) =>
-    new Promise((resolve) => setTimeout(() => resolve(x), miliseconds))
-  )
+const takeTimeToBeExecuted = (milliseconds: number, functionName: string) => {
+  const functionStub = stub()
+    .named(functionName)
+    .callsFake(async (x: any) => new Promise((resolve) => setTimeout(() => resolve(x), milliseconds)))
   functionStub[Symbol.toStringTag] = 'AsyncFunction'
   return functionStub
 }
 
-function createSimpleFunctionMock (
+function createSimpleFunctionMock(
   parameter: string,
   result: string,
-  {
-    functionName,
-    timesToBeExecuted = 1
-  }
+  { functionName, timesToBeExecuted = 1 },
 ): (argument: string) => string {
-  return (mock(functionName) as any as SinonExpectation)
+  return ((mock(functionName) as any) as SinonExpectation)
     .withArgs(parameter)
     .exactly(timesToBeExecuted)
     .returns(result)
     .named(functionName)
 }
 
-function createGeneratorFrom<A, T> (array: readonly T[], expected: A) {
-  return function * traverseArray (actual: A) {
+function createGeneratorFrom<A, T>(array: ReadonlyArray<T>, expected: A) {
+  return function* traverseArray(actual: A) {
     assert.equal(expected, actual, 'Wrong parameter received')
     for (const item of array) {
       yield item

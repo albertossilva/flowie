@@ -1,10 +1,12 @@
 language: node_js
 node_js:
-  - "node"
-  - "13"
-  - "12"
+  - 'node'
+  - '14'
+  - '13'
+  - '12'
 script:
   - npm ci
   - npm run compileDots
   - npm run lint
   - npm run travis-coverage
+  - npm run build

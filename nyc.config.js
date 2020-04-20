@@ -1,7 +1,7 @@
 module.exports = {
   cache: false,
   include: ['src/**/*.ts', 'tests/**/*.ts'],
-  exclude: [],
+  exclude: ['src/index.ts'],
   extension: ['.ts'],
   reporter: ['lcov', 'text', 'text-summary', 'html'],
   all: true,
@@ -9,5 +9,5 @@ module.exports = {
   statements: 100,
   branches: 100,
   functions: 100,
-  lines: 100
+  lines: 100,
 }

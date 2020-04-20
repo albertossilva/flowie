@@ -4,15 +4,15 @@ import path from 'path'
 import del from 'del'
 import dot from 'dot'
 
-async function compileDots () {
+async function compileDots(): Promise<void> {
   await del(path.join(__dirname, '*.js'))
   await del(path.join(__dirname, '*.js'))
   await (dot as any).process({
     path: __dirname,
     templateSettings: {
       encode: false,
-      doNotSkipEncoded: true
-    }
+      doNotSkipEncoded: true,
+    },
   })
 }
 

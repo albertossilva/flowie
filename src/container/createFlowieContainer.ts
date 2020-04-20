@@ -1,56 +1,65 @@
-import { FlowFunctionDetailsWithItem, FlowFunction } from '../runtime.types'
+import { FlowFunctionDetailsWithItem, FlowFunction, FlowItem } from '../runtime.types'
 import { isAsyncFunction, isGeneratorFunction } from '../functionConstructors'
 
 const flowieContainerSignature = Symbol('flowieContainerSignature')
 
-export default function createFlowieContainer (): FlowieContainer {
+export default function createFlowieContainer(): FlowieContainer {
   const flowieContainer = {
     [flowieContainerSignature]: flowieContainerSignature,
     latestDetailsAdded: [],
     allFunctionsNames: new Set<string>(),
     functionsContainer: Object.freeze({}),
-    register (...possibleFunctionRegister: readonly PossibleFunctionRegister[]): FlowieContainer {
+    register(...possibleFunctionRegister: ReadonlyArray<PossibleFunctionRegister>): FlowieContainer {
       return registerFlowFunctionsList({}, ...possibleFunctionRegister)
     },
-    merge (...containersOrFunctions: readonly (FlowieContainer | FlowFunction)[]): FlowieContainer {
+    merge(...containersOrFunctions: ReadonlyArray<FlowieContainer | FlowFunction>): FlowieContainer {
       return mergeWithOtherContainerAndFunctions(createFlowieContainer(), ...containersOrFunctions)
     },
-    getFunctionDetails () { return null },
-    isAsyncFunction () { return false },
-    isGeneratorFunction () { return false }
+    getFunctionDetails() {
+      return null
+    },
+    isAsyncFunction() {
+      return false
+    },
+    isGeneratorFunction() {
+      return false
+    },
   }
   return Object.freeze(flowieContainer as FlowieContainer)
 }
 
-export function isFlowieContainer (possibleFlowieContainer: FlowieContainer) {
+export function isFlowieContainer(possibleFlowieContainer: FlowieContainer): boolean {
   return Boolean(possibleFlowieContainer) && flowieContainerSignature in possibleFlowieContainer
 }
 
 export interface FlowieContainer {
-  readonly getFunctionDetails: (functionToFind: Function) => FlowFunctionDetailsWithItem
-  readonly latestDetailsAdded: readonly FlowFunctionDetailsWithItem[]
+  readonly getFunctionDetails: (functionToFind: FlowItem) => FlowFunctionDetailsWithItem
+  readonly latestDetailsAdded: ReadonlyArray<FlowFunctionDetailsWithItem>
   readonly allFunctionsNames: ReadonlySet<string>
   readonly functionsContainer: FunctionsContainer
-  readonly register: (...possibleFunctionRegister: readonly PossibleFunctionRegister[]) => FlowieContainer;
-  readonly merge: (...containersOrFunctions: readonly (FlowieContainer | FlowFunction)[]) => FlowieContainer;
-  readonly isAsyncFunction: (functionName: string) => boolean;
-  readonly isGeneratorFunction: (functionName: string) => boolean;
+  readonly register: (...possibleFunctionRegister: ReadonlyArray<PossibleFunctionRegister>) => FlowieContainer
+  readonly merge: (...containersOrFunctions: ReadonlyArray<FlowieContainer | FlowFunction>) => FlowieContainer
+  readonly isAsyncFunction: (functionName: string) => boolean
+  readonly isGeneratorFunction: (functionName: string) => boolean
 }
 
-function registerFlowFunctionsList (
+function registerFlowFunctionsList(
   previousFunctionsContainer: FunctionsContainer,
-  ...possibleFunctionRegister: readonly PossibleFunctionRegister[]
+  ...possibleFunctionRegister: ReadonlyArray<PossibleFunctionRegister>
 ): FlowieContainer {
   const initialFunctionRegister = {
-    functions: new Map<Function, string>(Object.values(previousFunctionsContainer).map(getFunctionAsKey)),
-    functionsDetailsList: [] as readonly FlowFunctionDetailsWithItem[]
+    functions: new Map<FlowFunction, string>(Object.values(previousFunctionsContainer).map(getFunctionAsKey)),
+    functionsDetailsList: [] as ReadonlyArray<FlowFunctionDetailsWithItem>,
   }
 
-  const { functionsDetailsList, functions } = possibleFunctionRegister
-    .reduce(getUniqueFunctionDetails, initialFunctionRegister)
+  const { functionsDetailsList, functions } = possibleFunctionRegister.reduce(
+    getUniqueFunctionDetails,
+    initialFunctionRegister,
+  )
 
-  const newFunctionsContainer: Record<string, FlowFunctionDetailsWithItem> = Object
-    .fromEntries(functionsDetailsList.map(getNameAsKey)) as Record<string, FlowFunctionDetailsWithItem>
+  const newFunctionsContainer: Record<string, FlowFunctionDetailsWithItem> = Object.fromEntries(
+    functionsDetailsList.map(getNameAsKey),
+  ) as Record<string, FlowFunctionDetailsWithItem>
 
   const container = { ...previousFunctionsContainer, ...newFunctionsContainer }
   const latestDetailsAdded = possibleFunctionRegister.map(getFunctionDetail, { functions, container })
@@ -58,24 +67,24 @@ function registerFlowFunctionsList (
   return createContainer(container, latestDetailsAdded)
 }
 
-function mergeWithOtherContainerAndFunctions (
+function mergeWithOtherContainerAndFunctions(
   previousFunctionsContainer: FlowieContainer,
-  ...containersOrFunctions: readonly (FlowieContainer | FlowFunction)[]
+  ...containersOrFunctions: ReadonlyArray<FlowieContainer | FlowFunction>
 ): FlowieContainer {
   return containersOrFunctions.reduce<FlowieContainer>(
     mergeWithOtherContainerOrRegisterFunctions,
-    previousFunctionsContainer
+    previousFunctionsContainer,
   )
 }
 
 interface UniqueFunctionDetails {
-  readonly functions: ReadonlyMap<Function, string>,
-  readonly functionsDetailsList: readonly FlowFunctionDetailsWithItem[]
+  readonly functions: ReadonlyMap<FlowFunction, string>
+  readonly functionsDetailsList: ReadonlyArray<FlowFunctionDetailsWithItem>
 }
 
-function getUniqueFunctionDetails (
+function getUniqueFunctionDetails(
   uniqueFunctionsDetails: UniqueFunctionDetails,
-  possibleFunctionRegister: PossibleFunctionRegister
+  possibleFunctionRegister: PossibleFunctionRegister,
 ): UniqueFunctionDetails {
   if (Array.isArray(possibleFunctionRegister)) {
     const [name, flowFunction] = possibleFunctionRegister
@@ -93,9 +102,9 @@ function getUniqueFunctionDetails (
   return uniqueFunctionsDetails
 }
 
-function getFlowFunctionDetailsForFlowFunction (
+function getFlowFunctionDetailsForFlowFunction(
   flowFunction: FlowFunction,
-  uniqueFunctionDetails: UniqueFunctionDetails
+  uniqueFunctionDetails: UniqueFunctionDetails,
 ) {
   const name = getNameForFunction(flowFunction)
 
@@ -104,22 +113,19 @@ function getFlowFunctionDetailsForFlowFunction (
   return incrementUniqueFunctionDetails(uniqueFunctionDetails, [flowFunction, name], flowFunctionDetailsList)
 }
 
-function buildFlowFunctionDetails (
-  name: string,
-  flowFunction: FlowFunction
-): FlowFunctionDetailsWithItem {
+function buildFlowFunctionDetails(name: string, flowFunction: FlowFunction): FlowFunctionDetailsWithItem {
   return {
     name,
     flowFunction,
     isAsync: isAsyncFunction(flowFunction),
-    isGenerator: isGeneratorFunction(flowFunction)
+    isGenerator: isGeneratorFunction(flowFunction),
   }
 }
 
-function getFlowFunctionDetailsForTuple (
+function getFlowFunctionDetailsForTuple(
   name: string,
   flowFunction: FlowFunction,
-  uniqueFunctions: UniqueFunctionDetails
+  uniqueFunctions: UniqueFunctionDetails,
 ) {
   const isSaved = uniqueFunctions.functions.has(flowFunction)
   const newName = isSaved ? uniqueFunctions.functions.get(flowFunction) : name
@@ -128,20 +134,20 @@ function getFlowFunctionDetailsForTuple (
   return incrementUniqueFunctionDetails(uniqueFunctions, [flowFunction, newName], flowFunctionDetails)
 }
 
-function incrementUniqueFunctionDetails (
+function incrementUniqueFunctionDetails(
   uniqueFunctionDetails: UniqueFunctionDetails,
   [flowFunction, name]: readonly [FlowFunction, string],
-  functionsDetails: FlowFunctionDetailsWithItem
+  functionsDetails: FlowFunctionDetailsWithItem,
 ): UniqueFunctionDetails {
   return {
     functions: new Map([...uniqueFunctionDetails.functions.entries(), [flowFunction, name]]),
-    functionsDetailsList: uniqueFunctionDetails.functionsDetailsList.concat(functionsDetails)
+    functionsDetailsList: uniqueFunctionDetails.functionsDetailsList.concat(functionsDetails),
   }
 }
 
-function mergeWithOtherContainerOrRegisterFunctions (
+function mergeWithOtherContainerOrRegisterFunctions(
   mergedContainer: FlowieContainer,
-  flowieContainerOrFunction: FlowieContainer | FlowFunction
+  flowieContainerOrFunction: FlowieContainer | FlowFunction,
 ): FlowieContainer {
   const flowieContainer = flowieContainerOrFunction as FlowieContainer
   if (!isFlowieContainer(flowieContainer)) {
@@ -154,9 +160,9 @@ function mergeWithOtherContainerOrRegisterFunctions (
   return createContainer(container, latestDetailsAdded)
 }
 
-function createContainer (
+function createContainer(
   functionsContainer: FunctionsContainer,
-  flowFunctionDetailsList: readonly FlowFunctionDetailsWithItem []
+  flowFunctionDetailsList: ReadonlyArray<FlowFunctionDetailsWithItem>,
 ) {
   const newFlowieContainer = {
     [flowieContainerSignature]: flowieContainerSignature,
@@ -164,45 +170,43 @@ function createContainer (
     allFunctionsNames: new Set<string>(Object.keys(functionsContainer)),
     functionsContainer: Object.freeze(functionsContainer),
     register: registerFlowFunctionsList.bind(null, functionsContainer),
-    isAsyncFunction (functionName: string) {
+    isAsyncFunction(functionName: string) {
       return functionsContainer[functionName].isAsync
     },
-    isGeneratorFunction (functionName: string) {
+    isGeneratorFunction(functionName: string) {
       return functionsContainer[functionName].isGenerator
     },
-    getFunctionDetails (functionToFind: Function) {
+    getFunctionDetails(functionToFind: FlowItem) {
       return Object.values(functionsContainer).find(matchFlowFunction, { functionToFind })
-    }
+    },
   }
 
   const finalContainer: FlowieContainer = Object.assign(
     { merge: mergeWithOtherContainerAndFunctions.bind(null, newFlowieContainer) },
-    newFlowieContainer
+    newFlowieContainer,
   )
 
   return Object.freeze(finalContainer)
 }
 
-function getNameAsKey (functionDetails: FlowFunctionDetailsWithItem): readonly [string, FlowFunctionDetailsWithItem] {
+function getNameAsKey(functionDetails: FlowFunctionDetailsWithItem): readonly [string, FlowFunctionDetailsWithItem] {
   return [functionDetails.name, functionDetails]
 }
 
-function getFunctionAsKey (
-  functionDetails: FlowFunctionDetailsWithItem
-): readonly [FlowFunction, string] {
+function getFunctionAsKey(functionDetails: FlowFunctionDetailsWithItem): readonly [FlowFunction, string] {
   return [functionDetails.flowFunction, functionDetails.name]
 }
 
-function getNameForFunction (flowFunction: Function): string {
+function getNameForFunction(flowFunction: FlowFunction): string {
   const randomValue = Math.random().toString(36).slice(2)
   const name = flowFunction.name
 
-  return name || `anoymous_${randomValue}`
+  return name || `anonymous_${randomValue}`
 }
 
-function getFunctionDetail (
-  this: { readonly functions: ReadonlyMap<Function, string>, readonly container: FunctionsContainer },
-  possibleFunctionRegister: PossibleFunctionRegister
+function getFunctionDetail(
+  this: { readonly functions: ReadonlyMap<FlowFunction, string>; readonly container: FunctionsContainer },
+  possibleFunctionRegister: PossibleFunctionRegister,
 ) {
   if (Array.isArray(possibleFunctionRegister)) {
     const [, flowFunction] = possibleFunctionRegister
@@ -210,12 +214,12 @@ function getFunctionDetail (
     return this.container[this.functions.get(flowFunction)]
   }
 
-  return this.container[this.functions.get(possibleFunctionRegister as Function)]
+  return this.container[this.functions.get(possibleFunctionRegister as FlowFunction)]
 }
 
-function matchFlowFunction (
-  this: { readonly functionToFind: Function },
-  flowFunctionDetailsWithItem: FlowFunctionDetailsWithItem
+function matchFlowFunction(
+  this: { readonly functionToFind: FlowFunction },
+  flowFunctionDetailsWithItem: FlowFunctionDetailsWithItem,
 ) {
   return flowFunctionDetailsWithItem.flowFunction === this.functionToFind
 }

@@ -1,6 +1,7 @@
 import createFlowie from './runtime/createFlowie'
 
 import createFlowieContainer from './container/createFlowieContainer'
+/* istanbul ignore next */
 export { default as createFlowieContainer, FlowieContainer } from './container/createFlowieContainer'
 
 export default createFlowie

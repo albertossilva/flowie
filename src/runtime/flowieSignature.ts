@@ -1,35 +1,35 @@
 import { FlowieContainer } from '../container/createFlowieContainer'
 import { PreparedFlowieManager } from '../declaration/createFlowDeclarationManager'
-import { Flowie } from '../runtime.types'
+import { Flowie, FlowItem } from '../runtime.types'
 
 const flowieSignature = Symbol('flowieSignature')
 
-export function signAsFlowieFunction<T> (
+export function signAsFlowieFunction<T>(
   executeFlowFunction: T,
   flowieContainer: FlowieContainer,
-  preparedFlowieManager: PreparedFlowieManager
+  preparedFlowieManager: PreparedFlowieManager,
 ): T {
   return Object.freeze(
     // eslint-disable-next-line functional/immutable-data
     Object.assign(executeFlowFunction, {
       [flowieSignature]: {
         flowieContainer,
-        preparedFlowieManager: preparedFlowieManager
-      } as FlowieSignature
-    })
+        preparedFlowieManager: preparedFlowieManager,
+      } as FlowieSignature,
+    }),
   )
 }
 
-export function isSignedAsFlowieFunction (flowFunction: Function): boolean {
-  return Boolean(flowFunction) && flowieSignature in flowFunction
+export function isSignedAsFlowieFunction(flowieItem: FlowItem): boolean {
+  return Boolean(flowieItem) && flowieSignature in flowieItem
 }
 
-export function getFlowieContainer (flowFunction: Flowie<unknown, unknown>): FlowieContainer {
-  return flowFunction[flowieSignature].flowieContainer
+export function getFlowieContainer(flowie: Flowie<unknown, unknown>): FlowieContainer {
+  return flowie[flowieSignature].flowieContainer
 }
 
-export function getFlowieDeclarationManager (flowFunction: Flowie<unknown, unknown>): PreparedFlowieManager {
-  return flowFunction[flowieSignature].preparedFlowieManager
+export function getFlowieDeclarationManager(flowie: Flowie<unknown, unknown>): PreparedFlowieManager {
+  return flowie[flowieSignature].preparedFlowieManager
 }
 
 interface FlowieSignature {

@@ -14,29 +14,29 @@ import formatCode from './formatCode'
 
 import convertFlowDeclarationToRunnableDeclaration, { Step } from './convertFlowDeclarationToRunnableDeclaration'
 
-export default function generateFunctionFromFlowDeclaration<Argument, Result, Context> (
+export default function generateFunctionFromFlowDeclaration<Argument, Result, Context>(
   preparedFlowieExecution: PreparedFlowieExecution,
-  flowieContainer: FlowieContainer
+  flowieContainer: FlowieContainer,
 ): FlowFunctionGeneration<Argument, Result, Context> {
   const runnableDeclaration = convertFlowDeclarationToRunnableDeclaration(
     preparedFlowieExecution,
     flowieContainer.isAsyncFunction,
-    flowieContainer.isGeneratorFunction
+    flowieContainer.isGeneratorFunction,
   )
 
   const generationOptions = {
     ...runnableDeclaration,
-    generateFlow (
-      it: Function,
+    generateFlow(
+      it: Record<string, unknown>,
       options: {
-        readonly step: Step,
-        readonly parentIndex: number,
-        readonly hasGenerators: boolean,
+        readonly step: Step
+        readonly parentIndex: number
+        readonly hasGenerators: boolean
         readonly includeContext: boolean
-      }
+      },
     ) {
       return generateFlow({ ...it, ...options })
-    }
+    },
   }
 
   const shouldDebugFlow = debug.enabled('debugFlowie')
@@ -46,11 +46,14 @@ export default function generateFunctionFromFlowDeclaration<Argument, Result, Co
   const finalSourceCode = formatCode(sourceCode, shouldDebugFlow)
   const finalSourceCodeWithContext = formatCode(sourceCodeWithContext, shouldDebugFlow)
 
-  const generatedFlowFunction = new FunctionConstructor('separateReportListFromResult', finalSourceCode) as
-    GeneratedFlowFunction<Argument, Result>
-  const generatedFlowFunctionWithContext =
-    new FunctionConstructor('separateReportListFromResult', finalSourceCodeWithContext) as
-    GeneratedFlowFunctionForContext<Argument, Result, Context>
+  const generatedFlowFunction = new FunctionConstructor(
+    'separateReportListFromResult',
+    finalSourceCode,
+  ) as GeneratedFlowFunction<Argument, Result>
+  const generatedFlowFunctionWithContext = new FunctionConstructor(
+    'separateReportListFromResult',
+    finalSourceCodeWithContext,
+  ) as GeneratedFlowFunctionForContext<Argument, Result, Context>
 
   return { generatedFlowFunction, generatedFlowFunctionWithContext }
 }
@@ -61,14 +64,19 @@ export interface FlowFunctionGeneration<Argument, Result, Context> {
 }
 
 export interface GeneratedFlowFunction<Argument, Result> {
-  (separateReportListFromResult: Function):
-    (executionArguments: ExecutionArguments<Argument, Result>) => FlowResult<Result> | Promise<FlowResult<Result>>
+  (separateReportListFromResult: SeparateReportListFromResult): (
+    executionArguments: ExecutionArguments<Argument, Result>,
+  ) => FlowResult<Result> | Promise<FlowResult<Result>>
 }
 
 export interface GeneratedFlowFunctionForContext<Argument, Result, Context> {
-  (separateReportListFromResult: Function):
-    (executionArguments: ExecutionArgumentsForContext<Argument, Result, Context>) =>
-      FlowResult<Result> | Promise<FlowResult<Result>>
+  (separateReportListFromResult: SeparateReportListFromResult): (
+    executionArguments: ExecutionArgumentsForContext<Argument, Result, Context>,
+  ) => FlowResult<Result> | Promise<FlowResult<Result>>
+}
+
+export interface SeparateReportListFromResult {
+  (listToConcatenate: ReadonlyArray<readonly [unknown, any]>): readonly [ReadonlyArray<unknown>, ReadonlyArray<any>]
 }
 
 interface ExecutionArguments<Argument, Result> {

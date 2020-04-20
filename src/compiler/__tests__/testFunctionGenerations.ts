@@ -10,16 +10,17 @@ import { FlowieContainer } from '../../container/createFlowieContainer'
 
 const pathOfFixtures = path.join(__dirname, '..', '__fixtures__')
 
-export default function testFunctionGenerations (
+export default function testFunctionGenerations(
   fixtureName: string,
   preparedFlowieExecution: PreparedFlowieExecution,
-  flowieContainer: FlowieContainer
+  flowieContainer: FlowieContainer,
 ) {
   return function () {
-    const expectedFixture = readFileSync(path.join(pathOfFixtures, `${fixtureName}.fixture.js`)).toString().trim()
+    const expectedFixture = readFileSync(path.join(pathOfFixtures, `${fixtureName}.fixture.js`))
+      .toString()
+      .trim()
     const { generatedFlowFunction } = generateFunctionFromFlowDeclaration(preparedFlowieExecution, flowieContainer)
 
-    // eslint-disable-next-line @typescript-eslint/camelcase
     const jsBeautifyOptions = { indent_size: 2, eol: '\n' }
     const beautifiedCode = beautify(generatedFlowFunction.toString(), jsBeautifyOptions)
 

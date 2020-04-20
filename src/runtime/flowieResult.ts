@@ -5,10 +5,10 @@ import { calculateHRTimeDifference, compactFunctionReport } from '../reporter/re
 const debug = createDebugger('flowie:runtime:result')
 
 const flowieResult: CreateFlowieResult = {
-  success<ResultType = null> (
+  success<ResultType = null>(
     lastResult: ResultType,
     startHRTime: HRTime,
-    functionsReportList: readonly (FunctionReport | GeneratorReport)[]
+    functionsReportList: ReadonlyArray<FunctionReport | GeneratorReport>,
   ): FlowResult<ResultType> {
     const executionTime = calculateHRTimeDifference(startHRTime)
 
@@ -22,16 +22,16 @@ const flowieResult: CreateFlowieResult = {
       success: true,
       lastResult,
       executionTime,
-      functions
+      functions,
     }
-  }
+  },
 }
 
 export interface CreateFlowieResult {
   readonly success: <ResultType = null>(
     lastResult: ResultType,
     startHRTime: HRTime,
-    functions: readonly (FunctionReport | GeneratorReport)[]
+    functions: ReadonlyArray<FunctionReport | GeneratorReport>,
   ) => FlowResult<ResultType>
 }
 
@@ -42,5 +42,7 @@ export interface FlowResult<Result> {
   readonly executionTime: number
   readonly functions: FlowFunctionsResultList
 }
+
+export type FlowExecutionResult<Result> = FlowResult<Result> | Promise<FlowResult<Result>>
 
 export default flowieResult
