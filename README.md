@@ -320,5 +320,5 @@ There is no prioritization on this list yet
 - [ ] Report flowItem (bypass argument, but is called)
 - [ ] Decider flowItem (like split, with names, based on argument, decide which flow ot execute)
 - [ ] ChangeContext flowItem (changes the context on item below the same flow)
-- [ ] Mechanism to verify inputs/outputs
+- [ ] Mechanism to verify inputs/outputs of functions in order to avoid problems in runtime
 - [ ] Reduce size in memory for report

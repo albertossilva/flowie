@@ -1,4 +1,4 @@
-import { InitializeFlowie, FlowItem, Flowie } from '../runtime.types'
+import { InitializeFlowie, FlowItemList, Flowie } from '../runtime.types'
 import { PreparedFlowie } from '../prepared.types'
 
 import { FlowieContainer, isFlowieContainer } from '../container/createFlowieContainer'
@@ -10,8 +10,8 @@ export const flowie = createFlowie as InitializeFlowie
 
 export default flowie
 
-function createFlowie<Argument, Result> (
-  ...flowItemsList: (readonly FlowItem<Argument, Result>[]) | (readonly [FlowieContainer, PreparedFlowie])
+function createFlowie<Argument, Result, Context> (
+  ...flowItemsList: FlowItemList<Argument, Result, Context> | (readonly [FlowieContainer, PreparedFlowie])
 ): Flowie<Argument, Result> {
   const [flowieContainer, preparedFlowieCandidate] = flowItemsList as (readonly [FlowieContainer, PreparedFlowie])
   if (isFlowieContainer(flowieContainer)) {
@@ -20,5 +20,5 @@ function createFlowie<Argument, Result> (
     return createFlowieRuntime(flowieContainer, flowDeclaration)
   }
 
-  return createFlowieFromItems(flowItemsList as readonly FlowItem<Argument, Result>[])
+  return createFlowieFromItems(flowItemsList as FlowItemList<Argument, Result, Context>)
 }

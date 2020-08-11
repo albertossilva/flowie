@@ -176,7 +176,7 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
   describe('generators/iterators', function () {
     it('returns the last item of a generator when it is the only item', function () {
       const yields = 'ABC'.split('')
-      const generatorMock = createGeneratorFrom<string, string>(yields, parameter)
+      const generatorMock = createTraverseArrayGenerator<string, string>(yields, parameter)
       const flow = createFlowie(generatorMock)
 
       const { lastResult } = flow(parameter) as FlowResult<string>
@@ -187,7 +187,7 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
     it('calls the functions piped after a generator once per yield', async function () {
       const prefixWithResult = createPrefixed('result')
       const yields = '123'.split('')
-      const generatorMock = createAsyncGeneratorFrom(yields, parameter)
+      const generatorMock = createAsyncTraverseArrayGenerator(yields, parameter)
 
       const flow = createFlowie(generatorMock).pipe(createByPassFunction()).pipe(prefixWithResult)
 
@@ -202,7 +202,7 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
     })
 
     it('returns the last item of generator when it is the last item', function () {
-      const generatorMock = createGeneratorFrom<string, string>('XYZ'.split(''), parameter)
+      const generatorMock = createTraverseArrayGenerator<string, string>('XYZ'.split(''), parameter)
 
       const flow = createFlowie(createByPassFunction())
         .pipe(createByPassFunction())
@@ -219,7 +219,7 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
       const prefixWithOwMy = createPrefixed('ow my!')
 
       const yields = '#@?!'
-      const generatorMock = createGeneratorFrom(yields.split(''), parameter)
+      const generatorMock = createTraverseArrayGenerator(yields.split(''), parameter)
 
       const flow = createFlowie(createByPassFunction())
         .pipe(generatorMock)
@@ -237,7 +237,7 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
     it('calls 6 times piped function after generators with 3 and 2 yields', function () {
       const byPass = createByPassFunction()
 
-      const generatorMock = createGeneratorFrom<string, string>(['1', '2', '3'], parameter)
+      const generatorMock = createTraverseArrayGenerator<string, string>(['1', '2', '3'], parameter)
 
       function * generatorThatConcatenatesAB (previousValue: string) {
         const lettersList = ['A', 'B']
@@ -257,41 +257,41 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
 
     it('consumes all yields from a generator in split, but do not yields on flow items after', function () {
       const yields = 'ABC'.split('')
-      const generatorMock = createGeneratorFromWithContext(yields, parameter, undefined)
+      const generatorMock = createTraverseArrayGenerator(yields, parameter)
       const countingCallsAfterSplitGenerator = stub().named('countingCallsAfterSplitGenerator').returnsArg(0)
       const flow = createFlowie(generatorMock, createByPassFunction()).pipe(countingCallsAfterSplitGenerator)
 
-      const { lastResult } = flow(parameter, undefined) as FlowResult<readonly [string, string]>
+      const { lastResult } = flow(parameter) as FlowResult<readonly [string, string]>
 
       assert.deepEqual(lastResult, ['C', parameter])
       sinonAssert.calledOnce(countingCallsAfterSplitGenerator)
     })
 
-    // it('process iteration in parallel', async function () {
-    //   const yields = '1_2_3_4_5_6_7_8_9_10_11'.split('_')
-    //   const generatorMock = createGeneratorFromWithContext(yields, parameter, undefined)
+    it('process iteration in parallel', async function () {
+      // const yields = '1_2_3_4_5_6_7_8_9_10_11'.split('_')
+      // const generatorMock = createTraverseArrayGenerator(yields, parameter)
 
-    //   const executeIn50 = takeTimeToBeExecuted(50)
-    //   const executeIn5 = takeTimeToBeExecuted(5)
+      // const executeIn50 = takeTimeToBeExecuted(50)
+      // const executeIn5 = takeTimeToBeExecuted(5)
 
-    //   const stubThatTakesLongerOnFirstCall = stub()
-    //     .named('stubThatTakesLongerOnFirstCall')
-    //     .onFirstCall().callsFake(executeIn50)
-    //     .callsFake(executeIn5)
+      // const stubThatTakesLongerOnFirstCall = stub()
+      //   .named('stubThatTakesLongerOnFirstCall')
+      //   .onFirstCall().callsFake(executeIn50)
+      //   .callsFake(executeIn5)
 
-    //   stubThatTakesLongerOnFirstCall[Symbol.toStringTag] = 'AsyncFunction'
+      // stubThatTakesLongerOnFirstCall[Symbol.toStringTag] = 'AsyncFunction'
 
-    //   const flow = createFlowie([generatorMock, { parallelExecutions: 10 }]).pipe(stubThatTakesLongerOnFirstCall)
+      // const flow = createFlowie(generatorMock, { parallelExecutions: 10 }).pipe(stubThatTakesLongerOnFirstCall)
 
-    //   const { lastResult, executionTime } = await flow(parameter)
+      // const { lastResult, executionTime } = await flow(parameter)
 
-    //   assert.deepEqual(lastResult, '11')
-    //   assert.isAtMost(executionTime, 70)
-    // })
+      // assert.deepEqual(lastResult, '11')
+      // assert.isAtMost(executionTime, 70)
+    })
 
     // it('process iteration in parallel in generators in the middle', async function () {
     //   const yields = '11_12_13_14_15_16_17_18_19_20_21'.split('_')
-    //   const generatorMock = createGeneratorFromWithContext(yields, parameter, undefined)
+    //   const generatorMock = createTraverseArrayGenerator(yields, parameter, undefined)
 
     //   const executeIn50 = takeTimeToBeExecuted(50)
     //   const executeIn5 = takeTimeToBeExecuted(5)
@@ -323,7 +323,7 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
 
       const asyncFunction =
         createAsyncFunctionMock(expected, 'Split') as (argument: string, context: string) => Promise<string>
-      const generatorFunction = spy(createGeneratorFromWithContext([1, 2, 3], expected, contextValue))
+      const generatorFunction = spy(createTraverseArrayGenerator([1, 2, 3], expected, contextValue))
       generatorFunction[Symbol.toStringTag] = 'GeneratorFunction'
       const commonFunctionWithoutContext = createSimpleFunctionMock(expected, 'no context')
       const subFlowFunction =
@@ -389,26 +389,21 @@ function createAsyncFunctionMock (
   return asyncMock
 }
 
-function createGeneratorFrom<A, T> (array: readonly T[], expected: A) {
-  return function * traverseArray (actual: A) {
-    assert.equal(expected, actual, 'Wrong parameter received')
-    for (const item of array) {
-      yield item
-    }
-  }
-}
-
-function createGeneratorFromWithContext<A, T, C> (array: readonly T[], expected: A, expectedContext: C) {
+function createTraverseArrayGenerator<A, T, C = never> (
+  yields: readonly T[],
+  expectedArgument: A,
+  expectedContext: C = undefined
+) {
   return function * traverseArray (actual: A, actualContext: C) {
-    assert.equal(expected, actual, 'Wrong parameter received')
+    assert.equal(expectedArgument, actual, 'Wrong parameter received')
     assert.equal(expectedContext, actualContext, 'Wrong context received')
-    for (const item of array) {
+    for (const item of yields) {
       yield item
     }
   }
 }
 
-function createAsyncGeneratorFrom<A, T> (array: readonly T[], expected: A) {
+function createAsyncTraverseArrayGenerator<A, T> (array: readonly T[], expected: A) {
   return async function * traverseArray (actual: A) {
     assert.equal(expected, actual, 'Wrong parameter received')
     for (const item of array) {
