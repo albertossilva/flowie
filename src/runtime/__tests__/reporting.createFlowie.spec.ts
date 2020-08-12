@@ -157,7 +157,7 @@ function createSimpleFunctionMock (
     .named(functionName)
 }
 
-function createGeneratorFrom<A, T> (array: readonly T[], expected: A) {
+function createGeneratorFrom<A, T> (array: ReadonlyArray<T>, expected: A) {
   return function * traverseArray (actual: A) {
     assert.equal(expected, actual, 'Wrong parameter received')
     for (const item of array) {

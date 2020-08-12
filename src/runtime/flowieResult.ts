@@ -8,7 +8,7 @@ const flowieResult: CreateFlowieResult = {
   success<ResultType = null> (
     lastResult: ResultType,
     startHRTime: HRTime,
-    functionsReportList: readonly (FunctionReport | GeneratorReport)[]
+    functionsReportList: ReadonlyArray<FunctionReport | GeneratorReport>
   ): FlowResult<ResultType> {
     const executionTime = calculateHRTimeDifference(startHRTime)
 
@@ -31,7 +31,7 @@ export interface CreateFlowieResult {
   readonly success: <ResultType = null>(
     lastResult: ResultType,
     startHRTime: HRTime,
-    functions: readonly (FunctionReport | GeneratorReport)[]
+    functions: ReadonlyArray<FunctionReport | GeneratorReport>
   ) => FlowResult<ResultType>
 }
 

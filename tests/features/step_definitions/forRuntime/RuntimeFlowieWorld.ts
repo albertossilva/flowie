@@ -19,11 +19,11 @@ export default interface RuntimeFlowieWorld extends World {
   createMockFunction<Argument, Result>(name: string, argument: Argument, result: Result): void
   createByPassMock(functionName: string): void
   createAsyncMockFunction<Argument, Result>(name: string, argument: Argument, result: Result): void
-  createGeneratorMockFunction<T>(functionName: string, argument: string, yieldsList: readonly T[]): void
-  createGeneratorMockFunctionForObject<T>(functionName: string, keyYields: Record<string, readonly T[]>): void
-  createFlow(flowName: string, ...firstFunctionsNamesList: readonly string[]): void
+  createGeneratorMockFunction<T>(functionName: string, argument: string, yieldsList: ReadonlyArray<T>): void
+  createGeneratorMockFunctionForObject<T>(functionName: string, keyYields: Record<string, ReadonlyArray<T>>): void
+  createFlow(flowName: string, ...firstFunctionsNamesList: ReadonlyArray<string>): void
   pipeFunctionOnFlow(flowName: string, functionName: string): void
-  splitFunctionOnFlow(flowName: string, functionNamesList: string[]): void
+  splitFunctionOnFlow(flowName: string, functionNamesList: ReadonlyArray<string>): void
   executeFlow(flowName: string, firstParameter: any): void
   getFlowResult<T = any>(flowName: string): FlowResult<T>
   getAsyncFlowResult<T = any>(flowName: string): Promise<FlowResult<T>>
@@ -45,15 +45,16 @@ export function createRuntimeFlowieWorld (): RuntimeFlowieWorld {
     createAsyncMockFunction<Argument, Result> (functionName: string, argument: Argument, result: Result) {
       flowieContainer = registerAsyncMockFunction(flowieContainer, functionName, argument, result)
     },
-    createGeneratorMockFunction<T> (functionName: string, argument: string, yieldsList: readonly T[]) {
+    createGeneratorMockFunction<T> (functionName: string, argument: string, yieldsList: ReadonlyArray<T>) {
       flowieContainer = registerGeneratorMockFunction(flowieContainer, functionName, argument, yieldsList)
     },
-    createGeneratorMockFunctionForObject<T> (functionName: string, keyYields: Record<string, readonly T[]>) {
+    createGeneratorMockFunctionForObject<T> (functionName: string, keyYields: Record<string, ReadonlyArray<T>>) {
       flowieContainer = registerGeneratorMockFunctionForObject(flowieContainer, functionName, keyYields)
     },
-    createFlow (flowName: string, ...firstFunctionsNamesList: readonly string[]) {
+    createFlow (flowName: string, ...firstFunctionsNamesList: ReadonlyArray<string>) {
       assertFlowIsNotRegistered(flowName, flows)
       const flowieItemsList = getRegisteredFlowFunctionDetails(firstFunctionsNamesList, flowieContainer)
+
       flows[flowName] = flowie(...flowieItemsList)
     },
     pipeFunctionOnFlow (flowName: string, functionName: string) {
@@ -61,7 +62,7 @@ export function createRuntimeFlowieWorld (): RuntimeFlowieWorld {
       const [flowItem] = getRegisteredFlowFunctionDetails([functionName.trim()], flowieContainer)
       flows[flowName] = flow.pipe(flowItem)
     },
-    splitFunctionOnFlow (flowName: string, functionNamesList: string[]) {
+    splitFunctionOnFlow (flowName: string, functionNamesList: ReadonlyArray<string>) {
       const flow = assertFlowIsRegistered(flowName, flows)
       const flowieItemsList = getRegisteredFlowFunctionDetails(functionNamesList, flowieContainer)
       flows[flowName] = flow.split(...flowieItemsList)

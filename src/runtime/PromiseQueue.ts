@@ -11,7 +11,7 @@ function PromiseQueue<Argument, Context, Result> (
   { parallelPromises }: { readonly parallelPromises: number }
 ): Queue<Argument, Result, Context> {
   return {
-    async enqueue (...argumentsList: readonly any[]) {
+    async enqueue (...argumentsList: ReadonlyArray<any>) {
       return new EnqueuedPromises<Argument, Result, Context>(callback, parallelPromises, [], 0)
         .enqueue(...argumentsList)
     },
@@ -34,18 +34,18 @@ export interface QueueWithoutContext<Argument, Result> {
 }
 
 class EnqueuedPromises<Argument, Result, Context> implements Queue<Argument, Result, Context> {
-  private readonly promisesList: readonly Promise<Result>[]
+  private readonly promisesList: ReadonlyArray<Promise<Result>>
 
   constructor (
     private readonly callback: (argument: Argument, context: Context) => Promise<Result>,
     private readonly parallelPromises: number,
-    private readonly promiseEnqueuedList: readonly PromiseOnQueue<Result>[],
+    private readonly promiseEnqueuedList: ReadonlyArray<PromiseOnQueue<Result>>,
     private readonly enqueuedPromises: number
   ) {
     this.promisesList = promiseEnqueuedList.map(getPromise)
   }
 
-  async enqueue (...argumentsList: readonly any[]) {
+  async enqueue (...argumentsList: ReadonlyArray<any>) {
     return new EnqueuedPromises<Argument, Result, Context>(
       this.callback,
       this.parallelPromises,
@@ -55,8 +55,8 @@ class EnqueuedPromises<Argument, Result, Context> implements Queue<Argument, Res
   }
 
   private async enqueueOrAwaitPromisesToBeResolved (
-    argumentsList: readonly any[]
-  ): Promise<readonly PromiseOnQueue<Result>[]> {
+    argumentsList: ReadonlyArray<any>
+  ): Promise<ReadonlyArray<PromiseOnQueue<Result>>> {
     const { promiseEnqueuedList } = this
     if (promiseEnqueuedList.length < this.parallelPromises) {
       return promiseEnqueuedList.concat(this.createPromiseOnQueue(argumentsList))
@@ -70,7 +70,7 @@ class EnqueuedPromises<Argument, Result, Context> implements Queue<Argument, Res
     )
   }
 
-  private createPromiseOnQueue (argumentsList: readonly any[]): PromiseOnQueue<Result> {
+  private createPromiseOnQueue (argumentsList: ReadonlyArray<any>): PromiseOnQueue<Result> {
     return { promise: this.callback.apply(null, argumentsList), index: this.enqueuedPromises + 1 }
   }
 

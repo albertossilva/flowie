@@ -14,8 +14,8 @@ export default interface ConfigurationFlowieWorld extends World {
   registerMockFunction<Argument, Result>(name: string, argument: Argument, result: Result): void
   registerByPassMock(functionName: string): void
   registerAsyncMockFunction(functionName: string, argument: any, result: string)
-  registerGeneratorMockFunction<T>(functionName: string, argument: string, yieldsList: readonly T[]): void
-  registerGeneratorMockFunctionForObject<T>(functionName: string, keyYields: Record<string, readonly T[]>): void
+  registerGeneratorMockFunction<T>(functionName: string, argument: string, yieldsList: ReadonlyArray<T>): void
+  registerGeneratorMockFunctionForObject<T>(functionName: string, keyYields: Record<string, ReadonlyArray<T>>): void
   createConfigurationFlow(flowName: string, preparedFlowie: PreparedFlowie)
   executeConfiguredFlow(flowName: string, argument: string)
   getFlowResult<T = any>(flowName: string): FlowResult<T>
@@ -38,12 +38,12 @@ export function createConfigurationFlowieWorld (): ConfigurationFlowieWorld {
     registerAsyncMockFunction<Argument, Result> (functionName: string, argument: Argument, result: Result) {
       flowieContainer = registerAsyncMockFunction(flowieContainer, functionName, argument, result)
     },
-    registerGeneratorMockFunction<T> (functionName: string, argument: string, yieldsList: readonly T[]) {
+    registerGeneratorMockFunction<T> (functionName: string, argument: string, yieldsList: ReadonlyArray<T>) {
       flowieContainer = registerGeneratorMockFunction(flowieContainer, functionName, argument, yieldsList)
     },
     registerGeneratorMockFunctionForObject<T> (
       functionName: string,
-      keyYields: Record<string, readonly T[]>
+      keyYields: Record<string, ReadonlyArray<T>>
     ) {
       flowieContainer = registerGeneratorMockFunctionForObject(flowieContainer, functionName, keyYields)
     },

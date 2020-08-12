@@ -34,16 +34,16 @@ export default function compileFlowDeclaration<Argument, Result, Context> (
   }
 }
 
-function separateReportListFromResult (listToConcatenate: readonly (readonly [FunctionReport, any])[]) {
-  const emptyFunctionReportList: readonly FunctionReport[] = []
-  const emptyResultList: readonly any[] = []
+function separateReportListFromResult (listToConcatenate: ReadonlyArray<(readonly [FunctionReport, any])>) {
+  const emptyFunctionReportList: ReadonlyArray<FunctionReport> = []
+  const emptyResultList: ReadonlyArray<any> = []
   return listToConcatenate.reduce(concatenateReportListAndResult, [emptyFunctionReportList, emptyResultList])
 }
 
 function concatenateReportListAndResult (
-  [functionReportList, resultList]: readonly [readonly FunctionReport[], readonly any[]],
+  [functionReportList, resultList]: readonly [ReadonlyArray<FunctionReport>, ReadonlyArray<any>],
   [functionReport, result]: readonly [FunctionReport, any]
-): readonly [readonly FunctionReport[], readonly any[]] {
+): readonly [ReadonlyArray<FunctionReport>, ReadonlyArray<any>] {
   return [
     functionReportList.concat(functionReport),
     resultList.concat(result)

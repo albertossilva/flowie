@@ -22,7 +22,7 @@ export function createAsyncMock<Argument, Result> (functionName: string, argumen
 export function createGeneratorMock<Argument, YieldType> (
   functionName: string,
   argument: Argument,
-  yieldsList: readonly YieldType[]
+  yieldsList: ReadonlyArray<YieldType>
 ) {
   const iterator = yieldsList[Symbol.iterator]()
   const mockFunction = (mock(functionName) as any as SinonExpectation)
@@ -35,7 +35,7 @@ export function createGeneratorMock<Argument, YieldType> (
 export function createAsyncGeneratorMock<Argument, YieldType> (
   functionName: string,
   argument: Argument,
-  yieldsList: readonly YieldType[]
+  yieldsList: ReadonlyArray<YieldType>
 ) {
   const functionCreated = createGeneratorMock(functionName, argument, yieldsList)
   functionCreated[Symbol.toStringTag] = 'AsyncGeneratorFunction'
@@ -65,7 +65,7 @@ export function registerGeneratorMockFunction<Argument, YieldType> (
   flowieContainer: FlowieContainer,
   functionName: string,
   argument: Argument,
-  yieldsList: readonly YieldType[]
+  yieldsList: ReadonlyArray<YieldType>
 ) {
   return flowieContainer.register([functionName, createGeneratorMock(functionName, argument, yieldsList)])
 }
@@ -73,7 +73,7 @@ export function registerGeneratorMockFunction<Argument, YieldType> (
 export function registerGeneratorMockFunctionForObject<Argument, YieldType> (
   flowieContainer: FlowieContainer,
   functionName: string,
-  keyYields: Record<string, readonly YieldType[]>
+  keyYields: Record<string, ReadonlyArray<YieldType>>
 ) {
   const mockFunction = stub().named(functionName)
   for (const [key, yieldsList] of Object.entries(keyYields)) {

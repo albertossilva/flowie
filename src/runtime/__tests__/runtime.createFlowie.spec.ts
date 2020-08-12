@@ -390,7 +390,7 @@ function createAsyncFunctionMock (
 }
 
 function createTraverseArrayGenerator<A, T, C = never> (
-  yields: readonly T[],
+  yields: ReadonlyArray<T>,
   expectedArgument: A,
   expectedContext: C = undefined
 ) {
@@ -403,7 +403,7 @@ function createTraverseArrayGenerator<A, T, C = never> (
   }
 }
 
-function createAsyncTraverseArrayGenerator<A, T> (array: readonly T[], expected: A) {
+function createAsyncTraverseArrayGenerator<A, T> (array: ReadonlyArray<T>, expected: A) {
   return async function * traverseArray (actual: A) {
     assert.equal(expected, actual, 'Wrong parameter received')
     for (const item of array) {

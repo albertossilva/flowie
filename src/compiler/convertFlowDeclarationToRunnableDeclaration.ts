@@ -11,7 +11,7 @@ import {
 export interface RunnableDeclaration {
   readonly isAsync: boolean
   readonly mainFlow: MainFlow
-  readonly subFlows: readonly SubFlow[]
+  readonly subFlows: ReadonlyArray<SubFlow>
 }
 
 export default function convertFlowDeclarationToRunnableDeclaration (
@@ -19,10 +19,10 @@ export default function convertFlowDeclarationToRunnableDeclaration (
   isAsyncFunction: CheckFunction,
   isGeneratorFunction: CheckFunction
 ): RunnableDeclaration {
-  const initialSubFlows = [] as readonly SubFlow[]
+  const initialSubFlows = [] as ReadonlyArray<SubFlow>
   const initialMainFlow: MainFlow = {
-    functionsFromContainers: [] as readonly string[],
-    steps: [] as readonly Step[]
+    functionsFromContainers: [] as ReadonlyArray<string>,
+    steps: [] as ReadonlyArray<Step>
   }
   const { mainFlow, subFlows } = preparedFlowieExecution.flows
     .reduce(readFlowsAndSubFlows, {
@@ -46,7 +46,7 @@ function readFlowsAndSubFlows (
   readFlowsAndSubFlowsReducer: ReadFlowsAndSubFlowsReducer,
   flowElement: FlowElement,
   currentIndex: number,
-  array: readonly unknown[]
+  array: ReadonlyArray<unknown>
 ): ReadFlowsAndSubFlowsReducer {
   const { isAsyncFunction, isGeneratorFunction, mainFlow, subFlows, generatorsCount } = readFlowsAndSubFlowsReducer
 
@@ -85,13 +85,13 @@ class FlowElementReader {
   private readonly isAsyncFunction: CheckFunction
   private readonly isGeneratorFunction: CheckFunction
   private readonly mainFlow: MainFlow
-  private readonly subFlows: readonly SubFlow[]
+  private readonly subFlows: ReadonlyArray<SubFlow>
 
   constructor (
     isAsyncFunction: CheckFunction,
     isGeneratorFunction: CheckFunction,
     mainFlow: MainFlow,
-    subFlows: readonly SubFlow[]
+    subFlows: ReadonlyArray<SubFlow>
   ) {
     this.isAsyncFunction = isAsyncFunction
     this.isGeneratorFunction = isGeneratorFunction
@@ -333,7 +333,7 @@ class SubFlowElementReader {
     flowieItemDeclaration: FlowieItemDeclaration
   ): SubFlowReading<SplitStep> {
     const { isAsync, functionsFromContainers, steps, subFlows } = subFlowReading
-    const [splitStep] = steps as readonly SplitStep[]
+    const [splitStep] = steps as ReadonlyArray<SplitStep>
 
     if (typeof flowieItemDeclaration === 'string') {
       const isGenerator = this.isGeneratorFunction(flowieItemDeclaration)
@@ -429,7 +429,10 @@ class SubFlowElementReader {
   }
 }
 
-function getUniqueFunctionNames (functionNames: readonly string[], ...newValues: readonly string[]): readonly string[] {
+function getUniqueFunctionNames (
+  functionNames: ReadonlyArray<string>,
+  ...newValues: ReadonlyArray<string>
+): ReadonlyArray<string> {
   return Array.from(new Set(functionNames.concat(newValues)))
 }
 
@@ -442,21 +445,21 @@ function generateHash (): string {
 }
 
 interface MainFlow {
-  readonly functionsFromContainers: readonly string[]
-  readonly steps: readonly Step[]
+  readonly functionsFromContainers: ReadonlyArray<string>
+  readonly steps: ReadonlyArray<Step>
 }
 
 interface SubFlow {
   readonly isAsync: boolean
-  readonly functionsFromContainers: readonly string[]
+  readonly functionsFromContainers: ReadonlyArray<string>
   readonly hash: string
-  readonly steps: readonly Step[]
+  readonly steps: ReadonlyArray<Step>
 }
 
 export type Step = PipeStep | SplitStep | FlowStep | GeneratorStep | FinishGeneratorsStep
 
 type PipeStep = { readonly pipe: string, readonly isAsync: boolean } | FlowStep
-interface SplitStep { readonly split: readonly (string | FlowStep)[]; readonly isAsync: boolean }
+interface SplitStep { readonly split: ReadonlyArray<string | FlowStep>; readonly isAsync: boolean }
 interface GeneratorStep { readonly generator: string, readonly isAsync: boolean }
 interface FinishGeneratorsStep { readonly finishGeneratorsCount: number }
 
@@ -473,26 +476,26 @@ interface ReadFlowsAndSubFlowsReducer {
   readonly isAsyncFunction: CheckFunction
   readonly isGeneratorFunction: CheckFunction
   readonly mainFlow: MainFlow
-  readonly subFlows: readonly SubFlow[]
+  readonly subFlows: ReadonlyArray<SubFlow>
   readonly generatorsCount: number
 }
 
 interface StepReading {
   readonly mainFlow: MainFlow
   readonly generatorsFound: number
-  readonly subFlows: readonly SubFlow[]
+  readonly subFlows: ReadonlyArray<SubFlow>
 }
-interface SubStepReading { readonly flowStep: FlowStep, readonly subFlows: readonly SubFlow[] }
+interface SubStepReading { readonly flowStep: FlowStep, readonly subFlows: ReadonlyArray<SubFlow> }
 interface SplitStepReading {
-  readonly functionsFromContainers: readonly string[]
-  readonly subFlows: readonly SubFlow[],
+  readonly functionsFromContainers: ReadonlyArray<string>
+  readonly subFlows: ReadonlyArray<SubFlow>,
   readonly splitStep: SplitStep
 }
 
 interface SubFlowReading<StepType = Step> {
   readonly isAsync: boolean,
-  readonly functionsFromContainers: readonly string[]
-  readonly steps: readonly StepType[]
-  readonly subFlows: readonly SubFlow[]
+  readonly functionsFromContainers: ReadonlyArray<string>
+  readonly steps: ReadonlyArray<StepType>
+  readonly subFlows: ReadonlyArray<SubFlow>
   readonly generatorsCount: number
 }

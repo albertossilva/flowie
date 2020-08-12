@@ -57,7 +57,7 @@ export function calculateHRTimeDifference (previousHRTime: HRTime): number {
 }
 
 export function compactFunctionReport (
-  functionsReportList: readonly (FunctionReport | GeneratorReport)[]
+  functionsReportList: ReadonlyArray<FunctionReport | GeneratorReport>
 ): FlowFunctionsResultList {
   const flowFunctionsResultList = Object.fromEntries(
     functionsReportList.reduce(collectReport, new Map<string, FlowFunctionResult>()).entries()
@@ -67,9 +67,9 @@ export function compactFunctionReport (
 }
 
 function reportFunction<Result> (
-  functionToCall: (...parameters: readonly any[]) => Result,
+  functionToCall: (...parameters: ReadonlyArray<any>) => Result,
   functionNameToReport: string,
-  ...argumentAndContext: readonly any[]
+  ...argumentAndContext: ReadonlyArray<any>
 ): readonly [FunctionReport, Result] {
   const initialHRTime = process.hrtime()
 
@@ -80,9 +80,9 @@ function reportFunction<Result> (
 }
 
 async function reportAsyncFunction<Result> (
-  functionToCall: (...parameters: readonly any[]) => Promise<Result>,
+  functionToCall: (...parameters: ReadonlyArray<any>) => Promise<Result>,
   functionNameToReport: string,
-  ...argumentAndContext: readonly any[]
+  ...argumentAndContext: ReadonlyArray<any>
 ): Promise<readonly [FunctionReport, Result]> {
   const initialHRTime = process.hrtime()
 

@@ -72,7 +72,7 @@ export interface GeneratedFlowFunctionForContext<Argument, Result, Context> {
 }
 
 export interface SeparateReportListFromResult {
-  (listToConcatenate: readonly (readonly [unknown, any])[]): readonly [readonly unknown[], readonly any[]]
+  (listToConcatenate: ReadonlyArray<readonly [unknown, any]>): readonly [ReadonlyArray<unknown>, ReadonlyArray<any>]
 }
 
 interface ExecutionArguments<Argument, Result> {

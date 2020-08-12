@@ -22,7 +22,7 @@ function formatCharacters (
   { previousCharacter, indentation, code }: FormattingCharacter,
   character: string,
   index: number,
-  wholeCode: readonly string[]
+  wholeCode: ReadonlyArray<string>
 ) {
   const isSpace = /\s/.test(character)
   const nextCharacter = wholeCode[index + 1]

@@ -1,5 +1,5 @@
 import { assert } from 'chai'
-import { FlowieContainer, FlowResult } from '../../../src/index'
+import { FlowieContainer, FlowResult, FlowFunction } from '../../../src/index'
 
 export function assertFlowIsNotRegistered<T> (flowName: string, flows: Record<string, T>) {
   const flowNamesList = Object.keys(flows)
@@ -21,10 +21,10 @@ export function assertFlowIsRegistered<T> (flowName: string, flows: Record<strin
 }
 
 export function getRegisteredFlowFunctionDetails (
-  functionsNamesList: readonly string[],
+  functionsNamesList: ReadonlyArray<string>,
   flowieContainer: FlowieContainer
 ) {
-  return functionsNamesList.map(getFlowieItem, { flowieContainer })
+  return functionsNamesList.map(getFlowieItem, { flowieContainer }) as ReadonlyArray<FlowFunction>
 }
 
 export function assertResults<T> (

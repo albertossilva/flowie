@@ -53,7 +53,7 @@ function parseFlows (
 function convertFlowElementToDeclarable (
   flowElement: FlowElement,
   flowieContainer: FlowieContainer
-): readonly (FlowFunctionDetails | PreparedFlowieManager)[] {
+): ReadonlyArray<FlowFunctionDetails | PreparedFlowieManager> {
   const pipeFlow = (flowElement as PipeFlow)
   if (pipeFlow.pipe) {
     if (typeof pipeFlow.pipe === 'string') {
