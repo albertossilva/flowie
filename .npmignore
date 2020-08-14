@@ -1,5 +1,6 @@
 # ignore test and coverage they don't need to be uploaded
 **/*.test.js
+**/*.spec.js
 **/__tests__
 tests/**
 coverage/**

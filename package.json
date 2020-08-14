@@ -14,7 +14,7 @@
     "test:spec": "npm run compileDots && npm run test:spec:launcher",
     "test:spec:launcher": "mocha --config .spec.mocharc.js",
     "test:bdd": "npm run compileDots && npm run test:bdd:launcher",
-    "test:bdd:launcher": "NODE_ENV=test cucumber-js --require-module=ts-node/register --require 'tests/features/step_definitions/**/*.step.ts' -f summary tests/features",
+    "test:bdd:launcher": "NODE_ENV=test cucumber-js --require-module=ts-node/register/transpile-only --require 'tests/features/step_definitions/**/*.step.ts' -f summary tests/features",
     "coverage": "nyc npm test",
     "coverage-coveralls": "cat coverage/lcov.info | coveralls",
     "travis-coverage": "npm run build && npm run coverage &&  npm run coverage-coveralls",
