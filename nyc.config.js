@@ -1,7 +1,7 @@
 module.exports = {
   cache: false,
   include: ['src/**/*.ts', 'tests/**/*.ts'],
-  exclude: ['src/index.ts'],
+  exclude: ['src/index.ts', 'src/compiler/dot/compileDots.script.ts'],
   extension: ['.ts'],
   reporter: ['lcov', 'text', 'text-summary', 'html'],
   all: true,
