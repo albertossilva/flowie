@@ -2,10 +2,12 @@ function PromiseQueue<Argument, Result>(
   callback: (argument: Argument) => Promise<Result>,
   { parallelPromises }: { readonly parallelPromises: number }
 ): QueueWithoutContext<Argument, Result>
+// eslint-disable-next-line no-redeclare
 function PromiseQueue <Argument, Result, Context>(
   callback: (argument: Argument, context: Context) => Promise <Result>,
   { parallelPromises }: { readonly parallelPromises: number }
 ): Queue<Argument, Result, Context>
+// eslint-disable-next-line no-redeclare
 function PromiseQueue<Argument, Context, Result> (
   callback: (argument: Argument, context: Context) => Promise<Result>,
   { parallelPromises }: { readonly parallelPromises: number }

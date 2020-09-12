@@ -35,7 +35,7 @@ function createFlowieDeclarationManagerRuntime (
         flowFunctionDetailsOrflowieExecuteDeclaration as PreparedFlowieExecution
 
       if (isFlowieExecutionDeclaration(nextPreparedFlowieExecutionCandidate)) {
-        const nextPreparedFlowieExecution: PreparedFlowieExecution = mergePreparedFlowies(
+        const nextPreparedFlowieExecution: PreparedFlowieExecution = mergePreparedFlowieList(
           preparedFlowieExecution,
           nextPreparedFlowieExecutionCandidate
         )
@@ -58,7 +58,7 @@ export function isFlowieExecutionDeclaration (preparedFlowieExecutionCandidate: 
     preparedFlowieExecutionCandidate.allFunctionsNames instanceof Set
 }
 
-function mergePreparedFlowies (
+function mergePreparedFlowieList (
   preparedFlowieExecution: PreparedFlowieExecution,
   nextPreparedFlowieExecution: PreparedFlowieExecution
 ): PreparedFlowieExecution {
@@ -99,7 +99,7 @@ function addNextItemToFlowDeclaration (
   }
 }
 
-function mergeFlowDeclarationAttributes<Argument, Result> (
+function mergeFlowDeclarationAttributes (
   flowDeclarationAttributes: FlowDeclarationAttributes,
   declarationManagerOrFunctionDetails: DeclarationManagerOrFunctionDetails
 ): FlowDeclarationAttributes {
@@ -145,7 +145,7 @@ function getFunctionNames (declarationManagerOrFunctionDetails: DeclarationManag
   return [flowFunctionDetails.name]
 }
 
-function getFlowElement<Argument, Result> (
+function getFlowElement (
   declarationManagerOrFunctionDetails: DeclarationManagerOrFunctionDetails
 ): PreparedFlowie | FlowFunctionDetails {
   const flowDeclaration = declarationManagerOrFunctionDetails as PreparedFlowieManager

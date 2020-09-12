@@ -20,7 +20,8 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 2020,
-    sourceType: 'module'
+    sourceType: 'module',
+    lib: ['es2020']
   },
   plugins: [
     'mocha',
@@ -31,7 +32,10 @@ module.exports = {
   rules: {
     complexity: ['error', 4],
     'max-len': ['error', { code: 120, ignoreComments: true }],
-    'no-param-reassign': ['error'],
+    'no-param-reassign': 'error',
+    'no-use-before-define': 'off',
+    'no-unused-vars': 'off',
+    '@typescript-eslint/no-unused-vars': ['error', { varsIgnorePattern: '^_+$' }],
     '@typescript-eslint/member-delimiter-style': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
     '@typescript-eslint/no-explicit-any': 'off',

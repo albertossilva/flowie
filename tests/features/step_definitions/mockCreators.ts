@@ -70,7 +70,7 @@ export function registerGeneratorMockFunction<Argument, YieldType> (
   return flowieContainer.register([functionName, createGeneratorMock(functionName, argument, yieldsList)])
 }
 
-export function registerGeneratorMockFunctionForObject<Argument, YieldType> (
+export function registerGeneratorMockFunctionForObject<YieldType> (
   flowieContainer: FlowieContainer,
   functionName: string,
   keyYields: Record<string, ReadonlyArray<YieldType>>
