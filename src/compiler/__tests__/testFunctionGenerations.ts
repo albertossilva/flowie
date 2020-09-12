@@ -19,7 +19,6 @@ export default function testFunctionGenerations (
     const expectedFixture = readFileSync(path.join(pathOfFixtures, `${fixtureName}.fixture.js`)).toString().trim()
     const { generatedFlowFunction } = generateFunctionFromFlowDeclaration(preparedFlowieExecution, flowieContainer)
 
-    // eslint-disable-next-line @typescript-eslint/camelcase
     const jsBeautifyOptions = { indent_size: 2, eol: '\n' }
     const beautifiedCode = beautify(generatedFlowFunction.toString(), jsBeautifyOptions)
 

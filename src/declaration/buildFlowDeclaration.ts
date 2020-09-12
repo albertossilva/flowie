@@ -53,11 +53,11 @@ function parseFlows (
 function convertFlowElementToDeclarable (
   flowElement: FlowElement,
   flowieContainer: FlowieContainer
-): readonly (FlowFunctionDetails | PreparedFlowieManager)[] {
+): ReadonlyArray<FlowFunctionDetails | PreparedFlowieManager> {
   const pipeFlow = (flowElement as PipeFlow)
   if (pipeFlow.pipe) {
     if (typeof pipeFlow.pipe === 'string') {
-      return [converToFlowFunctionDetails(pipeFlow.pipe, flowieContainer)]
+      return [convertToFlowFunctionDetails(pipeFlow.pipe, flowieContainer)]
     }
 
     return [
@@ -71,18 +71,18 @@ function convertFlowElementToDeclarable (
   const splitFlow = (flowElement as SplitFlow)
   if (splitFlow.split) {
     const splitFlow = (flowElement as SplitFlow)
-    return splitFlow.split.map(converSplitToFlowFunctionDetails, { flowieContainer })
+    return splitFlow.split.map(convertSplitToFlowFunctionDetails, { flowieContainer })
   }
 
   return [buildPreparedFlowieManager(flowElement as PreparedFlowie, flowieContainer)]
 }
 
-function converSplitToFlowFunctionDetails (
+function convertSplitToFlowFunctionDetails (
   this: { readonly flowieContainer: FlowieContainer },
   flowieItemDeclaration: FlowieItemDeclaration
 ) {
   if (typeof flowieItemDeclaration === 'string') {
-    return converToFlowFunctionDetails(flowieItemDeclaration, this.flowieContainer)
+    return convertToFlowFunctionDetails(flowieItemDeclaration, this.flowieContainer)
   }
 
   return buildPreparedFlowieManager(
@@ -91,7 +91,7 @@ function converSplitToFlowFunctionDetails (
   )
 }
 
-function converToFlowFunctionDetails (functionName: string, flowieContainer: FlowieContainer): FlowFunctionDetails {
+function convertToFlowFunctionDetails (functionName: string, flowieContainer: FlowieContainer): FlowFunctionDetails {
   const { isAsync, isGenerator } = flowieContainer.functionsContainer[functionName]
   return {
     name: functionName,

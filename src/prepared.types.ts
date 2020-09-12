@@ -3,7 +3,7 @@ export interface PreparedFlowie {
   readonly name?: string
 }
 
-export type Flows = readonly FlowElement[]
+export type Flows = ReadonlyArray<FlowElement>
 
 export type FlowElement = PipeFlow | SplitFlow | PreparedFlowie
 
@@ -13,7 +13,7 @@ export interface PipeFlow {
 }
 
 export interface SplitFlow {
-  readonly split: readonly FlowieItemDeclaration[]
+  readonly split: ReadonlyArray<FlowieItemDeclaration>
   readonly name?: string
 }
 

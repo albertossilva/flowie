@@ -41,7 +41,7 @@ const flowie = require('flowie')
 
 async getJSONByUrl(url) { ... }
 
-function getLatituteLongititudeOfISS({ iss_position: { latitude, longitude } }) {
+function getLatitudeLongitudeOfISS({ iss_position: { latitude, longitude } }) {
   return { latitude, longitude }
 }
 
@@ -50,11 +50,11 @@ async function whereIAm({ latitude, longitude }) {
 }
 
 const flow = flowie(getJSONByUrl)
-  .pipe(getLatituteLongititudeOfISS)
+  .pipe(getLatitudeLongitudeOfISS)
   .pipe(whereIAm)
 
 const { lastResult } = await flow('http://api.open-notify.org/iss-now.json')
-// the result of your geococode service
+// the result of your geo code service
 ```
 
 ## <a name="runtime-mode"></a>Running modes
@@ -89,7 +89,7 @@ Suppose you have these functions:
   <br>flow will be a function that receives a number and return an tuple [boolean, boolean, string*]
   <br>we call this a split operation
 
-3. Any time you can send function to `flowie` you can use antoher flowie, i.e
+3. Any time you can send function to `flowie` you can use another flowie, i.e
 ```typescript
 const flow1 = flowie(isMyLuckyNumber)
 const flow2 = flowie(isABadLuckyNumber)
@@ -134,7 +134,7 @@ const result =  flow(initialArgument, context)
 
 The result will have the following attributes:
 - `lastResult`: this is the result of the last part of flow, `pipe` returns a single value, and `split` returns a tuple of all the result.
-- `executionTime`: The total execution time of the flow in miliseconds
+- `executionTime`: The total execution time of the flow in milliseconds
 - `functions`: This is an object, where key is the name of a functions, and the values follow this structure:
 ```typescript
 const { functions } = flow(/* ... */)
@@ -142,16 +142,16 @@ const { functions } = flow(/* ... */)
 /* functions.someFunction will something like */
 {
   calls: 3, // total of calls
-  slowestExecutionTime: 0.050902, // in miliseconds
-  averageExecutionTime: 0.017708, // in miliseconds
-  fastestExecutionTime: 0.000965, // in miliseconds
-  totalExecutionTime: 0.053124, // in miliseconds, the sum of all executions
+  slowestExecutionTime: 0.050902, // in milliseconds
+  averageExecutionTime: 0.017708, // in milliseconds
+  fastestExecutionTime: 0.000965, // in milliseconds
+  totalExecutionTime: 0.053124, // in milliseconds, the sum of all executions
   iterations: { // just for generator functions
     count: 6, // total of iterations made
-    slowestIterationTime: 0.135559, // in miliseconds
-    averageIterationTime: 0.0388, // in miliseconds
-    fastestIterationTime: 0.003701, // in miliseconds
-    totalIterationTime: 0.232623 // in miliseconds, the sum of iterations
+    slowestIterationTime: 0.135559, // in milliseconds
+    averageIterationTime: 0.0388, // in milliseconds
+    fastestIterationTime: 0.003701, // in milliseconds
+    totalIterationTime: 0.232623 // in milliseconds, the sum of iterations
   }
 }
 ```
@@ -184,7 +184,7 @@ This would generate a flow with four steps, executing them in order.
 ---
 #### <a name="split-api-the-flow"></a> .split(...flowItemList: [FlowItem](#flow-item-api-the-flow)[])
 
-Splitting on `flowie` is a step that receives one argument call more them on flowItem in paralell,
+Splitting on `flowie` is a step that receives one argument call more them on flowItem in parallel,
 > if you create a flowie with more then one function, it means start splitting, as mentioned [Here](#splitting)
 
 The step after a splitting will receive the tuple of result of the split:
@@ -204,7 +204,7 @@ flow(10)
 ---
 #### <a name="flow-item-api-the-flow"></a> FlowItem
 A flow item is the node of a flow, it can be a function, an async function, a generator function,
-an async generator function or a Flowie Flow. Unfornately `FlowItem` don't work well with spread(`...`) operator
+an async generator function or a Flowie Flow. Unfortunately `FlowItem` don't work well with spread(`...`) operator
 
 ##### 1. Functions
 When [piping](#pipe-api-the-flow) or [splitting](#split-api-the-flow), you can use functions, the result type will be
@@ -220,7 +220,7 @@ By now... just functions using `async` declarations are accepted as flowItem, so
 > If one of the functions of the flow is async, than result becomes a promise.
 
 ##### 3. Generator functions, and async generator functions
-Generator functions, async or not... like `function* generator() {}` or `asyncfunction* generator() {}` are
+Generator functions, async or not... like `function* generator() {}` or `async function* generator() {}` are
 considered as generator functions on flowie. Every flowItem piped after the same a flow item that is a generator function will be called once per `yield`, and the result will be the last value.
 
 For instance:
@@ -241,11 +241,11 @@ sendEmailMarketingFlow(5).then(() => console.log('Emails sent to users starting 
 By splitting with a generator, like `flowie(generator, nonGenerator)` or `flowie.split(generator, nonGenerator)`, this will not affect next steps, so:
 
 ```typescript
-const flow = flowie(generator,nonGenerator).pipe(howManyTimesAmIGoingToCalled)
+const flow = flowie(generator,nonGenerator).pipe(howManyTimesAmIGoingToBeCalled)
 flow()
 ```
 
-Will cause the function `howManyTimesAmIGoingToCalled` to be called just once, but the iterator returned by generator will be consume completely.
+Will cause the function `howManyTimesAmIGoingToBeCalled` to be called just once, but the iterator returned by generator will be consume completely.
 
 #### 4. Flowie as flowItem
 This is done to make possible re-use other flows and also build complex flows, see example below:
@@ -270,15 +270,15 @@ const returnsX1Result = ([a,b, delta]: [number, number, number]) => { x1: number
 const returnsX2Result = ([a,b, delta]: [number, number, number]) => { x2: number, delta }
 const mergeObjects (objects: any[]) => Object.assign({}, ...objects)
 
-const secondDeegreeResolverFlow = flowie(detectsABC)
+const secondDegreeResolverFlow = flowie(detectsABC)
   .pipe(calculateDelta)
   .split(returnsX1Result, returnsX2Result)
   .pipe(mergeObjects)
 
-const { lastResult } = secondDeegreeResolverFlow('1x² - 3x - 10 = 0')
+const { lastResult } = secondDegreeResolverFlow('1x² - 3x - 10 = 0')
 console.log(lastResult) // {delta: 49, x": -2, x': 5}
 ```
-See the execution on [runkit, clicking here](https://runkit.com/albertossilva/2nd-deegree-equation-flowie-example)
+See the execution on [runtime kit, clicking here](https://runkit.com/albertossilva/2nd-deegree-equation-flowie-example)
 
 ---
 ## <a name="prepared-api"></a>Prepared API
@@ -292,27 +292,27 @@ One extra feature is, if the namespace `debugFlowie` is enabled, than a
 on the first line of the flow that will be executed.
 
 ## <a name="plans"></a>Plans
-There is no priorization on this list yet
+There is no prioritization on this list yet
 
 - [x] Pipe/Split (Runtime and Prepared)
 - [x] Async Pipe/Split (Runtime and Prepared)
 - [x] Accept flowie as flowItem
-- [x] Check on runkit
+- [x] Check on runtime kit
 - [x] Accept generators on pipe/split
 - [x] Accept async generators on pipe/split
 - [x] Context Parameter
 - [x] add Debug library calls and debugger statement to flows
 - [x] Reporting (timePerFunction, numberOfCalls, slowestExecution, AvgExecution, fastestExecution)
+- [ ] Process iteration in parallel generator
 - [ ] Event Emitter
 - [ ] Validate prepared flowie, and function names on container
 - [ ] When there is two functions with same name, add a suffix
 - [ ] add Flags (actAsGenerator, actAsAsync) on .pipe/.split in order to be able to receive functions that returns `() => Promise.resolve()` or iterators `() => { [Symbol.iterator]: () => {} }`
 - [ ] Validate flow declaration on prepared mode
 - [ ] Detect recursion flowie on runtime
-- [ ] Validate parameteres on FlowItems
+- [ ] Validate parameters on FlowItems
 - [ ] Global Error Handling (interrupt flow or not)
 - [ ] Error Handling for split/generators
-- [ ] Backpressure for generator
 - [ ] Batching***
 - [ ] Limit concurrency on split
 - [ ] Enhance reports (custom prepared, log input/output)***
@@ -320,4 +320,5 @@ There is no priorization on this list yet
 - [ ] Report flowItem (bypass argument, but is called)
 - [ ] Decider flowItem (like split, with names, based on argument, decide which flow ot execute)
 - [ ] ChangeContext flowItem (changes the context on item below the same flow)
-- [ ] Mechanism to verify inputs/outputs
+- [ ] Mechanism to verify inputs/outputs of functions in order to avoid problems in runtime
+- [ ] Reduce size in memory for report

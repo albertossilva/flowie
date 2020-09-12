@@ -2,19 +2,19 @@ import { FlowFunctionDetails } from '../runtime.types'
 
 import { PreparedFlowieExecution, FlowElement, PreparedFlowie, FlowieItemDeclaration } from '../prepared.types'
 
-export default function createFlowDeclarationManager<Argument, Result> (
-  flowDeclarationOrFunctionList: readonly DeclarationManagerOrFunctionDetails<Argument, Result>[],
+export default function createFlowDeclarationManager (
+  flowDeclarationOrFunctionList: ReadonlyArray<DeclarationManagerOrFunctionDetails>,
   preparedFlowieExecution?: PreparedFlowieExecution
 ): PreparedFlowieManager {
   const flowDeclaration = addNextItemToFlowDeclaration(preparedFlowieExecution, flowDeclarationOrFunctionList)
 
-  return createFlowieDeclarationManagerRuntime<Argument, Result>(flowDeclaration)
+  return createFlowieDeclarationManagerRuntime(flowDeclaration)
 }
 
 export interface PreparedFlowieManager extends PreparedFlowieExecution {
   readonly pipe: PipeDeclaration
   readonly split: (
-    declarationManagerOrFunctionDetailsList: readonly (PreparedFlowieManager | FlowFunctionDetails)[]
+    declarationManagerOrFunctionDetailsList: ReadonlyArray<PreparedFlowieManager | FlowFunctionDetails>
   ) => PreparedFlowieManager
 }
 
@@ -25,7 +25,7 @@ interface PipeDeclaration {
   (nextFlowieExecuteDeclaration: PreparedFlowieManager): PreparedFlowieManager
 }
 
-function createFlowieDeclarationManagerRuntime<Argument, Result> (
+function createFlowieDeclarationManagerRuntime (
   preparedFlowieExecution: PreparedFlowieExecution
 ): PreparedFlowieManager {
   return Object.freeze({
@@ -35,7 +35,7 @@ function createFlowieDeclarationManagerRuntime<Argument, Result> (
         flowFunctionDetailsOrflowieExecuteDeclaration as PreparedFlowieExecution
 
       if (isFlowieExecutionDeclaration(nextPreparedFlowieExecutionCandidate)) {
-        const nextPreparedFlowieExecution: PreparedFlowieExecution = mergePreparedFlowies(
+        const nextPreparedFlowieExecution: PreparedFlowieExecution = mergePreparedFlowieList(
           preparedFlowieExecution,
           nextPreparedFlowieExecutionCandidate
         )
@@ -46,19 +46,19 @@ function createFlowieDeclarationManagerRuntime<Argument, Result> (
 
       return createFlowDeclarationManager([flowFunctionDetails], preparedFlowieExecution)
     },
-    split (declarationManagerOrFunctionDetailsList: readonly (PreparedFlowieManager | FlowFunctionDetails)[]) {
+    split (declarationManagerOrFunctionDetailsList: ReadonlyArray<PreparedFlowieManager | FlowFunctionDetails>) {
       return createFlowDeclarationManager(declarationManagerOrFunctionDetailsList, preparedFlowieExecution)
     }
   })
 }
 
-export function isFlowieExecutionDeclaration (preparedFlowieExecutionCandidate: PreparedFlowieExecution) {
+export function isFlowieExecutionDeclaration (preparedFlowieExecutionCandidate: PreparedFlowieExecution): boolean {
   return typeof preparedFlowieExecutionCandidate.isAsync === 'boolean' &&
     Array.isArray(preparedFlowieExecutionCandidate.flows) &&
     preparedFlowieExecutionCandidate.allFunctionsNames instanceof Set
 }
 
-function mergePreparedFlowies (
+function mergePreparedFlowieList (
   preparedFlowieExecution: PreparedFlowieExecution,
   nextPreparedFlowieExecution: PreparedFlowieExecution
 ): PreparedFlowieExecution {
@@ -72,16 +72,16 @@ function mergePreparedFlowies (
   }
 }
 
-function addNextItemToFlowDeclaration<Argument, Result> (
+function addNextItemToFlowDeclaration (
   preparedFlowieExecution: PreparedFlowieExecution | null,
-  flowDeclarationOrFunctionList: readonly DeclarationManagerOrFunctionDetails<Argument, Result>[]
+  flowDeclarationOrFunctionList: ReadonlyArray<DeclarationManagerOrFunctionDetails>
 ): PreparedFlowieExecution {
   const { isAsync, allFunctionsNames, flowElements } = flowDeclarationOrFunctionList.reduce(
     mergeFlowDeclarationAttributes, {
       isAsync: false,
       flowElements: [],
       allFunctionsNames: new Set<string>()
-    } as FlowDeclarationAttributes<Argument, Result>
+    } as FlowDeclarationAttributes
   )
 
   if (!preparedFlowieExecution) {
@@ -99,10 +99,10 @@ function addNextItemToFlowDeclaration<Argument, Result> (
   }
 }
 
-function mergeFlowDeclarationAttributes<Argument, Result> (
-  flowDeclarationAttributes: FlowDeclarationAttributes<Argument, Result>,
-  declarationManagerOrFunctionDetails: DeclarationManagerOrFunctionDetails<Argument, Result>
-): FlowDeclarationAttributes<Argument, Result> {
+function mergeFlowDeclarationAttributes (
+  flowDeclarationAttributes: FlowDeclarationAttributes,
+  declarationManagerOrFunctionDetails: DeclarationManagerOrFunctionDetails
+): FlowDeclarationAttributes {
   return {
     isAsync: flowDeclarationAttributes.isAsync || declarationManagerOrFunctionDetails.isAsync,
     allFunctionsNames:
@@ -115,7 +115,7 @@ function mergeFlowDeclarationAttributes<Argument, Result> (
 }
 
 function createFlowElementFromElements (
-  flowElements: readonly (PreparedFlowie | FlowFunctionDetails)[]
+  flowElements: ReadonlyArray<PreparedFlowie | FlowFunctionDetails>
 ): FlowElement {
   if (flowElements.length === 1) {
     const [firstFlowElement] = flowElements
@@ -134,7 +134,7 @@ function createFlowElementFromElements (
   }
 }
 
-function getFunctionNames (declarationManagerOrFunctionDetails: DeclarationManagerOrFunctionDetails<unknown, unknown>) {
+function getFunctionNames (declarationManagerOrFunctionDetails: DeclarationManagerOrFunctionDetails) {
   const flowDeclaration = declarationManagerOrFunctionDetails as PreparedFlowieManager
   if (isFlowieExecutionDeclaration(flowDeclaration)) {
     return Array.from(flowDeclaration.allFunctionsNames)
@@ -145,9 +145,9 @@ function getFunctionNames (declarationManagerOrFunctionDetails: DeclarationManag
   return [flowFunctionDetails.name]
 }
 
-function getFlowElement<Argument, Result> (
-  declarationManagerOrFunctionDetails: DeclarationManagerOrFunctionDetails<Argument, Result>
-): PreparedFlowie | FlowFunctionDetails<Argument, Result> {
+function getFlowElement (
+  declarationManagerOrFunctionDetails: DeclarationManagerOrFunctionDetails
+): PreparedFlowie | FlowFunctionDetails {
   const flowDeclaration = declarationManagerOrFunctionDetails as PreparedFlowieManager
   if (isFlowieExecutionDeclaration(flowDeclaration)) {
     return { flows: flowDeclaration.flows, name: flowDeclaration.name }
@@ -166,11 +166,10 @@ function getNameOrFlowieDeclaration (flowElement: PreparedFlowie | FlowFunctionD
   return (flowElement as FlowFunctionDetails).name
 }
 
-type DeclarationManagerOrFunctionDetails<Argument, Result> = PreparedFlowieManager
-  | FlowFunctionDetails<Argument, Result>
+type DeclarationManagerOrFunctionDetails = PreparedFlowieManager | FlowFunctionDetails
 
-interface FlowDeclarationAttributes<Argument, Result> {
+interface FlowDeclarationAttributes {
   readonly isAsync: boolean
   readonly allFunctionsNames: ReadonlySet<string>
-  readonly flowElements: readonly (PreparedFlowie | FlowFunctionDetails<Argument, Result>)[]
+  readonly flowElements: ReadonlyArray<PreparedFlowie | FlowFunctionDetails>
 }

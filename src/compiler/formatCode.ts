@@ -1,5 +1,5 @@
 // the idea of formatting here is not to follow any pattern, but getting a "debuggable" code
-export default function formatCode (sourceCode: string, shouldDebugFlow: boolean) {
+export default function formatCode (sourceCode: string, shouldDebugFlow: boolean): string {
   if (!shouldDebugFlow) return sourceCode
 
   const preparedCode = sourceCode
@@ -12,17 +12,17 @@ export default function formatCode (sourceCode: string, shouldDebugFlow: boolean
     .replace(/\[\s/gi, '[')
     .replace(/\)\s\{/gi, '){')
 
-  const { code } = preparedCode.split('').reduce(formatCharacters, { previousCharacter: '', identation: 0, code: '' })
+  const { code } = preparedCode.split('').reduce(formatCharacters, { previousCharacter: '', indentation: 0, code: '' })
 
   return code.replace(/\}\n\s\s\}/, '}\r\n}')
 }
 
 // eslint-disable-next-line complexity
 function formatCharacters (
-  { previousCharacter, identation, code }: FormattingCharactes,
+  { previousCharacter, indentation, code }: FormattingCharacter,
   character: string,
   index: number,
-  wholeCode: readonly string[]
+  wholeCode: ReadonlyArray<string>
 ) {
   const isSpace = /\s/.test(character)
   const nextCharacter = wholeCode[index + 1]
@@ -30,13 +30,13 @@ function formatCharacters (
   const isOpeningBlock = character === '{' && previousCharacter === ')'
   const isClosingBlock = character === '}' && (previousCharacter === ';' || previousCharacter === '}')
 
-  const reducingIdentationDeltaOnClosingBlock = isClosingBlock ? -1 : 0
-  const identationDelta = isOpeningBlock ? 1 : reducingIdentationDeltaOnClosingBlock
-  const newIdentation = identation + identationDelta
-  const currentIdentation = Math.max(newIdentation + (character === ';' && nextCharacter === '}' ? -1 : 0), 0)
+  const reducingIndentationDeltaOnClosingBlock = isClosingBlock ? -1 : 0
+  const indentationDelta = isOpeningBlock ? 1 : reducingIndentationDeltaOnClosingBlock
+  const newIndentation = indentation + indentationDelta
+  const currentIndentation = Math.max(newIndentation + (character === ';' && nextCharacter === '}' ? -1 : 0), 0)
 
   const splitLineOrNot = character === ';' || isOpeningBlock || isClosingBlock
-    ? `${character}\n${' '.repeat(currentIdentation * 2)}`
+    ? `${character}\n${' '.repeat(currentIndentation * 2)}`
     : isSpace && previousCharacter === '}'
       ? ''
       : character
@@ -44,13 +44,13 @@ function formatCharacters (
   const changedOrSamePreviousCharacter = isSpace ? previousCharacter : character
   return {
     previousCharacter: changedOrSamePreviousCharacter,
-    identation: newIdentation,
+    indentation: newIndentation,
     code: code.concat(splitLineOrNot)
   }
 }
 
-interface FormattingCharactes {
+interface FormattingCharacter {
   readonly previousCharacter: string
-  readonly identation: number
+  readonly indentation: number
   readonly code: string
 }

@@ -70,10 +70,10 @@ export default function createFlowieRuntime<Argument, Result, InitialArgument = 
   }
 
   function split<NewResult> (
-    ...nextFlowItemsList: readonly FlowItem<Result, NewResult, InitialArgument>[]
+    ...nextFlowItemsList: ReadonlyArray<FlowItem<Result, NewResult, InitialArgument>>
   ): Flowie<Result, any, InitialArgument> {
     const flowFunctionOrFlowieContainerList = nextFlowItemsList
-      .map(getFlowieContainerOrFunction) as readonly (FlowieContainer | FlowFunction<Argument, Result>)[]
+      .map(getFlowieContainerOrFunction) as ReadonlyArray<FlowieContainer | FlowFunction<Argument, Result>>
 
     const nextFlowieContainer = flowieContainer.merge(...[flowieContainer, ...flowFunctionOrFlowieContainerList])
 
@@ -81,7 +81,7 @@ export default function createFlowieRuntime<Argument, Result, InitialArgument = 
       .map(
         getFlowieDeclarationOrFunction,
         { flowieContainer: nextFlowieContainer }
-      ) as readonly FlowieDeclarationOrFlowFunctionDetails<Argument, Result>[]
+      ) as ReadonlyArray<FlowieDeclarationOrFlowFunctionDetails<Argument, Result>>
 
     const nextFlowDeclaration = preparedFlowieManager.split(flowDeclarationOrFunctionList)
 
@@ -94,7 +94,7 @@ export default function createFlowieRuntime<Argument, Result, InitialArgument = 
 }
 
 export function createFlowieFromItems<Argument, Result> (
-  flowItemsList: readonly FlowItem<Argument, Result>[]
+  flowItemsList: ReadonlyArray<FlowItem<Argument, Result>>
 ): Flowie<Argument, Result> {
   const [firstFlowieItem] = flowItemsList
   if (flowItemsList.length === 1 && isSignedAsFlowieFunction(firstFlowieItem)) {
@@ -102,7 +102,7 @@ export function createFlowieFromItems<Argument, Result> (
   }
 
   const flowFunctionOrFlowieContainerList = flowItemsList
-    .map(getFlowieContainerOrFunction) as readonly (FlowieContainer | FlowFunction<Argument, Result>)[]
+    .map(getFlowieContainerOrFunction) as ReadonlyArray<FlowieContainer | FlowFunction<Argument, Result>>
 
   const flowieContainer = createFlowieContainer().merge(...flowFunctionOrFlowieContainerList)
 
@@ -110,7 +110,7 @@ export function createFlowieFromItems<Argument, Result> (
     .map(
       getFlowieDeclarationOrFunction,
       { flowieContainer }
-    ) as readonly FlowieDeclarationOrFlowFunctionDetails<Argument, Result>[]
+    )
 
   const flowDeclaration = createFlowDeclarationManager(flowDeclarationOrFunctionList)
 

@@ -65,7 +65,7 @@ export interface InitializeFlowie {
     Argument,
     Context
   >
-  <Argument, Result, Context = never>(...flowItemsList: readonly FlowItem<Argument, Result, Argument, Context>[]):
+  <Argument, Result, Context = never>(...flowItemsList: ReadonlyArray<FlowItem<Argument, Result, Context>>):
     Flowie<Argument, Result, Argument, Context>
   <Argument = any, Result = any, Context = never>(flowieContainer: FlowieContainer, preparedFlowie: PreparedFlowie):
     Flowie<Argument, Result, Argument, Context>
@@ -153,12 +153,16 @@ export interface SplitFlowFunction<Result, InitialArgument, Context> {
     Context
   >
 
-  (...flowItemsList: readonly FlowItem<Result, any, InitialArgument, Context>[]):
-    Flowie<Result, readonly any[], InitialArgument, Context>
+  (...flowItemsList: ReadonlyArray<FlowItem<Result, any, InitialArgument, Context>>):
+    Flowie<Result, ReadonlyArray<any>, InitialArgument, Context>
 }
 
 export type FlowItem<Argument = any, Result = any, InitialArgument = Argument, Context = never> =
-  FlowFunction<Argument, Result, Context> | Flowie<Argument, Result, InitialArgument, Context>
+  FlowFunction<Argument, Result, Context> |
+  Flowie<Argument, Result, InitialArgument, Context>// |
+  // readonly [GeneratorFlowFunction<Argument, Result, Context>, GeneratorExecutionOptions]
+
+export type FlowItemList<Argument, Result, Context> = ReadonlyArray<FlowItem<Argument, Result, Argument, Context>>
 
 export type FlowFunction<Argument = any, Result = any, Context = never> =
   GeneratorFlowFunction<Argument, Result, Context> |
@@ -169,13 +173,18 @@ export type GeneratorFlowFunction<Argument, Result, Context> =
   ((argument: Argument, context: Context) => AsyncGenerator<Result, void>) |
   ((argument: Argument, context: Context) => Generator<Result, void>)
 
-export interface FlowFunctionDetails<Argument = any, Result = any> {
+export interface GeneratorExecutionOptions {
+  readonly parallelExecutions: number
+}
+
+export interface FlowFunctionDetails {
   readonly name: string
   readonly isAsync: boolean
   readonly isGenerator: boolean
 }
+
 export interface FlowFunctionDetailsWithItem<Argument = any, Result = any>
-  extends FlowFunctionDetails<Argument, Result> {
+  extends FlowFunctionDetails {
   readonly flowFunction: FlowFunction<Argument, Result>
 }
 

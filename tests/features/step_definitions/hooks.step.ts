@@ -2,6 +2,7 @@ import { setWorldConstructor, BeforeAll } from 'cucumber'
 import { assert } from 'chai'
 import FlowieTestsWorld, { World } from './FlowieTestsWorld'
 import compileDots from '../../../src/compiler/dot/compileDots'
+import { setSeed } from '../../seed'
 
 function ProxyTestsWorld () {
   const state: { world: World } = {
@@ -9,9 +10,9 @@ function ProxyTestsWorld () {
   }
 
   const methods: FlowieTestsWorld = {
-    setWorldConstructor (worldContructor: () => World) {
+    setWorldConstructor (worldConstructor: () => World) {
       assert.ok(!state.world, 'Do not set world twice')
-      state.world = worldContructor()
+      state.world = worldConstructor()
 
       assert.ok(state.world, 'The world constructor does not return an object')
       assert.ok(typeof state.world === 'object', 'The world constructor does not return an object')
@@ -36,5 +37,6 @@ function ProxyTestsWorld () {
 
 setWorldConstructor(ProxyTestsWorld)
 BeforeAll(async function () {
+  setSeed()
   await compileDots()
 })
