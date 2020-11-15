@@ -12,6 +12,7 @@ export default function buildFlowFunctionDetails(
     flowFunction,
     isAsync: isAsyncFunction(flowFunction),
     isGenerator: isGeneratorFunction(flowFunction),
+    parallelExecutions: 1,
     registerSignature: RegisterFunctionSymbol,
   }
 }

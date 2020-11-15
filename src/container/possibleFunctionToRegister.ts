@@ -1,7 +1,5 @@
 import { FlowFunction, FlowFunctionDetailsWithItem, GeneratorFunctionDetails } from '../runtime.types'
 
-import { isRegisteredFlowFunctionDetail } from './buildFlowFunctionDetails'
-
 type AliasFunction = readonly [string, FlowFunction]
 export type PossibleFunctionToRegister = FlowFunction | AliasFunction | GeneratorFunctionDetails
 

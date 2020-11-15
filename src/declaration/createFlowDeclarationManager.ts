@@ -28,6 +28,7 @@ interface PipeDeclaration {
 function createFlowieDeclarationManagerRuntime(
   preparedFlowieExecution: PreparedFlowieExecution,
 ): PreparedFlowieManager {
+  // TODO: Work with parallel execution
   return Object.freeze({
     ...preparedFlowieExecution,
     pipe(flowFunctionDetailsOrflowieExecuteDeclaration: FlowFunctionDetails | PreparedFlowieExecution) {
