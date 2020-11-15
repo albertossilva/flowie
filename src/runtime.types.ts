@@ -177,8 +177,8 @@ export interface SplitFlowFunction<Result, InitialArgument, Context> {
 
 export type FlowItem<Argument = any, Result = any, InitialArgument = Argument, Context = never> =
   | FlowFunction<Argument, Result, Context>
-  | Flowie<Argument, Result, InitialArgument, Context> // |
-// readonly [GeneratorFlowFunction<Argument, Result, Context>, GeneratorExecutionOptions]
+  | Flowie<Argument, Result, InitialArgument, Context>
+  | GeneratorFunctionDetails<Argument, Result, Context>
 
 export type FlowItemList<Argument, Result, Context> = ReadonlyArray<FlowItem<Argument, Result, Argument, Context>>
 
@@ -187,12 +187,14 @@ export type FlowFunction<Argument = any, Result = any, Context = never> =
   | ((argument: Argument, context: Context) => Promise<Result>)
   | ((argument: Argument, context: Context) => Result)
 
-export type GeneratorFlowFunction<Argument, Result, Context> =
+export type GeneratorFlowFunction<Argument = any, Result = any, Context = any> =
   | ((argument: Argument, context: Context) => AsyncGenerator<Result, void>)
   | ((argument: Argument, context: Context) => Generator<Result, void>)
 
-export interface GeneratorExecutionOptions {
-  readonly parallelExecutions: number
+export interface GeneratorFunctionDetails<Argument = any, Result = any, Context = never> {
+  readonly generatorFunction: GeneratorFlowFunction<Argument, Result, Context>
+  readonly parallelExecutions?: number
+  readonly alias?: string
 }
 
 export interface FlowFunctionDetails {
@@ -203,6 +205,7 @@ export interface FlowFunctionDetails {
 
 export interface FlowFunctionDetailsWithItem<Argument = any, Result = any> extends FlowFunctionDetails {
   readonly flowFunction: FlowFunction<Argument, Result>
+  readonly registerSignature: symbol
 }
 
 export interface FunctionReport<Result> {

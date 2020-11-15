@@ -275,7 +275,9 @@ describe('runtime.createFlowie (integration tests as laboratory)', function () {
 
       stubThatTakesLongerOnFirstCall[Symbol.toStringTag] = 'AsyncFunction'
 
-      const flow = createFlowie(generatorMock, { parallelExecutions: 10 }).pipe(stubThatTakesLongerOnFirstCall)
+      const flow = createFlowie({ generatorFunction: generatorMock, parallelExecutions: 10 }).pipe(
+        stubThatTakesLongerOnFirstCall,
+      )
 
       const { lastResult, executionTime } = await flow(parameter)
 

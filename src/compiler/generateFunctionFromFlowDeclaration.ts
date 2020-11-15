@@ -18,11 +18,7 @@ export default function generateFunctionFromFlowDeclaration<Argument, Result, Co
   preparedFlowieExecution: PreparedFlowieExecution,
   flowieContainer: FlowieContainer,
 ): FlowFunctionGeneration<Argument, Result, Context> {
-  const runnableDeclaration = convertFlowDeclarationToRunnableDeclaration(
-    preparedFlowieExecution,
-    flowieContainer.isAsyncFunction,
-    flowieContainer.isGeneratorFunction,
-  )
+  const runnableDeclaration = convertFlowDeclarationToRunnableDeclaration(preparedFlowieExecution, flowieContainer)
 
   const generationOptions = {
     ...runnableDeclaration,
