@@ -134,9 +134,9 @@ describe('container/createFlowieContainer', function () {
     expect(createFlowieContainer().isAsyncFunction('bla')).to.false
   })
 
-  // it('new containers always return null on getFunctionDetails', function () {
-  //   expect(createFlowieContainer().getFunctionDetails(stub())).to.null
-  // })
+  it('new containers always return null on getFunctionDetails', function () {
+    expect(createFlowieContainer().getFunctionDetails(stub())).to.null
+  })
 
   it('new containers always return false on isGeneratorFunction', function () {
     expect(createFlowieContainer().isGeneratorFunction('bla')).to.false

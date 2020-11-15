@@ -1,6 +1,7 @@
 import { assert, expect } from 'chai'
 import { random } from 'faker'
 import { stub } from 'sinon'
+import { FlowieContainer } from '../../container/createFlowieContainer'
 import { PreparedFlowieExecution } from '../../prepared.types'
 
 import convertFlowDeclarationToRunnableDeclaration, {
@@ -69,10 +70,11 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
 
     const isGeneratorFunction = isGeneratorFunctionStub as (functionName: string) => boolean
 
+    const fakeContainer = { isAsyncFunction, isGeneratorFunction }
+
     this.runnableDeclaration = convertFlowDeclarationToRunnableDeclaration(
       preparedFlowieExecution,
-      isAsyncFunction,
-      isGeneratorFunction,
+      fakeContainer as FlowieContainer,
     )
     this.preparedFlowieExecution = preparedFlowieExecution
   })

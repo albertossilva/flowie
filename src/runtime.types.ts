@@ -177,8 +177,8 @@ export interface SplitFlowFunction<Result, InitialArgument, Context> {
 
 export type FlowItem<Argument = any, Result = any, InitialArgument = Argument, Context = never> =
   | FlowFunction<Argument, Result, Context>
-  | Flowie<Argument, Result, InitialArgument, Context>
   | GeneratorFunctionDetails<Argument, Result, Context>
+  | Flowie<Argument, Result, InitialArgument, Context>
 
 export type FlowItemList<Argument, Result, Context> = ReadonlyArray<FlowItem<Argument, Result, Argument, Context>>
 
@@ -206,6 +206,7 @@ export interface FlowFunctionDetails {
 export interface FlowFunctionDetailsWithItem<Argument = any, Result = any> extends FlowFunctionDetails {
   readonly flowFunction: FlowFunction<Argument, Result>
   readonly registerSignature: symbol
+  readonly parallelExecutions: number
 }
 
 export interface FunctionReport<Result> {

@@ -78,9 +78,9 @@ export default function createFlowieRuntime<Argument, Result, InitialArgument = 
 
     const nextFlowieContainer = flowieContainer.merge(...[flowieContainer, ...flowFunctionOrFlowieContainerList])
 
-    const flowDeclarationOrFunctionList = nextFlowItemsList.map(getFlowieDeclarationOrFunction, {
-      flowieContainer: nextFlowieContainer,
-    }) as ReadonlyArray<FlowieDeclarationOrFlowFunctionDetails<Argument, Result>>
+    const flowDeclarationOrFunctionList = nextFlowItemsList.map(
+      getFlowieDeclarationOrFlowFunctionDetails(nextFlowieContainer),
+    ) as ReadonlyArray<FlowieDeclarationOrFlowFunctionDetails<Argument, Result>>
 
     const nextFlowDeclaration = preparedFlowieManager.split(flowDeclarationOrFunctionList)
 
@@ -106,7 +106,7 @@ export function createFlowieFromItems<Argument, Result>(
 
   const flowieContainer = createFlowieContainer().merge(...flowFunctionOrFlowieContainerList)
 
-  const flowDeclarationOrFunctionList = flowItemsList.map(getFlowieDeclarationOrFunction, { flowieContainer })
+  const flowDeclarationOrFunctionList = flowItemsList.map(getFlowieDeclarationOrFlowFunctionDetails(flowieContainer))
 
   const flowDeclaration = createFlowDeclarationManager(flowDeclarationOrFunctionList)
 
@@ -123,15 +123,16 @@ function getFlowieContainerOrFunction<Argument, Result>(
   return flowItem as FlowFunction<Argument, Result>
 }
 
-function getFlowieDeclarationOrFunction<Argument, Result>(
-  this: { readonly flowieContainer: FlowieContainer },
-  flowItem: FlowItem,
-): FlowieDeclarationOrFlowFunctionDetails<Argument, Result> {
-  if (isSignedAsFlowieFunction(flowItem)) {
-    return getFlowieDeclarationManager(flowItem as Flowie<Argument, Result>)
-  }
+function getFlowieDeclarationOrFlowFunctionDetails<Argument, Result>(flowieContainer: FlowieContainer) {
+  return function getFlowieDeclarationOrFunctionOnContainer(
+    flowItem: FlowItem,
+  ): FlowieDeclarationOrFlowFunctionDetails<Argument, Result> {
+    if (isSignedAsFlowieFunction(flowItem)) {
+      return getFlowieDeclarationManager(flowItem as Flowie<Argument, Result>)
+    }
 
-  return this.flowieContainer.getFunctionDetails(flowItem)
+    return flowieContainer.getFunctionDetails(flowItem)
+  }
 }
 
 type FlowieDeclarationOrFlowFunctionDetails<Argument, Result> =
