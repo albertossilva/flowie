@@ -29,7 +29,8 @@ export default interface Reporter<Argument, Result, Context> {
 }
 
 export interface GeneratorReporter {
-  readonly next: () => GeneratorReporter
+  readonly pageDone: () => GeneratorReporter
+  readonly prepareNext: () => GeneratorReporter
   readonly report: GeneratorReport
 }
 

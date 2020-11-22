@@ -111,15 +111,15 @@ describe('reporter/reporter', function () {
       expect(generatorReporter.report.functionName).to.equal(functionName)
       expect(generatorReporter.report.iterationTime).to.equal(0)
 
-      const iteration1 = generatorReporter.next()
-      expect(iteration1.report.functionName).to.equal(functionName)
-      expect(iteration1.report.iterationTime).to.greaterThan(0)
-
+      const firstCycle1 = generatorReporter.pageDone()
+      expect(firstCycle1.report.functionName).to.equal(functionName)
+      expect(firstCycle1.report.iterationTime).to.greaterThan(0)
+      const iteration1Done = generatorReporter.prepareNext()
       await sleep(10)
 
-      const iteration2 = generatorReporter.next()
+      const iteration2 = iteration1Done.pageDone()
       expect(iteration2.report.functionName).to.equal(functionName)
-      expect(iteration2.report.iterationTime).to.greaterThan(9)
+      expect(iteration2.report.iterationTime).to.greaterThan(10)
     })
   })
 

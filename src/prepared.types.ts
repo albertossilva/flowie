@@ -9,6 +9,7 @@ export type FlowElement = PipeFlow | SplitFlow | PreparedFlowie
 
 export interface PipeFlow {
   readonly pipe: FlowieItemDeclaration
+  readonly parallelExecutions: number
   readonly name?: string
 }
 

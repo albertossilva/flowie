@@ -42,11 +42,7 @@ export async function reportAsyncFunctionCallContext<Argument, Result, Context>(
 }
 
 export function startGeneratorReport(functionName: string): GeneratorReporter {
-  return buildNextGeneratorReporter({
-    functionName,
-    hrTime: process.hrtime(),
-    iterationTime: 0,
-  })
+  return new PageDoneGeneratorReport(functionName, process.hrtime(), 0)
 }
 
 export function calculateHRTimeDifference(previousHRTime: HRTime): number {
@@ -64,6 +60,44 @@ export function compactFunctionReport(
   )
 
   return flowFunctionsResultList as FlowFunctionsResultList
+}
+
+class NullGeneratorReport implements GeneratorReporter {
+  public readonly report: GeneratorReport
+
+  public constructor(functionName: string, hrTime: HRTime, iterationTime: number) {
+    this.report = { functionName, hrTime, iterationTime }
+  }
+
+  public pageDone() {
+    return this as GeneratorReporter
+  }
+
+  public prepareNext() {
+    return this as GeneratorReporter
+  }
+}
+
+class PageDoneGeneratorReport extends NullGeneratorReport {
+  public pageDone() {
+    const iterationTime = calculateHRTimeDifference(this.report.hrTime)
+
+    return new PrepareNextGeneratorReport(
+      this.report.functionName,
+      this.report.hrTime,
+      iterationTime,
+    ) as GeneratorReporter
+  }
+}
+
+class PrepareNextGeneratorReport extends NullGeneratorReport {
+  public prepareNext() {
+    return new PageDoneGeneratorReport(
+      this.report.functionName,
+      process.hrtime(),
+      this.report.iterationTime,
+    ) as GeneratorReporter
+  }
 }
 
 function reportFunction<Result>(
@@ -92,22 +126,8 @@ async function reportAsyncFunction<Result>(
   return [{ functionName: functionNameToReport, executionTime }, result]
 }
 
-function nextGeneratorReport(report: GeneratorReport) {
-  const iterationTime = calculateHRTimeDifference(report.hrTime)
-
-  return buildNextGeneratorReporter({
-    functionName: report.functionName,
-    hrTime: process.hrtime(),
-    iterationTime,
-  })
-}
-
-function buildNextGeneratorReporter(report: GeneratorReport) {
-  return { report, next: nextGeneratorReport.bind(null, report) }
-}
-
 function collectReport(
-  // performance issue
+  // TODO: validate performance issues for long executions
   // eslint-disable-next-line functional/prefer-readonly-type
   functionsReport: Map<string, FlowFunctionResult>,
   report: FunctionReport | GeneratorReport,

@@ -1,21 +1,21 @@
-{{ const asyncPreffixOrNot = it.isAsync ? 'async ': ''; }}
+{{ const asyncPrefixOrNot = it.isAsync ? 'async ': ''; }}
 {{ const contextOrNot = it.includeContext ? `, context` : ''; }}
 {{~it.subFlows :subFlow}}
-  {{ const asyncPreffixOrNotForFlow = subFlow.isAsync ? 'async ' : ''; }}
+  {{ const asyncPrefixOrNotForFlow = subFlow.isAsync ? 'async ' : ''; }}
   {{ const [lastStepSubFlow] = subFlow.steps.slice(-1); }}
-  {{ const hasGeneratorsSubFlow = Boolean(lastStepSubFlow.finishGeneratorsCount); }}
+  {{ const hasGeneratorsSubFlow = Boolean(lastStepSubFlow.finishGeneratorIndexesList); }}
   {{ const reduceWhenLastIsFinishGeneratorsOnSubFlow = Number(hasGeneratorsSubFlow); }}
 
-  {{=asyncPreffixOrNotForFlow}}function executeFlow_{{=subFlow.hash}}({ flowieContainer, reporter, argument{{=contextOrNot}} }) {
+  {{=asyncPrefixOrNotForFlow}}function executeFlow_{{=subFlow.hash}}({ flowieContainer, reporter, argument{{=contextOrNot}} }) {
     let reportsList = [];
     {{~Object.values(subFlow.functionsFromContainers) :functionName}}
       const executeFunction_{{=functionName}} = flowieContainer.functionsContainer.{{=functionName}}.flowFunction;
     {{~}}
     {{?hasGeneratorsSubFlow}}
+      let reportOnGenerator;
       {{~subFlow.steps.slice(0, subFlow.steps.length - reduceWhenLastIsFinishGeneratorsOnSubFlow) :step:index}}
         let result{{=index+1}};
       {{~}}
-      let reportOnGenerator;
     {{?}}
     {{~subFlow.steps :step:index}}
       {{=it.generateFlow(it, { step, parentIndex: index, hasGenerators: hasGeneratorsSubFlow })}}
@@ -26,10 +26,10 @@
 {{~}}
 
 {{ const [lastStep] = it.mainFlow.steps.slice(-1); }}
-{{ const hasGenerators = Boolean(lastStep.finishGeneratorsCount); }}
+{{ const hasGenerators = Boolean(lastStep.finishGeneratorIndexesList); }}
 {{ const reduceWhenLastIsFinishGenerators = Number(hasGenerators); }}
 
-return {{=asyncPreffixOrNot}}function executeMainFlow(executionArguments) {
+return {{=asyncPrefixOrNot}}function executeMainFlow(executionArguments) {
   {{=it.shouldDebugFlow ? 'debugger;' : ''}}
   const { flowieContainer, argument, flowieResult, reporter{{=contextOrNot}} } = executionArguments;
   let reportsList = [];
@@ -40,10 +40,10 @@ return {{=asyncPreffixOrNot}}function executeMainFlow(executionArguments) {
   {{~}}
 
   {{?hasGenerators}}
+    let reportOnGenerator;
     {{~it.mainFlow.steps.slice(0, it.mainFlow.steps.length - reduceWhenLastIsFinishGenerators) :step:index}}
       let result{{=index+1}};
     {{~}}
-    let reportOnGenerator;
   {{?}}
 
   {{~it.mainFlow.steps :step:index}}

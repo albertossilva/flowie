@@ -26,7 +26,7 @@ export default function convertFlowDeclarationToRunnableDeclaration(
   const { mainFlow, subFlows } = preparedFlowieExecution.flows.reduce(readFlowsAndSubFlows(flowieContainer), {
     subFlows: initialSubFlows,
     mainFlow: initialMainFlow,
-    generatorsCount: 0,
+    generatorIndexes: [],
   })
 
   const runnableDeclaration: RunnableDeclaration = {
@@ -45,29 +45,29 @@ function readFlowsAndSubFlows(flowieContainer: FlowieContainer) {
     currentIndex: number,
     array: ReadonlyArray<unknown>,
   ): ReadFlowsAndSubFlowsReducer {
-    const { mainFlow, subFlows, generatorsCount } = readFlowsAndSubFlowsReducer
+    const { mainFlow, subFlows, generatorIndexes } = readFlowsAndSubFlowsReducer
 
-    const { mainFlow: newMainFlow, subFlows: newSubFlows, generatorsFound } = new FlowElementReader(
-      flowieContainer,
-      mainFlow,
-      subFlows,
-    ).read(flowElement)
+    const {
+      mainFlow: newMainFlow,
+      subFlows: newSubFlows,
+      generatorIndexes: generatorIndexesFound,
+    } = new FlowElementReader(flowieContainer, mainFlow, subFlows).read(flowElement, currentIndex)
 
-    const totalOfGenerators = generatorsCount + generatorsFound
+    const newGeneratorIndexes = generatorIndexes.concat(generatorIndexesFound)
 
-    if (currentIndex === array.length - 1 && totalOfGenerators > 0) {
+    if (currentIndex === array.length - 1 && newGeneratorIndexes.length > 0) {
       return {
-        generatorsCount: totalOfGenerators,
+        generatorIndexes: newGeneratorIndexes,
         mainFlow: {
           ...newMainFlow,
-          steps: newMainFlow.steps.concat({ finishGeneratorsCount: totalOfGenerators }),
+          steps: newMainFlow.steps.concat({ finishGeneratorIndexesList: newGeneratorIndexes }),
         },
         subFlows: newSubFlows,
       }
     }
 
     return {
-      generatorsCount: totalOfGenerators,
+      generatorIndexes: newGeneratorIndexes,
       mainFlow: newMainFlow,
       subFlows: newSubFlows,
     }
@@ -83,35 +83,35 @@ class FlowElementReader {
     this.readSplitItem = this.readSplitItem.bind(this)
   }
 
-  read(flowElement: FlowElement): StepReading {
+  read(flowElement: FlowElement, currentIndex: number): StepReading {
     const pipeFlow = flowElement as PipeFlow
-    if (pipeFlow.pipe) return this.readPipeStep(pipeFlow)
+    if (pipeFlow.pipe) return this.readPipeStep(pipeFlow, currentIndex)
 
     const splitFlow = flowElement as SplitFlow
     if (splitFlow.split) return this.readSplitStep(splitFlow)
 
     const preparedFlowie = flowElement as PreparedFlowie
 
-    return this.readSubFlow(preparedFlowie)
+    return this.readSubFlow(preparedFlowie, currentIndex)
   }
 
-  private readPipeStep(pipeFlow: PipeFlow): StepReading {
-    if (typeof pipeFlow.pipe === 'string') {
-      const functionName = pipeFlow.pipe
-      const isGenerator = this.flowieContainer.isGeneratorFunction(functionName)
-      const step = this.createStepForFunction(functionName, isGenerator)
-
-      return {
-        mainFlow: {
-          functionsFromContainers: getUniqueFunctionNames(this.mainFlow.functionsFromContainers, functionName),
-          steps: this.mainFlow.steps.concat(step),
-        },
-        subFlows: this.subFlows,
-        generatorsFound: Number(isGenerator),
-      }
+  private readPipeStep(pipeFlow: PipeFlow, currentIndex: number): StepReading {
+    if (typeof pipeFlow.pipe !== 'string') {
+      return this.readSubFlow(pipeFlow.pipe, currentIndex)
     }
 
-    return this.readSubFlow(pipeFlow.pipe)
+    const { pipe: functionName, parallelExecutions } = pipeFlow
+    const isGenerator = this.flowieContainer.isGeneratorFunction(functionName)
+    const step = this.createStepForFunction(functionName, isGenerator, parallelExecutions)
+
+    return {
+      mainFlow: {
+        functionsFromContainers: getUniqueFunctionNames(this.mainFlow.functionsFromContainers, functionName),
+        steps: this.mainFlow.steps.concat(step),
+      },
+      subFlows: this.subFlows,
+      generatorIndexes: isGenerator ? [currentIndex] : [],
+    }
   }
 
   private readSplitStep(splitFlow: SplitFlow): StepReading {
@@ -129,7 +129,7 @@ class FlowElementReader {
     )
 
     return {
-      generatorsFound: 0,
+      generatorIndexes: [],
       mainFlow: {
         functionsFromContainers: getUniqueFunctionNames(
           this.mainFlow.functionsFromContainers,
@@ -144,58 +144,64 @@ class FlowElementReader {
   private readSplitItem(
     splitStepReading: SplitStepReading,
     flowieItemDeclaration: FlowieItemDeclaration,
+    currentIndex: number,
   ): SplitStepReading {
     const { functionsFromContainers, subFlows, splitStep } = splitStepReading
-    if (typeof flowieItemDeclaration === 'string') {
-      const isGenerator = this.flowieContainer.isGeneratorFunction(flowieItemDeclaration)
-      const isAsync = this.flowieContainer.isAsyncFunction(flowieItemDeclaration)
-
-      if (isGenerator) {
-        const hash = `generator_on_split_${flowieItemDeclaration}`
-        return {
-          functionsFromContainers,
-          subFlows: subFlows.concat({
-            isAsync,
-            functionsFromContainers: [flowieItemDeclaration],
-            hash,
-            steps: [{ generator: flowieItemDeclaration, isAsync }, { finishGeneratorsCount: 1 }],
-          }),
-          splitStep: {
-            isAsync: keepPreviousTrue(splitStep.isAsync, isAsync),
-            split: splitStep.split.concat({ flow: hash, isAsync }),
-          },
-        }
-      }
+    if (typeof flowieItemDeclaration !== 'string') {
+      const { flowStep, subFlows: newSubFlows } = new SubFlowElementReader(this.flowieContainer).read(
+        flowieItemDeclaration,
+        currentIndex,
+      )
 
       return {
-        functionsFromContainers: getUniqueFunctionNames(functionsFromContainers, flowieItemDeclaration),
-        subFlows,
+        functionsFromContainers,
+        subFlows: subFlows.concat(newSubFlows),
         splitStep: {
-          isAsync: keepPreviousTrue(splitStep.isAsync, this.flowieContainer.isAsyncFunction(flowieItemDeclaration)),
-          split: splitStep.split.concat(flowieItemDeclaration),
+          isAsync: keepPreviousTrue(splitStep.isAsync, flowStep.isAsync),
+          split: splitStep.split.concat(flowStep),
         },
       }
     }
 
-    const { flowStep, subFlows: newSubFlows } = new SubFlowElementReader(this.flowieContainer).read(
-      flowieItemDeclaration,
-    )
+    const isGenerator = this.flowieContainer.isGeneratorFunction(flowieItemDeclaration)
+    const isAsync = this.flowieContainer.isAsyncFunction(flowieItemDeclaration)
+
+    if (isGenerator) {
+      const hash = `generator_on_split_${flowieItemDeclaration}`
+      return {
+        functionsFromContainers,
+        subFlows: subFlows.concat({
+          isAsync,
+          functionsFromContainers: [flowieItemDeclaration],
+          hash,
+          // TODO: Parallel execution on splits
+          steps: [
+            { generator: flowieItemDeclaration, isAsync, parallelExecutions: 1 },
+            { finishGeneratorIndexesList: [0] },
+          ],
+        }),
+        splitStep: {
+          isAsync: keepPreviousTrue(splitStep.isAsync, isAsync),
+          split: splitStep.split.concat({ flow: hash, isAsync }),
+        },
+      }
+    }
 
     return {
-      functionsFromContainers,
-      subFlows: subFlows.concat(newSubFlows),
+      functionsFromContainers: getUniqueFunctionNames(functionsFromContainers, flowieItemDeclaration),
+      subFlows,
       splitStep: {
-        isAsync: keepPreviousTrue(splitStep.isAsync, flowStep.isAsync),
-        split: splitStep.split.concat(flowStep),
+        isAsync: keepPreviousTrue(splitStep.isAsync, this.flowieContainer.isAsyncFunction(flowieItemDeclaration)),
+        split: splitStep.split.concat(flowieItemDeclaration),
       },
     }
   }
 
-  private readSubFlow(flowElement: FlowElement): StepReading {
-    const { flowStep, subFlows } = new SubFlowElementReader(this.flowieContainer).read(flowElement)
+  private readSubFlow(flowElement: FlowElement, currentIndex: number): StepReading {
+    const { flowStep, subFlows } = new SubFlowElementReader(this.flowieContainer).read(flowElement, currentIndex)
 
     return {
-      generatorsFound: 0,
+      generatorIndexes: [],
       mainFlow: {
         functionsFromContainers: this.mainFlow.functionsFromContainers,
         steps: this.mainFlow.steps.concat(flowStep),
@@ -204,10 +210,14 @@ class FlowElementReader {
     }
   }
 
-  private createStepForFunction(functionName: string, isGenerator: boolean): PipeStep | GeneratorStep {
+  private createStepForFunction(
+    functionName: string,
+    isGenerator: boolean,
+    parallelExecutions: number,
+  ): PipeStep | GeneratorStep {
     const isAsync = this.flowieContainer.isAsyncFunction(functionName)
     if (isGenerator) {
-      return { generator: functionName, isAsync }
+      return { generator: functionName, isAsync, parallelExecutions }
     }
 
     return { pipe: functionName, isAsync }
@@ -220,11 +230,11 @@ class SubFlowElementReader {
     this.readSubFlowSplitItem = this.readSubFlowSplitItem.bind(this)
   }
 
-  read(flowElement: FlowElement): SubStepReading {
+  read(flowElement: FlowElement, currentIndex: number): SubStepReading {
     const { name } = flowElement
     const hash = name || generateHash()
 
-    const { isAsync, functionsFromContainers, steps, subFlows } = this.readSubFlow(flowElement)
+    const { isAsync, functionsFromContainers, steps, subFlows } = this.readSubFlow(flowElement, currentIndex)
 
     const subFlow: SubFlow = { isAsync, functionsFromContainers, hash, steps }
 
@@ -234,10 +244,10 @@ class SubFlowElementReader {
     }
   }
 
-  private readSubFlow(flowElement: FlowElement): SubFlowReading {
+  private readSubFlow(flowElement: FlowElement, currentIndex: number): SubFlowReading {
     const pipeFlow = flowElement as PipeFlow
     if (pipeFlow.pipe) {
-      return this.readSubFlowPipe(pipeFlow)
+      return this.readSubFlowPipe(pipeFlow, currentIndex)
     }
 
     const splitFlow = flowElement as SplitFlow
@@ -252,44 +262,46 @@ class SubFlowElementReader {
       functionsFromContainers: [],
       steps: [],
       subFlows: [],
-      generatorsCount: 0,
+      generatorIndexes: [],
     }
 
     const subFlowReading = preparedFlowie.flows.reduce(this.readSubFlowSteps, initialFlowReading)
 
-    const { generatorsCount } = subFlowReading
+    const { generatorIndexes } = subFlowReading
 
     return {
       ...subFlowReading,
-      steps: subFlowReading.steps.concat(generatorsCount ? { finishGeneratorsCount: generatorsCount } : []),
+      steps: subFlowReading.steps.concat(
+        generatorIndexes.length ? { finishGeneratorIndexesList: generatorIndexes } : [],
+      ),
     }
   }
 
-  private readSubFlowPipe(pipeFlow: PipeFlow): SubFlowReading<PipeStep | GeneratorStep> {
+  private readSubFlowPipe(pipeFlow: PipeFlow, currentIndex: number): SubFlowReading<PipeStep | GeneratorStep> {
     if (typeof pipeFlow.pipe === 'string') {
-      const functionName = pipeFlow.pipe
+      const { pipe: functionName, parallelExecutions } = pipeFlow
       const isGenerator = this.flowieContainer.isGeneratorFunction(functionName)
       const isAsync = this.flowieContainer.isAsyncFunction(functionName)
 
-      const step = this.createStepForFunctionForSubFlow(functionName, isGenerator)
+      const step = this.createStepForFunctionForSubFlow(functionName, isGenerator, parallelExecutions)
 
       return {
         isAsync,
         functionsFromContainers: [functionName],
         steps: [step],
         subFlows: [],
-        generatorsCount: Number(isGenerator),
+        generatorIndexes: isGenerator ? [currentIndex] : [],
       }
     }
 
-    const { flowStep, subFlows } = new SubFlowElementReader(this.flowieContainer).read(pipeFlow.pipe)
+    const { flowStep, subFlows } = new SubFlowElementReader(this.flowieContainer).read(pipeFlow.pipe, currentIndex)
 
     return {
       isAsync: flowStep.isAsync,
       functionsFromContainers: [],
       steps: [flowStep],
       subFlows,
-      generatorsCount: 0,
+      generatorIndexes: [],
     }
   }
 
@@ -299,7 +311,7 @@ class SubFlowElementReader {
       functionsFromContainers: [],
       steps: [{ split: [], isAsync: false }],
       subFlows: [],
-      generatorsCount: 0,
+      generatorIndexes: [],
     }
 
     return splitFlow.split.reduce(this.readSubFlowSplitItem, initialFlowReading)
@@ -308,6 +320,7 @@ class SubFlowElementReader {
   private readSubFlowSplitItem(
     subFlowReading: SubFlowReading<SplitStep>,
     flowieItemDeclaration: FlowieItemDeclaration,
+    currentIndex: number,
   ): SubFlowReading<SplitStep> {
     const { isAsync, functionsFromContainers, steps, subFlows } = subFlowReading
     const [splitStep] = steps as ReadonlyArray<SplitStep>
@@ -332,9 +345,13 @@ class SubFlowElementReader {
             isAsync,
             functionsFromContainers: [flowieItemDeclaration],
             hash,
-            steps: [{ generator: flowieItemDeclaration, isAsync }, { finishGeneratorsCount: 1 }],
+            // TODO: Parallel executions for split
+            steps: [
+              { generator: flowieItemDeclaration, isAsync, parallelExecutions: 1 },
+              { finishGeneratorIndexesList: [0] },
+            ],
           }),
-          generatorsCount: 0,
+          generatorIndexes: [],
         }
       }
 
@@ -348,12 +365,13 @@ class SubFlowElementReader {
           },
         ],
         subFlows,
-        generatorsCount: 0,
+        generatorIndexes: [],
       }
     }
 
     const { flowStep, subFlows: collectedSubFlows } = new SubFlowElementReader(this.flowieContainer).read(
       flowieItemDeclaration,
+      currentIndex,
     )
 
     const willBeAsync = keepPreviousTrue(isAsync, flowStep.isAsync)
@@ -367,12 +385,19 @@ class SubFlowElementReader {
         },
       ],
       subFlows: subFlows.concat(collectedSubFlows),
-      generatorsCount: 0,
+      generatorIndexes: [],
     }
   }
 
-  private readSubFlowSteps(subFlowReading: SubFlowReading, flowElement: FlowElement): SubFlowReading {
-    const { isAsync, steps, subFlows, functionsFromContainers, generatorsCount } = this.readSubFlowItem(flowElement)
+  private readSubFlowSteps(
+    subFlowReading: SubFlowReading,
+    flowElement: FlowElement,
+    currentIndex: number,
+  ): SubFlowReading {
+    const { isAsync, steps, subFlows, functionsFromContainers, generatorIndexes } = this.readSubFlowItem(
+      flowElement,
+      currentIndex,
+    )
 
     return {
       isAsync: keepPreviousTrue(subFlowReading.isAsync, isAsync),
@@ -382,30 +407,34 @@ class SubFlowElementReader {
       ),
       steps: subFlowReading.steps.concat(steps),
       subFlows: subFlowReading.subFlows.concat(subFlows),
-      generatorsCount: generatorsCount + subFlowReading.generatorsCount,
+      generatorIndexes: subFlowReading.generatorIndexes.concat(generatorIndexes),
     }
   }
 
-  private readSubFlowItem(flowElement: FlowElement): SubFlowReading {
+  private readSubFlowItem(flowElement: FlowElement, currentIndex: number): SubFlowReading {
     const preparedFlowie = flowElement as PreparedFlowie
     if (preparedFlowie.flows) {
-      const { flowStep, subFlows } = new SubFlowElementReader(this.flowieContainer).read(flowElement)
+      const { flowStep, subFlows } = new SubFlowElementReader(this.flowieContainer).read(flowElement, currentIndex)
       return {
         isAsync: flowStep.isAsync,
         functionsFromContainers: [],
         steps: [flowStep],
         subFlows,
-        generatorsCount: 0,
+        generatorIndexes: [],
       }
     }
 
-    return new SubFlowElementReader(this.flowieContainer).readSubFlow(flowElement)
+    return new SubFlowElementReader(this.flowieContainer).readSubFlow(flowElement, currentIndex)
   }
 
-  private createStepForFunctionForSubFlow(functionName: string, isGenerator: boolean): PipeStep | GeneratorStep {
+  private createStepForFunctionForSubFlow(
+    functionName: string,
+    isGenerator: boolean,
+    parallelExecutions: number,
+  ): PipeStep | GeneratorStep {
     const isAsync = this.flowieContainer.isAsyncFunction(functionName)
     if (isGenerator) {
-      return { generator: functionName, isAsync }
+      return { generator: functionName, isAsync, parallelExecutions }
     }
 
     return { pipe: functionName, isAsync }
@@ -449,9 +478,11 @@ interface SplitStep {
 interface GeneratorStep {
   readonly generator: string
   readonly isAsync: boolean
+  readonly parallelExecutions: number
 }
+
 interface FinishGeneratorsStep {
-  readonly finishGeneratorsCount: number
+  readonly finishGeneratorIndexesList: ReadonlyArray<number>
 }
 
 interface FlowStep {
@@ -459,19 +490,15 @@ interface FlowStep {
   readonly flow: string
 }
 
-interface CheckFunction {
-  (functionName: string): boolean
-}
-
 interface ReadFlowsAndSubFlowsReducer {
   readonly mainFlow: MainFlow
   readonly subFlows: ReadonlyArray<SubFlow>
-  readonly generatorsCount: number
+  readonly generatorIndexes: ReadonlyArray<number>
 }
 
 interface StepReading {
   readonly mainFlow: MainFlow
-  readonly generatorsFound: number
+  readonly generatorIndexes: ReadonlyArray<number>
   readonly subFlows: ReadonlyArray<SubFlow>
 }
 interface SubStepReading {
@@ -489,5 +516,5 @@ interface SubFlowReading<StepType = Step> {
   readonly functionsFromContainers: ReadonlyArray<string>
   readonly steps: ReadonlyArray<StepType>
   readonly subFlows: ReadonlyArray<SubFlow>
-  readonly generatorsCount: number
+  readonly generatorIndexes: ReadonlyArray<number>
 }

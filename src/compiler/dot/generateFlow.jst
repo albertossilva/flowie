@@ -1,4 +1,3 @@
-{{ const variablePreffix = it.hasGenerators ? `` : `const `; }}
 {{ const resultVariable = `result${it.parentIndex+1}`; }}
 {{ const reportVariable = it.hasGenerators ? 'reportOnGenerator' : `report${it.parentIndex+1}`; }}
 {{ const constOrNot = it.hasGenerators ? '' : 'const '; }}
@@ -68,10 +67,14 @@
   reportsList = reportsList.concat({{=reportVariable}});
   let {{=pageReportVariable}} = reporter.startGeneratorReport('{{=functionName}}');
   for {{=awaitOrNot}}(const {{=itemVariable}} of {{=iteratorVariable}}) {
-    {{=pageReportVariable}} = {{=pageReportVariable}}.next();
+    {{=pageReportVariable}} = {{=pageReportVariable}}.pageDone();
     reportsList = reportsList.concat({{=pageReportVariable}}.report);
     {{=resultVariable}} = {{=itemVariable}};
 {{?}}
-{{? Boolean(it.step.finishGeneratorsCount)}}
-  {{='}'.repeat(it.step.finishGeneratorsCount)}}
+{{? Boolean(it.step.finishGeneratorIndexesList)}}
+  {{~it.step.finishGeneratorIndexesList :finishGeneratorIndex}}
+    {{ const pageReportVariable = `pageReport${finishGeneratorIndex+1}`; }}
+    {{=pageReportVariable}} = {{=pageReportVariable}}.prepareNext();
+    {{='}'}}
+  {{~}}
 {{?}}

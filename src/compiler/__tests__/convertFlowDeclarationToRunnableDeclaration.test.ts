@@ -21,35 +21,48 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
       isAsync: random.boolean(),
       allFunctionsNames: new Set(['it is not used']),
       flows: [
-        { pipe: 'firstFlowieItem' },
+        { pipe: 'firstFlowieItem', parallelExecutions: 1 },
         {
           flows: [
-            { pipe: 'secondFlowieItem' },
+            { pipe: 'secondFlowieItem', parallelExecutions: 1 },
             {
               flows: [
                 {
                   split: [
                     'thirdFlowieItem',
-                    { flows: [{ pipe: 'fourthFlowieItem' }, { pipe: 'fifthFlowieItem' }], name: 'deepFlow' },
+                    {
+                      flows: [
+                        { pipe: 'fourthFlowieItem', parallelExecutions: 1 },
+                        { pipe: 'fifthFlowieItem', parallelExecutions: 1 },
+                      ],
+                      name: 'deepFlow',
+                    },
                   ],
                 },
               ],
               name: 'secondLevelFlow',
             },
-            { pipe: { pipe: 'sixthFlowieItem' /* anonymous flow */ } },
+            { pipe: { pipe: 'sixthFlowieItem' /* anonymous flow */, parallelExecutions: 1 }, parallelExecutions: 1 },
           ],
           name: 'firstLevelFlow',
         },
-        { pipe: 'firstFlowieItem' },
+        { pipe: 'firstFlowieItem', parallelExecutions: 1 },
         {
           split: [
             'seventhFlowieItem',
-            { split: ['eighthFlowieItem', { pipe: 'ninthFlowieItem' }], name: 'splitIASplit' },
+            { split: ['eighthFlowieItem', { pipe: 'ninthFlowieItem', parallelExecutions: 1 }], name: 'splitIASplit' },
           ],
         },
-        { pipe: { pipe: 'lastItem', name: 'pipeInPipe' } },
-        { pipe: 'generator' },
-        { flows: [{ pipe: 'generator' }, { pipe: 'generator' }, { pipe: 'belowTheGenerator' }], name: 'subGenerator' },
+        { pipe: { pipe: 'lastItem', name: 'pipeInPipe', parallelExecutions: 1 }, parallelExecutions: 1 },
+        { pipe: 'generator', parallelExecutions: 1 },
+        {
+          flows: [
+            { pipe: 'generator', parallelExecutions: 1 },
+            { pipe: 'generator', parallelExecutions: 1 },
+            { pipe: 'belowTheGenerator', parallelExecutions: 1 },
+          ],
+          name: 'subGenerator',
+        },
         { split: ['otherGenerator', 'lastItem'] },
         { flows: [{ split: ['otherGenerator', 'lastItem'] }], name: 'generatorInSplitInSubFlow' },
       ],
@@ -100,7 +113,7 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
     ])
   })
 
-  it('reads all steps for main function', function () {
+  it('reads all the steps for main function', function () {
     const runnableDeclaration = this.runnableDeclaration as RunnableDeclaration
     expect(runnableDeclaration.mainFlow.steps).to.deep.equal([
       { pipe: 'firstFlowieItem', isAsync: false },
@@ -108,11 +121,11 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
       { pipe: 'firstFlowieItem', isAsync: false },
       { split: ['seventhFlowieItem', { flow: 'splitIASplit', isAsync: true }], isAsync: true },
       { flow: 'pipeInPipe', isAsync: false },
-      { generator: 'generator', isAsync: false },
+      { generator: 'generator', isAsync: false, parallelExecutions: 1 },
       { flow: 'subGenerator', isAsync: false },
       { split: [{ flow: 'generator_on_split_otherGenerator', isAsync: true }, 'lastItem'], isAsync: true },
       { flow: 'generatorInSplitInSubFlow', isAsync: true },
-      { finishGeneratorsCount: 1 },
+      { finishGeneratorIndexesList: [5] },
     ])
   })
 
@@ -206,10 +219,10 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
     const subGenerator = getSubFlowByHash(this.runnableDeclaration, 'subGenerator')
     expect(subGenerator.functionsFromContainers).to.deep.equals(['generator', 'belowTheGenerator'])
     expect(subGenerator.steps).to.deep.equal([
-      { generator: 'generator', isAsync: false },
-      { generator: 'generator', isAsync: false },
+      { generator: 'generator', isAsync: false, parallelExecutions: 1 },
+      { generator: 'generator', isAsync: false, parallelExecutions: 1 },
       { pipe: 'belowTheGenerator', isAsync: false },
-      { finishGeneratorsCount: 2 },
+      { finishGeneratorIndexesList: [0, 1] },
     ])
   })
 
@@ -231,7 +244,10 @@ describe('compiler/convertFlowDeclarationToRunnableDeclaration', function () {
       isAsync: false,
       functionsFromContainers: ['otherGenerator'],
       hash: 'generator_on_split_otherGenerator',
-      steps: [{ generator: 'otherGenerator', isAsync: false }, { finishGeneratorsCount: 1 }],
+      steps: [
+        { generator: 'otherGenerator', isAsync: false, parallelExecutions: 1 },
+        { finishGeneratorIndexesList: [0] },
+      ],
     })
   })
 })

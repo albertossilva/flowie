@@ -95,5 +95,6 @@ function convertToFlowFunctionDetails(functionName: string, flowieContainer: Flo
     name: functionName,
     isAsync,
     isGenerator,
+    parallelExecutions: 1, // TODO: make this work for prepared flowie
   }
 }

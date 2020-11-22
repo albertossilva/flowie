@@ -35,7 +35,7 @@ export default function generateFunctionFromFlowDeclaration<Argument, Result, Co
     },
   }
 
-  const shouldDebugFlow = debug.enabled('debugFlowie')
+  const shouldDebugFlow = debug.enabled('compiledFlow')
   const sourceCode = generateFlowFunction({ ...generationOptions, includeContext: false, shouldDebugFlow })
   const sourceCodeWithContext = generateFlowFunction({ ...generationOptions, includeContext: true, shouldDebugFlow })
 

@@ -319,7 +319,7 @@ See the execution on [runtime kit, clicking here](https://runkit.com/albertossil
 The only dependency that `flowie` have is [debug](https://www.npmjs.com/package/debug), in order to help you to see what
 is happening. The namespace is **flowie**, so `DEBUG=flowie*`, as the value of the variable `DEBUG` will active the debug.
 
-One extra feature is, if the namespace `debugFlowie` is enabled, than a
+One extra feature is, if the namespace `compiledFlow` is enabled via `DEBUG` environment variable, than a
 [debugger](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/debugger) statement will be included
 on the first line of the flow that will be executed.
 

@@ -12,16 +12,16 @@ import testFunctionGenerations from './testFunctionGenerations'
 const simpleGenerator: PreparedFlowieExecution = {
   isAsync: false,
   allFunctionsNames: new Set(['generatorFunction']),
-  flows: [{ pipe: 'generatorFunction' }],
+  flows: [{ pipe: 'generatorFunction', parallelExecutions: 1 }],
 }
 
 const asyncGeneratorOnSubFlow: PreparedFlowieExecution = {
   isAsync: true,
   allFunctionsNames: new Set(['generatorFunction']),
   flows: [
-    { flows: [{ pipe: 'generatorFunction' }], name: 'syncGeneratorFlow' },
-    { flows: [{ pipe: 'asyncGeneratorFunction' }], name: 'subAsyncGeneratorFlow' },
-    { pipe: 'otherFunction' },
+    { flows: [{ pipe: 'generatorFunction', parallelExecutions: 1 }], name: 'syncGeneratorFlow' },
+    { flows: [{ pipe: 'asyncGeneratorFunction', parallelExecutions: 1 }], name: 'subAsyncGeneratorFlow' },
+    { pipe: 'otherFunction', parallelExecutions: 1 },
   ],
 }
 
@@ -30,8 +30,17 @@ const splitGeneratorOnSubFlow: PreparedFlowieExecution = {
   allFunctionsNames: new Set(['generatorFunction']),
   flows: [
     { split: ['generatorFunction'], name: 'syncGeneratorFlow' },
-    { flows: [{ pipe: 'asyncGeneratorFunction' }], name: 'subAsyncGeneratorFlow' },
-    { pipe: 'otherFunction' },
+    { flows: [{ pipe: 'asyncGeneratorFunction', parallelExecutions: 1 }], name: 'subAsyncGeneratorFlow' },
+    { pipe: 'otherFunction', parallelExecutions: 1 },
+  ],
+}
+
+const promiseQueueGenerator: PreparedFlowieExecution = {
+  isAsync: false,
+  allFunctionsNames: new Set(['generatorFunction']),
+  flows: [
+    { pipe: 'generatorFunction', parallelExecutions: 20 },
+    { pipe: 'otherFunction', parallelExecutions: 1 },
   ],
 }
 
@@ -55,5 +64,10 @@ describe('generators.generateFunctionFromFlowDeclaration', function () {
   it(
     'generates a subFlow for generators in split',
     testFunctionGenerations('splitGeneratorOnSubFlow', splitGeneratorOnSubFlow, flowieContainer),
+  )
+
+  it(
+    'run through a iterator generate from generator using promise queue',
+    testFunctionGenerations('promiseQueueGenerator', promiseQueueGenerator, flowieContainer),
   )
 })

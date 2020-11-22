@@ -124,9 +124,9 @@ function createFlowElementFromElements(flowElements: ReadonlyArray<PreparedFlowi
       return preparedFlowie
     }
 
-    return {
-      pipe: (firstFlowElement as FlowFunctionDetails).name,
-    }
+    const { parallelExecutions, name } = firstFlowElement as FlowFunctionDetails
+
+    return { parallelExecutions, pipe: name }
   }
 
   return {

@@ -6,16 +6,17 @@ function anonymous(separateReportListFromResult) {
   }) {
     let reportsList = [];
     const executeFunction_generatorFunction = flowieContainer.functionsContainer.generatorFunction.flowFunction;
-    let result1;
     let reportOnGenerator;
+    let result1;
     let iterator1;
     [reportOnGenerator, iterator1] = reporter.reportFunctionCall(executeFunction_generatorFunction, 'generatorFunction', argument);
     reportsList = reportsList.concat(reportOnGenerator);
     let pageReport1 = reporter.startGeneratorReport('generatorFunction');
     for (const itemOfIterator1 of iterator1) {
-      pageReport1 = pageReport1.next();
+      pageReport1 = pageReport1.pageDone();
       reportsList = reportsList.concat(pageReport1.report);
       result1 = itemOfIterator1;
+      pageReport1 = pageReport1.prepareNext();
     }
     return [reportsList, result1];
   }
@@ -26,16 +27,17 @@ function anonymous(separateReportListFromResult) {
   }) {
     let reportsList = [];
     const executeFunction_asyncGeneratorFunction = flowieContainer.functionsContainer.asyncGeneratorFunction.flowFunction;
-    let result1;
     let reportOnGenerator;
+    let result1;
     let iterator1;
     [reportOnGenerator, iterator1] = await reporter.reportAsyncFunctionCall(executeFunction_asyncGeneratorFunction, 'asyncGeneratorFunction', argument);
     reportsList = reportsList.concat(reportOnGenerator);
     let pageReport1 = reporter.startGeneratorReport('asyncGeneratorFunction');
     for await (const itemOfIterator1 of iterator1) {
-      pageReport1 = pageReport1.next();
+      pageReport1 = pageReport1.pageDone();
       reportsList = reportsList.concat(pageReport1.report);
       result1 = itemOfIterator1;
+      pageReport1 = pageReport1.prepareNext();
     }
     return [reportsList, result1];
   }

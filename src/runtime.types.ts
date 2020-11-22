@@ -201,12 +201,12 @@ export interface FlowFunctionDetails {
   readonly name: string
   readonly isAsync: boolean
   readonly isGenerator: boolean
+  readonly parallelExecutions: number
 }
 
 export interface FlowFunctionDetailsWithItem<Argument = any, Result = any> extends FlowFunctionDetails {
   readonly flowFunction: FlowFunction<Argument, Result>
   readonly registerSignature: symbol
-  readonly parallelExecutions: number
 }
 
 export interface FunctionReport<Result> {
